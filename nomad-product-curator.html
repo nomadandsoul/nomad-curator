@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Product Goedkeuring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --tc: #BC7A5C;
+  --esp: #3D342E;
+  --iv: #F5EFEB;
+  --sand: #E4DACF;
+}
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: #F5EFEB;
+  color: #3D342E;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: #3D342E;
+  color: #F5EFEB;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+.topbar-sub { font-size: 11px; opacity: 0.65; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 400; color: #3D342E; }
+.page-sub { font-size: 12px; color: rgba(61,52,46,0.6); margin-top: 4px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 1px solid rgba(188,122,92,0.15);
+  text-align: center;
+}
+.stat-num { font-size: 28px; font-weight: 600; color: #3D342E; }
+.stat-num.tc { color: #BC7A5C; }
+.stat-num.groen { color: #2D7A3A; }
+.stat-num.rood { color: #C0392B; }
+.stat-lbl { font-size: 11px; color: rgba(61,52,46,0.55); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(188,122,92,0.3);
+  background: white;
+  color: #3D342E;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.filter-btn:hover { background: rgba(188,122,92,0.1); }
+.filter-btn.actief { background: #BC7A5C; color: #F5EFEB; border-color: #BC7A5C; }
+
+.acties { display: flex; gap: 8px; }
+.btn-reset {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(61,52,46,0.2);
+  background: white;
+  color: #3D342E;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-reset:hover { background: rgba(61,52,46,0.05); }
+
+.btn-alles-ja {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(45,122,58,0.3);
+  background: rgba(45,122,58,0.08);
+  color: #2D7A3A;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-alles-ja:hover { background: rgba(45,122,58,0.15); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kaart {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(188,122,92,0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(61,52,46,0.04);
+}
+.kaart:hover { box-shadow: 0 8px 24px rgba(61,52,46,0.1); transform: translateY(-2px); }
+.kaart.goedgekeurd { border-color: #2D7A3A; border-width: 2px; }
+.kaart.afgewezen { opacity: 0.45; border-color: #C0392B; border-width: 2px; }
+
+.kaart-foto-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: #E4DACF;
+}
+.kaart-foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.kaart:hover .kaart-foto { transform: scale(1.03); }
+.kaart-foto-leeg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(61,52,46,0.25);
+  font-size: 40px;
+}
+.status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.status-badge.ja { background: #2D7A3A; color: white; }
+.status-badge.nee { background: #C0392B; color: white; }
+
+.kaart-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.kaart-naam {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  color: #3D342E;
+  line-height: 1.4;
+}
+.kaart-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kaart-prijs { font-size: 14px; font-weight: 600; color: #BC7A5C; }
+.collectie-badge {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #F5EFEB;
+  color: rgba(61,52,46,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(188,122,92,0.2);
+}
+
+.gem-score {
+  background: #F5EFEB;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.gem-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(61,52,46,0.6);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.gem-waarde { font-weight: 600; color: #3D342E; }
+.score-bar {
+  height: 4px;
+  background: rgba(61,52,46,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.score-fill { height: 100%; border-radius: 2px; background: #BC7A5C; transition: width 0.3s; }
+.score-fill.hoog { background: #2D7A3A; }
+.score-fill.laag { background: #C0392B; }
+
+.sub-scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+.sub-score { color: rgba(61,52,46,0.6); }
+.sub-score span { font-weight: 600; color: #3D342E; }
+
+.reden {
+  font-size: 11px;
+  color: rgba(61,52,46,0.6);
+  font-style: italic;
+  line-height: 1.5;
+  padding-top: 8px;
+  border-top: 1px solid rgba(188,122,92,0.1);
+}
+
+.knoppen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 10px 14px 14px;
+}
+.btn-ja, .btn-nee {
+  padding: 9px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  letter-spacing: 0.5px;
+}
+.btn-ja {
+  border: 1px solid rgba(45,122,58,0.3);
+  background: rgba(45,122,58,0.08);
+  color: #2D7A3A;
+}
+.btn-ja:hover, .btn-ja.actief { background: #2D7A3A; color: white; border-color: #2D7A3A; }
+.btn-nee {
+  border: 1px solid rgba(192,57,43,0.3);
+  background: rgba(192,57,43,0.06);
+  color: #C0392B;
+}
+.btn-nee:hover, .btn-nee.actief { background: #C0392B; color: white; border-color: #C0392B; }
+
+.publiceer-balk {
+  position: sticky;
+  bottom: 0;
+  background: #3D342E;
+  border-radius: 16px 16px 0 0;
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 20px rgba(61,52,46,0.15);
+}
+.pub-info { color: #F5EFEB; font-size: 14px; }
+.pub-info strong { color: #BC7A5C; font-size: 18px; }
+.pub-acties { display: flex; gap: 10px; align-items: center; }
+.btn-export {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(245,239,235,0.3);
+  background: transparent;
+  color: #F5EFEB;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-export:hover { background: rgba(245,239,235,0.1); }
+.btn-publiceer {
+  padding: 11px 28px;
+  border-radius: 8px;
+  border: none;
+  background: #BC7A5C;
+  color: #F5EFEB;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-publiceer:hover { background: #F5EFEB; color: #3D342E; }
+.btn-publiceer:disabled { background: rgba(188,122,92,0.3); cursor: default; color: rgba(245,239,235,0.5); }
+
+.leeg { text-align: center; padding: 64px 20px; color: rgba(61,52,46,0.5); grid-column: 1/-1; }
+.leeg-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #3D342E;
+  color: #F5EFEB;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast.zichtbaar { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 768px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 16px; }
+  .page-title { font-size: 22px; }
+  .topbar { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-brand">Nomad & Soul</div>
+    <div class="topbar-sub">Product Goedkeuring Dashboard</div>
+  </div>
+  <div style="font-size:11px;opacity:0.5;letter-spacing:0.5px;" id="weekLabel"></div>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Producten beoordelen</h1>
+      <div class="page-sub" id="subTitel">Claude heeft deze producten geselecteerd op basis van merkfit, ROAS-potentieel en EU-levering</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num tc" id="s-totaal">0</div><div class="stat-lbl">Aangeboden</div></div>
+    <div class="stat"><div class="stat-num groen" id="s-ja">0</div><div class="stat-lbl">Goedgekeurd</div></div>
+    <div class="stat"><div class="stat-num rood" id="s-nee">0</div><div class="stat-lbl">Afgewezen</div></div>
+    <div class="stat"><div class="stat-num" id="s-open">0</div><div class="stat-lbl">Te beoordelen</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters">
+      <button class="filter-btn actief" onclick="setFilter('alle',this)">Alle</button>
+      <button class="filter-btn" onclick="setFilter('open',this)">Te beoordelen</button>
+      <button class="filter-btn" onclick="setFilter('ja',this)">Goedgekeurd</button>
+      <button class="filter-btn" onclick="setFilter('nee',this)">Afgewezen</button>
+    </div>
+    <div class="acties">
+      <button class="btn-alles-ja" onclick="allesJa()">&#10003; Alles goedkeuren</button>
+      <button class="btn-reset" onclick="reset()">&#8635; Reset</button>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="publiceer-balk">
+    <div class="pub-info">
+      <strong id="pub-count">0</strong> producten geselecteerd voor publicatie op nomadandsoul.nl
+    </div>
+    <div class="pub-acties">
+      <button class="btn-export" onclick="exportCSV()">&#8595; Export CSV voor Make.com</button>
+      <button class="btn-publiceer" id="pub-btn" disabled onclick="publiceer()">Publiceer via Make.com</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRODUCTEN = [
+  { id: 'P001', naam: 'Bohemian Maxi Jurk Ibiza', prijs: '€ 89,95', inkoop: '€ 28,00', collectie: 'dames', merkfit: 9, roas: 8, kwaliteit: 8, levering: 9, gemiddelde: 8.5, reden: 'Perfecte merkfit, hoge marge, EU-leverancier', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-rachel-claire-4577201_e5e1c656-f333-4676-b332-117c8ff502e9.jpg?v=1782252555' },
+  { id: 'P002', naam: 'Linnen Heren Shirt Naturel', prijs: '€ 54,95', inkoop: '€ 18,00', collectie: 'heren', merkfit: 8, roas: 7, kwaliteit: 9, levering: 8, gemiddelde: 8.0, reden: 'Tijdloos linnen, goede marge, stijlvol', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-olly-5035605.jpg?v=1780870436' },
+  { id: 'P003', naam: 'Boho Kaftan Terra', prijs: '€ 74,95', inkoop: '€ 22,00', collectie: 'dames', merkfit: 9, roas: 9, kwaliteit: 8, levering: 9, gemiddelde: 8.8, reden: 'Bestseller potentieel, visueel sterk voor ads', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-alexeydemidov-10185578_1.jpg?v=1780870433' },
+  { id: 'P004', naam: 'Sieradenset Ibiza Gold', prijs: '€ 34,95', inkoop: '€ 9,00', collectie: 'sieraden', merkfit: 9, roas: 9, kwaliteit: 8, levering: 8, gemiddelde: 8.5, reden: 'Lage inkoopprijs, hoge marge, perfecte boho stijl', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-alexeydemidov-9692389.jpg?v=1780870435' },
+  { id: 'P005', naam: 'Festival Top Crochet', prijs: '€ 44,95', inkoop: '€ 14,00', collectie: 'festival', merkfit: 8, roas: 8, kwaliteit: 7, levering: 8, gemiddelde: 7.8, reden: 'Trendy festivalstijl, goed seizoensartikel', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-followingnyc-8436758.jpg?v=1782331361' },
+  { id: 'P006', naam: 'Leren Boho Sandaal Cognac', prijs: '€ 69,95', inkoop: '€ 24,00', collectie: 'schoenen', merkfit: 8, roas: 7, kwaliteit: 9, levering: 7, gemiddelde: 7.8, reden: 'Kwaliteitsproduct, passend bij merkstijl', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-oveja-bohemia-2157013567-34488673.jpg?v=1780870437' },
+  { id: 'P007', naam: 'Little Nomads Ibiza Jurk', prijs: '€ 39,95', inkoop: '€ 12,00', collectie: 'kids', merkfit: 9, roas: 8, kwaliteit: 8, levering: 9, gemiddelde: 8.5, reden: 'Perfecte aanvulling Little Nomads lijn', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-elly-fairytale-6202157.jpg?v=1782331362' },
+  { id: 'P008', naam: 'Boho Armband Set Naturel', prijs: '€ 24,95', inkoop: '€ 6,00', collectie: 'sieraden', merkfit: 9, roas: 9, kwaliteit: 8, levering: 9, gemiddelde: 8.8, reden: 'Hoge ROAS, impulskoop, perfecte merkfit', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-vika-glitter-392079-27391418.jpg?v=1780870438' },
+  { id: 'P009', naam: 'Accessoire Set Strandtas', prijs: '€ 49,95', inkoop: '€ 16,00', collectie: 'accessoires', merkfit: 7, roas: 7, kwaliteit: 7, levering: 8, gemiddelde: 7.3, reden: 'Voldoende merkfit, redelijke marge', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-yuliya-shik-304107051-14535750.jpg?v=1780870433' },
+  { id: 'P010', naam: 'Heren Linnen Broek Zand', prijs: '€ 64,95', inkoop: '€ 21,00', collectie: 'heren', merkfit: 8, roas: 7, kwaliteit: 9, levering: 8, gemiddelde: 8.0, reden: 'Tijdloos, goede kwaliteit, past bij merk', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-enes-celik-3908473-7747277.jpg?v=1780870433' },
+  { id: 'P011', naam: 'Boho Wikkeljurk Terracotta', prijs: '€ 79,95', inkoop: '€ 25,00', collectie: 'dames', merkfit: 9, roas: 8, kwaliteit: 8, levering: 9, gemiddelde: 8.5, reden: 'Merkkleur terracotta, hoge visuele aantrekkingskracht', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-cottonbro-6114613.jpg?v=1782331360' },
+  { id: 'P012', naam: 'Festival Boho Boots Zwart', prijs: '€ 89,95', inkoop: '€ 32,00', collectie: 'schoenen', merkfit: 7, roas: 8, kwaliteit: 8, levering: 7, gemiddelde: 7.5, reden: 'Goede ROAS-potentieel, trendy festivalitem', foto: 'https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-alexeydemidov-10185578_1.jpg?v=1780870433' },
+];
+
+let beslissingen = {};
+let actieveFilter = 'alle';
+
+function init() {
+  const nu = new Date();
+  const opties = { day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('weekLabel').textContent = 'Week van ' + nu.toLocaleDateString('nl-NL', opties);
+  render();
+}
+
+function scoreKleur(s) {
+  if (s >= 8) return 'hoog';
+  if (s <= 6) return 'laag';
+  return '';
+}
+
+function kaartHTML(p) {
+  const status = beslissingen[p.id];
+  if (actieveFilter === 'ja' && status !== 'ja') return '';
+  if (actieveFilter === 'nee' && status !== 'nee') return '';
+  if (actieveFilter === 'open' && status) return '';
+
+  const kaartKlasse = status === 'ja' ? 'goedgekeurd' : status === 'nee' ? 'afgewezen' : '';
+  const badgeHTML = status ? `<div class="status-badge ${status}">${status === 'ja' ? '&#10003; Ja' : '&#10005; Nee'}</div>` : '';
+
+  return `
+  <div class="kaart ${kaartKlasse}" id="kaart-${p.id}">
+    <div class="kaart-foto-wrap">
+      ${p.foto
+        ? `<img class="kaart-foto" src="${p.foto}" alt="${p.naam}" loading="lazy">`
+        : `<div class="kaart-foto-leeg">&#128247;</div>`}
+      ${badgeHTML}
+    </div>
+    <div class="kaart-body">
+      <div class="kaart-naam">${p.naam}</div>
+      <div class="kaart-meta">
+        <div class="kaart-prijs">${p.prijs}</div>
+        <span class="collectie-badge">${p.collectie}</span>
+      </div>
+      <div class="gem-score">
+        <div class="gem-label">
+          <span>Gemiddelde score</span>
+          <span class="gem-waarde">${p.gemiddelde.toFixed(1)}/10</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill ${scoreKleur(p.gemiddelde)}" style="width:${p.gemiddelde*10}%"></div>
+        </div>
+      </div>
+      <div class="sub-scores">
+        <div class="sub-score">Merkfit <span>${p.merkfit}</span></div>
+        <div class="sub-score">ROAS <span>${p.roas}</span></div>
+        <div class="sub-score">Kwaliteit <span>${p.kwaliteit}</span></div>
+        <div class="sub-score">Levering EU <span>${p.levering}</span></div>
+      </div>
+      <div class="reden">${p.reden}</div>
+    </div>
+    <div class="knoppen">
+      <button class="btn-ja ${status === 'ja' ? 'actief' : ''}" onclick="beslis('${p.id}','ja')">&#10003; Goedkeuren</button>
+      <button class="btn-nee ${status === 'nee' ? 'actief' : ''}" onclick="beslis('${p.id}','nee')">&#10005; Afwijzen</button>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const html = PRODUCTEN.map(kaartHTML).join('');
+  document.getElementById('grid').innerHTML = html ||
+    `<div class="leeg"><div class="leeg-icon">&#128247;</div>Geen producten in deze categorie.</div>`;
+  updateStats();
+}
+
+function beslis(id, keuze) {
+  beslissingen[id] = beslissingen[id] === keuze ? undefined : keuze;
+  if (!beslissingen[id]) delete beslissingen[id];
+  render();
+}
+
+function updateStats() {
+  const ja = Object.values(beslissingen).filter(v => v === 'ja').length;
+  const nee = Object.values(beslissingen).filter(v => v === 'nee').length;
+  const open = PRODUCTEN.length - ja - nee;
+  document.getElementById('s-totaal').textContent = PRODUCTEN.length;
+  document.getElementById('s-ja').textContent = ja;
+  document.getElementById('s-nee').textContent = nee;
+  document.getElementById('s-open').textContent = open;
+  document.getElementById('pub-count').textContent = ja;
+  document.getElementById('pub-btn').disabled = ja === 0;
+}
+
+function setFilter(f, el) {
+  actieveFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('actief'));
+  el.classList.add('actief');
+  render();
+}
+
+function allesJa() {
+  PRODUCTEN.forEach(p => { beslissingen[p.id] = 'ja'; });
+  render();
+  toon('Alle producten goedgekeurd');
+}
+
+function reset() {
+  beslissingen = {};
+  render();
+  toon('Alle beslissingen gewist');
+}
+
+function exportCSV() {
+  const goedgekeurd = PRODUCTEN.filter(p => beslissingen[p.id] === 'ja');
+  if (!goedgekeurd.length) { toon('Geen goedgekeurde producten'); return; }
+  const header = 'Product ID,Naam,Prijs,Collectie,Merkfit,ROAS,Kwaliteit,Levering,Gemiddelde,Status';
+  const rows = goedgekeurd.map(p =>
+    `${p.id},"${p.naam}",${p.prijs},${p.collectie},${p.merkfit},${p.roas},${p.kwaliteit},${p.levering},${p.gemiddelde},GOEDGEKEURD`
+  );
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'nomad-soul-goedgekeurde-producten.csv';
+  a.click();
+  toon(`CSV gedownload — ${goedgekeurd.length} producten`);
+}
+
+function publiceer() {
+  const goedgekeurd = PRODUCTEN.filter(p => beslissingen[p.id] === 'ja');
+  const ids = goedgekeurd.map(p => p.id).join(', ');
+  toon(`Make.com trigger verstuurd voor ${goedgekeurd.length} producten`);
+  setTimeout(() => {
+    alert(`Klaar voor Make.com\n\nGoedgekeurde product IDs:\n${ids}\n\nKopieer deze IDs naar je Make.com scenario om de producten te publiceren.`);
+  }, 500);
+}
+
+function toon(tekst) {
+  const t = document.getElementById('toast');
+  t.textContent = tekst;
+  t.classList.add('zichtbaar');
+  setTimeout(() => t.classList.remove('zichtbaar'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
