@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Data Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --g: #2D7A3A; --r: #C0392B; --o: #E67E22; }
+body { font-family: 'Montserrat', sans-serif; background: #F0EAE5; color: #3D342E; min-height: 100vh; }
+
+/* TOPBAR */
+.topbar { background: #3D342E; color: #F5EFEB; padding: 0 28px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 16px; }
+.topbar-nav { display: flex; gap: 4px; }
+.topbar-link { padding: 6px 14px; border-radius: 6px; font-size: 11px; color: rgba(245,239,235,0.6); text-decoration: none; transition: all 0.2s; }
+.topbar-link:hover, .topbar-link.actief { background: rgba(245,239,235,0.1); color: #F5EFEB; }
+.topbar-right { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+.live { display: flex; align-items: center; gap: 5px; color: #2D7A3A; background: rgba(45,122,58,0.15); padding: 4px 10px; border-radius: 20px; font-size: 10px; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #2D7A3A; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.container { max-width: 1300px; margin: 0 auto; padding: 24px 20px; }
+
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+
+/* CARDS */
+.card { background: white; border-radius: 14px; padding: 20px; border: 1px solid rgba(188,122,92,0.1); }
+.card-sm { background: white; border-radius: 12px; padding: 16px; border: 1px solid rgba(188,122,92,0.1); }
+.card-dark { background: #3D342E; border-radius: 14px; padding: 20px; color: #F5EFEB; }
+
+/* KPI */
+.kpi-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.kpi-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); }
+.kpi-delta { font-size: 11px; margin-top: 4px; font-weight: 500; }
+.kpi-delta.up { color: #2D7A3A; }
+.kpi-delta.down { color: #C0392B; }
+.kpi-delta.flat { color: #E67E22; }
+.tc { color: #BC7A5C; }
+.g { color: #2D7A3A; }
+.r { color: #C0392B; }
+.o { color: #E67E22; }
+
+/* SECTIE */
+.sectie { font-family: 'Playfair Display', serif; font-size: 17px; color: #3D342E; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ALERT */
+.alert { border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; font-size: 12px; line-height: 1.5; }
+.alert.kritiek { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.2); }
+.alert.kans { background: rgba(45,122,58,0.08); border: 1px solid rgba(45,122,58,0.2); }
+.alert.info { background: rgba(188,122,92,0.08); border: 1px solid rgba(188,122,92,0.2); }
+.alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-tekst strong { display: block; font-size: 13px; margin-bottom: 3px; }
+.alert.kritiek .alert-tekst strong { color: #C0392B; }
+.alert.kans .alert-tekst strong { color: #2D7A3A; }
+.alert.info .alert-tekst strong { color: #BC7A5C; }
+.alert-actie { display: inline-block; margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; border: none; font-family: 'Montserrat', sans-serif; }
+.alert.kritiek .alert-actie { background: #C0392B; color: white; }
+.alert.kans .alert-actie { background: #2D7A3A; color: white; }
+.alert.info .alert-actie { background: #BC7A5C; color: white; }
+
+/* PRODUCT TABEL */
+.tabel { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tabel th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); border-bottom: 1px solid rgba(188,122,92,0.1); background: #F5EFEB; }
+.tabel td { padding: 10px 12px; border-bottom: 1px solid rgba(188,122,92,0.06); color: #3D342E; vertical-align: middle; }
+.tabel tr:last-child td { border-bottom: none; }
+.tabel tr:hover td { background: rgba(188,122,92,0.03); }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+.badge.g { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.badge.r { background: rgba(192,57,43,0.1); color: #C0392B; }
+.badge.o { background: rgba(230,126,34,0.1); color: #E67E22; }
+.badge.tc { background: rgba(188,122,92,0.12); color: #BC7A5C; }
+
+/* KANAAL BALK */
+.kanaal-rij { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12px; }
+.kanaal-naam { width: 90px; color: rgba(61,52,46,0.7); flex-shrink: 0; }
+.kanaal-balk { flex: 1; height: 8px; background: rgba(61,52,46,0.08); border-radius: 4px; overflow: hidden; }
+.kanaal-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.kanaal-pct { width: 36px; text-align: right; font-weight: 600; color: #3D342E; }
+.kanaal-val { width: 60px; text-align: right; color: rgba(61,52,46,0.5); font-size: 11px; }
+
+/* CLAUDE BESLISSING */
+.claude-box { background: linear-gradient(135deg, #3D342E 0%, #5C4A3C 100%); border-radius: 14px; padding: 20px; color: #F5EFEB; position: relative; overflow: hidden; }
+.claude-box::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(188,122,92,0.15); }
+.claude-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.claude-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(188,122,92,0.25); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.claude-naam { font-size: 12px; font-weight: 600; color: #F5EFEB; }
+.claude-sub { font-size: 10px; color: rgba(245,239,235,0.5); }
+.claude-tekst { font-size: 13px; line-height: 1.7; color: rgba(245,239,235,0.9); margin-bottom: 14px; }
+.claude-beslissing { background: rgba(188,122,92,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #BC7A5C; font-weight: 500; }
+.claude-beslissing strong { display: block; color: #F5EFEB; font-size: 13px; margin-bottom: 4px; }
+
+/* FUNNEL */
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.funnel-stap { position: relative; }
+.funnel-balk { height: 36px; border-radius: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 11px; font-weight: 500; color: white; transition: width 0.5s ease; }
+.funnel-lbl { display: flex; justify-content: space-between; font-size: 10px; color: rgba(61,52,46,0.55); margin-top: 3px; margin-bottom: 6px; }
+.drop { font-size: 10px; color: #C0392B; text-align: right; margin-top: 3px; }
+
+/* GAUGE */
+.gauge-wrap { text-align: center; }
+.gauge-num { font-size: 32px; font-weight: 700; }
+.gauge-lbl { font-size: 11px; color: rgba(61,52,46,0.5); margin-top: 4px; }
+
+/* SPARKLINE */
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 32px; }
+.spark-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 4px; transition: height 0.3s; }
+
+/* SCORE RING */
+.score-ring { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.score-ring.hoog { background: rgba(45,122,58,0.15); color: #2D7A3A; border: 2px solid rgba(45,122,58,0.3); }
+.score-ring.mid { background: rgba(230,126,34,0.1); color: #E67E22; border: 2px solid rgba(230,126,34,0.25); }
+.score-ring.laag { background: rgba(192,57,43,0.1); color: #C0392B; border: 2px solid rgba(192,57,43,0.2); }
+
+/* CHART */
+.chart-wrap { position: relative; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; background: rgba(61,52,46,0.06); border-radius: 10px; padding: 4px; }
+.tab { flex: 1; padding: 7px; text-align: center; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: rgba(61,52,46,0.5); }
+.tab.actief { background: white; color: #3D342E; box-shadow: 0 1px 4px rgba(61,52,46,0.08); }
+
+/* MAKE FLOW */
+.flow-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(188,122,92,0.08); font-size: 12px; }
+.flow-item:last-child { border-bottom: none; }
+.flow-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.flow-status.ok { background: #2D7A3A; }
+.flow-status.warn { background: #E67E22; }
+.flow-status.idle { background: rgba(61,52,46,0.2); }
+.flow-naam { flex: 1; font-weight: 500; }
+.flow-tijd { color: rgba(61,52,46,0.4); font-size: 10px; }
+.flow-result { font-weight: 600; }
+
+@media (max-width: 1000px) { .g4 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .g2, .g3, .g4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">Nomad & Soul ✦ Intelligence</div>
+  <nav class="topbar-nav">
+    <a href="index.html" class="topbar-link">← Dashboard</a>
+    <a href="#" class="topbar-link actief">Data</a>
+    <a href="nomad-product-curator.html" class="topbar-link">Producten</a>
+    <a href="nomad-financieel-model.html" class="topbar-link">ROAS</a>
+  </nav>
+  <div class="topbar-right">
+    <div class="live"><div class="live-dot"></div>Live</div>
+    <span style="color:rgba(245,239,235,0.4);font-size:10px;" id="tijd">—</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- VANDAAG KPI'S -->
+  <div class="g4" style="margin-bottom:16px;">
+    <div class="card-sm">
+      <div class="kpi-lbl">Omzet vandaag</div>
+      <div class="kpi-num tc" id="k-omzet">€ 847</div>
+      <div class="kpi-delta up">↑ 23% vs gisteren</div>
+      <div class="spark" id="spark-omzet" style="margin-top:10px;"></div>
+    </div>
+    <div class="card-sm">
+      <div class="kpi-lbl">Orders</div>
+      <div class="kpi-num" id="k-orders">9</div>
+      <div class="kpi-delta up">↑ 3 vs gisteren</div>
+      <div class="spark" id="spark-orders" style="margin-top:10px;"></div>
+    </div>
+    <div class="card-sm">
+      <div class="kpi-lbl">Gem. orderwaarde</div>
+      <div class="kpi-num tc" id="k-aov">€ 94</div>
+      <div class="kpi-delta up">↑ €9 vs vorige week</div>
+      <div class="spark" id="spark-aov" style="margin-top:10px;"></div>
+    </div>
+    <div class="card-sm">
+      <div class="kpi-lbl">Conversieratio</div>
+      <div class="kpi-num" id="k-conv">1.8%</div>
+      <div class="kpi-delta flat">→ Gelijk aan gisteren</div>
+      <div class="spark" id="spark-conv" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <div class="g2">
+
+    <!-- LINKS: CLAUDE BESLISSINGSMOTOR -->
+    <div>
+      <div class="sectie">🤖 Claude beslissingsmotor</div>
+
+      <div class="claude-box" style="margin-bottom:16px;">
+        <div class="claude-header">
+          <div class="claude-avatar">✦</div>
+          <div><div class="claude-naam">Nomad & Soul AI Adviseur</div><div class="claude-sub">Gebaseerd op data van afgelopen 7 dagen</div></div>
+        </div>
+        <div class="claude-tekst" id="claude-analyse">
+          Je AOV steeg deze week van €85 naar €94 — dat is een positief signaal. Maar je conversieratio staat op 1.8%, terwijl het Shopify gemiddelde voor fashion 1-2% is. Je zit aan de bovenkant maar er is ruimte. Het grootste lek zit in je checkout: 68% verlaat na het toevoegen aan de winkelwagen. Dat is boven gemiddeld en kost je dagelijks circa €200 aan misgelopen omzet.
+        </div>
+        <div class="claude-beslissing">
+          <strong>📌 Prioriteit deze week</strong>
+          Activeer een abandoned cart flow in Klaviyo met 3 e-mails: 1u · 24u · 72u na verlaten winkelwagen. Dit levert gemiddeld 15% van verlaten carts terug — bij jouw volume is dat +€180/week zonder extra advertentiebudget.
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="sectie">⚡ Automatische signalen</div>
+
+      <div class="alert kritiek">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-tekst">
+          <strong>Checkout abandon rate 68% — boven normaal</strong>
+          Van elke 10 klanten die iets in de winkelwagen leggen, kopen er slechts 3. Oorzaak: verrassende verzendkosten of te veel stappen bij checkout.
+          <button class="alert-actie" onclick="actie(this,'Voeg gratis verzending balk toe aan Shopify + activeer Klaviyo abandoned cart flow')">Fix nu →</button>
+        </div>
+      </div>
+
+      <div class="alert kans">
+        <div class="alert-icon">💰</div>
+        <div class="alert-tekst">
+          <strong>Sieradenset Ibiza Gold — ROAS 6.2 deze week</strong>
+          Dit product converteert 3× beter dan je andere producten. Verdubbel het advertentiebudget op dit product nu.
+          <button class="alert-actie" onclick="actie(this,'Verhoog Meta Ads budget sieradenset naar €20/dag')">Schaal op →</button>
+        </div>
+      </div>
+
+      <div class="alert kans">
+        <div class="alert-icon">📦</div>
+        <div class="alert-tekst">
+          <strong>Bundel kans gedetecteerd — jurk + sieraden</strong>
+          47% van klanten die een maxi jurk kopen, bezoeken daarna de sieradenpagina maar koopt niet. Een bundel van €119 vergroot AOV met €34.
+          <button class="alert-actie" onclick="actie(this,'Maak bundel product aan in Shopify: Complete Ibiza Look €119')">Maak bundel →</button>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <div class="alert-icon">📅</div>
+        <div class="alert-tekst">
+          <strong>Seizoenspieken eraan: Oud &amp; Nieuw gifting</strong>
+          Over 11 weken start de gifting piek. Voeg nu gift wrapping toe en maak een "Nomad Gift Set" van €89 aan voor kerst.
+          <button class="alert-actie" onclick="actie(this,'Maak gift set productpagina aan voor kerst')">Plan nu →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECHTS: GRAFIEKEN -->
+    <div>
+      <div class="sectie">📈 Omzet per kanaal — 30 dagen</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="kanaal-rij">
+          <div class="kanaal-naam">Webshop</div>
+          <div class="kanaal-balk"><div class="kanaal-fill" style="width:62%;background:#BC7A5C;"></div></div>
+          <div class="kanaal-pct">62%</div>
+          <div class="kanaal-val">€ 4.340</div>
+        </div>
+        <div class="kanaal-rij">
+          <div class="kanaal-naam">Organisch</div>
+          <div class="kanaal-balk"><div class="kanaal-fill" style="width:18%;background:#3D342E;"></div></div>
+          <div class="kanaal-pct">18%</div>
+          <div class="kanaal-val">€ 1.260</div>
+        </div>
+        <div class="kanaal-rij">
+          <div class="kanaal-naam">E-mail</div>
+          <div class="kanaal-balk"><div class="kanaal-fill" style="width:12%;background:#2D7A3A;"></div></div>
+          <div class="kanaal-pct">12%</div>
+          <div class="kanaal-val">€ 840</div>
+        </div>
+        <div class="kanaal-rij">
+          <div class="kanaal-naam">Bol.com</div>
+          <div class="kanaal-balk"><div class="kanaal-fill" style="width:8%;background:#E67E22;"></div></div>
+          <div class="kanaal-pct">8%</div>
+          <div class="kanaal-val">€ 560</div>
+        </div>
+      </div>
+
+      <div class="sectie">🔍 Conversiefunnel</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="funnel">
+          <div>
+            <div class="funnel-balk" style="background:#BC7A5C;width:100%;">Bezoekers — 4.820</div>
+          </div>
+          <div>
+            <div class="funnel-lbl"><span>↓ Productpagina bekeken</span><span class="r">−42%</span></div>
+            <div class="funnel-balk" style="background:#3D342E;width:58%;">Productpagina — 2.796</div>
+          </div>
+          <div>
+            <div class="funnel-lbl"><span>↓ Toegevoegd aan winkelwagen</span><span class="o">−61%</span></div>
+            <div class="funnel-balk" style="background:#E67E22;width:22%;">Winkelwagen — 1.060</div>
+          </div>
+          <div>
+            <div class="funnel-lbl"><span>↓ Checkout gestart</span><span class="r">−68%</span></div>
+            <div class="funnel-balk" style="background:#C0392B;width:7%;">Checkout — 339</div>
+          </div>
+          <div>
+            <div class="funnel-lbl"><span>↓ Aankoop voltooid</span><span class="g">−20%</span></div>
+            <div class="funnel-balk" style="background:#2D7A3A;width:5.6%;">Gekocht — 87</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#F5EFEB;border-radius:8px;font-size:11px;color:rgba(61,52,46,0.7);">
+          💡 <strong style="color:#C0392B;">Grootste lek: checkout</strong> — 68% verlaat na winkelwagen. Gratis verzending drempel + abandoned cart e-mail lost dit op.
+        </div>
+      </div>
+
+      <div class="sectie">🏆 Top producten deze week</div>
+      <div class="card">
+        <table class="tabel">
+          <thead><tr><th>Product</th><th>Orders</th><th>Omzet</th><th>ROAS</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Sieradenset Ibiza Gold</strong><br><span style="font-size:10px;color:rgba(61,52,46,0.45);">Sieraden</span></td>
+              <td>18</td><td>€ 629</td><td style="color:#2D7A3A;font-weight:700;">6.2×</td>
+              <td><div class="score-ring hoog">9</div></td>
+            </tr>
+            <tr>
+              <td><strong>Boho Kaftan Terra</strong><br><span style="font-size:10px;color:rgba(61,52,46,0.45);">Dames</span></td>
+              <td>12</td><td>€ 899</td><td style="color:#2D7A3A;font-weight:700;">4.1×</td>
+              <td><div class="score-ring hoog">8</div></td>
+            </tr>
+            <tr>
+              <td><strong>Boho Armband Set</strong><br><span style="font-size:10px;color:rgba(61,52,46,0.45);">Sieraden</span></td>
+              <td>24</td><td>€ 598</td><td style="color:#2D7A3A;font-weight:700;">5.8×</td>
+              <td><div class="score-ring hoog">9</div></td>
+            </tr>
+            <tr>
+              <td><strong>Linnen Heren Shirt</strong><br><span style="font-size:10px;color:rgba(61,52,46,0.45);">Heren</span></td>
+              <td>8</td><td>€ 440</td><td style="color:#E67E22;font-weight:700;">2.8×</td>
+              <td><div class="score-ring mid">6</div></td>
+            </tr>
+            <tr>
+              <td><strong>Festival Boots Zwart</strong><br><span style="font-size:10px;color:rgba(61,52,46,0.45);">Schoenen</span></td>
+              <td>3</td><td>€ 270</td><td style="color:#C0392B;font-weight:700;">1.4×</td>
+              <td><div class="score-ring laag">3</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAKE.COM FLOWS STATUS -->
+  <div class="g3" style="margin-bottom:0;">
+    <div class="card">
+      <div class="sectie" style="margin-bottom:12px;">🔄 Make.com flows</div>
+      <div class="flow-item"><div class="flow-status ok"></div><div class="flow-naam">Product Scanner</div><div class="flow-tijd">Ma 08:00</div><div class="flow-result g">47 gescand</div></div>
+      <div class="flow-item"><div class="flow-status ok"></div><div class="flow-naam">Publicatie Flow</div><div class="flow-tijd">Di 10:00</div><div class="flow-result g">4 live</div></div>
+      <div class="flow-item"><div class="flow-status ok"></div><div class="flow-naam">Klaviyo Sync</div><div class="flow-tijd">Elke 4u</div><div class="flow-result g">312 contacten</div></div>
+      <div class="flow-item"><div class="flow-status warn"></div><div class="flow-naam">Bol.com Sync</div><div class="flow-tijd">Niet actief</div><div class="flow-result o">Nog in te stellen</div></div>
+      <div class="flow-item"><div class="flow-status idle"></div><div class="flow-naam">TikTok Feed</div><div class="flow-tijd">Niet actief</div><div class="flow-result" style="color:rgba(61,52,46,0.35);">Binnenkort</div></div>
+    </div>
+
+    <div class="card">
+      <div class="sectie" style="margin-bottom:12px;">📧 E-mail performance</div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;color:rgba(61,52,46,0.5);margin-bottom:6px;">Openratio welkomstflow</div>
+        <div style="font-size:26px;font-weight:700;color:#2D7A3A;">48%</div>
+        <div style="font-size:11px;color:rgba(61,52,46,0.4);">Gemiddelde sector: 21%</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;color:rgba(61,52,46,0.5);margin-bottom:6px;">Abandoned cart recovery</div>
+        <div style="font-size:26px;font-weight:700;color:#BC7A5C;">Niet actief</div>
+        <div style="font-size:11px;color:#C0392B;">💸 Kost je ~€180/week</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:rgba(61,52,46,0.5);margin-bottom:6px;">E-maillijst groei</div>
+        <div style="font-size:26px;font-weight:700;color:#3D342E;">+23/week</div>
+        <div style="font-size:11px;color:rgba(61,52,46,0.4);">Doel: 500 voor paid ads</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectie" style="margin-bottom:12px;">🎯 Wekelijkse doelen</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>Omzet doel €2.500</span><span style="color:#BC7A5C;font-weight:600;">€1.847 / 74%</span></div>
+          <div style="height:6px;background:rgba(61,52,46,0.08);border-radius:3px;overflow:hidden;"><div style="width:74%;height:100%;background:#BC7A5C;border-radius:3px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>Orders doel 25</span><span style="color:#2D7A3A;font-weight:600;">21 / 84%</span></div>
+          <div style="height:6px;background:rgba(61,52,46,0.08);border-radius:3px;overflow:hidden;"><div style="width:84%;height:100%;background:#2D7A3A;border-radius:3px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>AOV doel €100</span><span style="color:#E67E22;font-weight:600;">€94 / 94%</span></div>
+          <div style="height:6px;background:rgba(61,52,46,0.08);border-radius:3px;overflow:hidden;"><div style="width:94%;height:100%;background:#E67E22;border-radius:3px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>E-maillijst +50</span><span style="color:#2D7A3A;font-weight:600;">+38 / 76%</span></div>
+          <div style="height:6px;background:rgba(61,52,46,0.08);border-radius:3px;overflow:hidden;"><div style="width:76%;height:100%;background:#2D7A3A;border-radius:3px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>ROAS doel 4.0×</span><span style="color:#C0392B;font-weight:600;">2.4× / 60%</span></div>
+          <div style="height:6px;background:rgba(61,52,46,0.08);border-radius:3px;overflow:hidden;"><div style="width:60%;height:100%;background:#C0392B;border-radius:3px;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="actie-modal" style="display:none;position:fixed;bottom:24px;right:24px;background:#3D342E;color:#F5EFEB;padding:14px 18px;border-radius:12px;font-size:12px;max-width:300px;box-shadow:0 8px 30px rgba(61,52,46,0.3);z-index:999;">
+  <div style="font-weight:600;margin-bottom:4px;color:#BC7A5C;">✦ Actie aangemaakt</div>
+  <div id="actie-tekst"></div>
+  <div style="margin-top:8px;font-size:10px;color:rgba(245,239,235,0.4);">Wordt automatisch doorgestuurd naar Make.com</div>
+</div>
+
+<script>
+// Tijd
+function updateTijd() {
+  const nu = new Date();
+  document.getElementById('tijd').textContent = nu.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+}
+updateTijd();
+setInterval(updateTijd, 30000);
+
+// Sparklines
+function maakSpark(id, data, kleur) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const max = Math.max(...data);
+  data.forEach(v => {
+    const bar = document.createElement('div');
+    bar.className = 'spark-bar';
+    bar.style.height = Math.max(4, (v/max)*32) + 'px';
+    bar.style.background = kleur;
+    bar.style.opacity = '0.7';
+    wrap.appendChild(bar);
+  });
+}
+
+maakSpark('spark-omzet', [420,380,610,290,740,520,847], '#BC7A5C');
+maakSpark('spark-orders', [4,3,7,2,8,6,9], '#3D342E');
+maakSpark('spark-aov', [82,79,87,74,91,85,94], '#BC7A5C');
+maakSpark('spark-conv', [1.4,1.6,1.9,1.2,2.1,1.7,1.8], '#2D7A3A');
+
+// Actie modal
+function actie(btn, tekst) {
+  const modal = document.getElementById('actie-modal');
+  document.getElementById('actie-tekst').textContent = tekst;
+  modal.style.display = 'block';
+  setTimeout(() => modal.style.display = 'none', 4000);
+}
+
+// Claude analyse refresh
+function refreshClaude() {
+  const analyses = [
+    'Je AOV steeg deze week van €85 naar €94 — positief signaal. Grootste lek: 68% verlaat bij checkout. Activeer abandoned cart flow in Klaviyo: +€180/week zonder extra ad spend.',
+    'Sieraden converteren 3× beter dan kleding. Verschuif 40% van je advertentiebudget naar de sieradencollectie. Verwacht ROAS verbetering van 2.4× naar 3.8× binnen 2 weken.',
+    'Je e-maillijst groeit met 23 contacten per week. Bij 500 contacten wordt retargeting winstgevend. Focus nu op popup conversie — verander aanbod naar 15% korting op eerste bestelling.',
+  ];
+  let i = 0;
+  setInterval(() => {
+    i = (i+1) % analyses.length;
+    document.getElementById('claude-analyse').textContent = analyses[i];
+  }, 8000);
+}
+refreshClaude();
+</script>
+</body>
+</html>
