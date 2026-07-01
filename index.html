@@ -16,14 +16,14 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Poppins:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@400;500;600;700&display=swap');
   :root {
     --espresso: #3D342E;
     --terracotta: #BC7A5C;
     --zand: #F5EFEB;
     --warm: #E4DACF;
     --dusty: #7A6552;
-    --icon-accent: #E2A17E;
+    --icon-accent: #F0AC82;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -153,11 +153,11 @@
   }
   .app-kaart:hover::before { opacity: 1; }
   .app-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-    background: rgba(226,161,126,0.14);
-    border: 1px solid rgba(226,161,126,0.22);
+    background: rgba(240,172,130,0.20);
+    border: 1px solid rgba(240,172,130,0.35);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -165,26 +165,27 @@
     color: var(--icon-accent);
     flex-shrink: 0;
   }
-  .app-icon svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .app-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .aktie-icon {
     width: 26px;
     height: 26px;
     border-radius: 7px;
-    background: rgba(226,161,126,0.14);
-    border: 1px solid rgba(226,161,126,0.22);
+    background: rgba(240,172,130,0.20);
+    border: 1px solid rgba(240,172,130,0.35);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--icon-accent);
     flex-shrink: 0;
   }
-  .aktie-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .aktie-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .app-naam {
     font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    font-style: italic;
+    font-size: 16px;
+    font-style: normal;
     color: var(--warm);
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: 0.2px;
   }
   .app-desc {
     font-size: 12px;
@@ -218,7 +219,7 @@
     padding: 16px 16px 14px;
   }
   .status-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(228,218,207,0.35); margin-bottom: 6px; }
-  .status-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--terracotta); font-style: italic; }
+  .status-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--terracotta); font-weight: 700; font-style: normal; }
   .status-sub { font-size: 10px; color: rgba(228,218,207,0.3); margin-top: 2px; }
 
   /* MERK REGELS */
@@ -312,40 +313,40 @@
       <span class="app-badge badge-live">Live</span>
     </a>
 
-    <a href="nomad-financieel-model.html" class="app-kaart">
+    <div class="app-kaart" style="cursor:default;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M17 7a6.5 6.5 0 100 10"/><path d="M4 10h9M4 14h8"/></svg></div>
       <div class="app-naam">Financieel Model</div>
       <div class="app-desc">Revenue-verdeling in 5 potten. BTW 21% · Belasting 20% · Operationeel 15% · Finca 30% · Vrij 14%.</div>
-      <span class="app-badge badge-live">Live</span>
-    </a>
+      <span class="app-badge badge-bouw">Pagina nog te bouwen</span>
+    </div>
 
-    <a href="nomad-omzetprognose.html" class="app-kaart">
+    <div class="app-kaart" style="cursor:default;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 6-8"/><path d="M14 7h5v5"/></svg></div>
       <div class="app-naam">Omzetprognose</div>
       <div class="app-desc">3 scenario's: Conservatief (J1 €58K) · Realistisch (J1 €95K) · Optimistisch (J1 €145K). Winstgevend maand 2–4.</div>
-      <span class="app-badge badge-live">Live</span>
-    </a>
+      <span class="app-badge badge-bouw">Pagina nog te bouwen</span>
+    </div>
 
-    <a href="nomad-3jaar-strategie.html" class="app-kaart">
+    <div class="app-kaart" style="cursor:default;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4l-5 2v14l5-2 6 2 5-2V4l-5 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
       <div class="app-naam">3-Jaar Strategie</div>
       <div class="app-desc">Groeimijlpalen, kanaalopschaling, assortimentsuitbreiding, Zalando/Bol.com, winterlijn, B2B hotels jaar 3.</div>
-      <span class="app-badge badge-live">Live</span>
-    </a>
+      <span class="app-badge badge-bouw">Pagina nog te bouwen</span>
+    </div>
 
-    <a href="nomad-make-monitor.html" class="app-kaart">
+    <div class="app-kaart" style="cursor:default;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></div>
       <div class="app-naam">Make.com Monitor</div>
       <div class="app-desc">Status-overzicht van alle Make.com automatiseringen. Shopify → Klaviyo → Higgsfield → Buffer pipeline.</div>
-      <span class="app-badge badge-live">Live</span>
-    </a>
+      <span class="app-badge badge-bouw">Pagina nog te bouwen</span>
+    </div>
 
-    <a href="nomad-data-intelligence.html" class="app-kaart">
+    <div class="app-kaart" style="cursor:default;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 00-3 3v1a3 3 0 000 6v1a3 3 0 003 3M15 4a3 3 0 013 3v1a3 3 0 010 6v1a3 3 0 01-3 3M9 4v14M15 4v14"/></svg></div>
       <div class="app-naam">Data Intelligence</div>
       <div class="app-desc">Live KPI's via Shopify orders API. Claude-beslissingsadviezen voor campagnes en assortiment.</div>
-      <span class="app-badge badge-live">Live</span>
-    </a>
+      <span class="app-badge badge-bouw">Pagina nog te bouwen</span>
+    </div>
 
   </div>
 
