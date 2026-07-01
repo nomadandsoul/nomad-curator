@@ -176,6 +176,18 @@ input[type="range"] { width: 100%; accent-color: #BC7A5C; cursor: pointer; }
       <div class="kans-omzet">+€1200/mnd bij viral video</div>
       <div class="kans-desc">Outfit reveals, look of the day, Ibiza sfeer content. Hoge organische bereik voor niche merken.</div>
     </div>
+    <div class="kans-kaart actief" onclick="toggleKans(this,'instagram')" data-kans="instagram">
+      <div class="kans-icon">📷</div>
+      <div class="kans-titel">Instagram Shopping</div>
+      <div class="kans-omzet">+€1400/mnd bij 3K volgers</div>
+      <div class="kans-desc">Gratis native Shopify-koppeling: catalogus + prijzen + voorraad syncen automatisch naar shoppable posts en tags. Checkout gaat sinds 2025 via je eigen winkel — Instagram is dus zuiver een ontdekkingskanaal dat direct naar Shopify converteert.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'facebook')" data-kans="facebook">
+      <div class="kans-icon">👍</div>
+      <div class="kans-titel">Facebook Shop &amp; Meta Ads</div>
+      <div class="kans-omzet">+€900/mnd bij retargeting</div>
+      <div class="kans-desc">Zelfde gratis Shopify-catalogus als Instagram (één koppeling, twee kanalen). Meta Pixel + Conversions API retargeten warme bezoekers automatisch — sterkste ROAS-hefboom van de social kanalen.</div>
+    </div>
     <div class="kans-kaart" onclick="toggleKans(this,'bundels')" data-kans="bundels">
       <div class="kans-icon">✨</div>
       <div class="kans-titel">Bundels & Looks</div>
@@ -342,6 +354,8 @@ const KANSEN_DATA = {
   email:       { mndExtra: 800, startMnd: 2 },
   pinterest:   { mndExtra: 600, startMnd: 3 },
   tiktok:      { mndExtra: 1200, startMnd: 2 },
+  instagram:   { mndExtra: 1400, startMnd: 2 },
+  facebook:    { mndExtra: 900, startMnd: 4 },
   bundels:     { aovBonus: 35, startMnd: 1 },
   influencer:  { mndExtra: 900, startMnd: 3 },
   uitbreiding: { mndExtra: 2400, startMnd: 7 },
@@ -351,7 +365,7 @@ const KANSEN_DATA = {
 };
 
 let huidigScenario = 'conservatief';
-let actieveKansen = new Set(['email']);
+let actieveKansen = new Set(['email', 'instagram']);
 
 function fmt(n) { return '€ ' + Math.round(n).toLocaleString('nl-NL'); }
 function fmtK(n) { return n >= 1000 ? '€ ' + (n/1000).toFixed(1) + 'K' : fmt(n); }
