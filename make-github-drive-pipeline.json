@@ -1,0 +1,93 @@
+{
+  "name": "Nomad & Soul — Drive naar GitHub Pipeline",
+  "flow": [
+    {
+      "id": 1,
+      "module": "google-drive:TriggerNewFile",
+      "version": 3,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {
+          "parameters": {
+            "drive": { "label": "My Drive" },
+            "folderId": {
+              "label": "Nomad & Soul - Fotos / documenten",
+              "path": ["Nomad & Soul - Fotos", "documenten"]
+            }
+          }
+        },
+        "parameters": [
+          { "name": "drive", "type": "select", "label": "Drive", "required": true },
+          { "name": "folderId", "type": "select", "label": "Folder", "required": true },
+          { "name": "includeTeamDrives", "type": "boolean", "label": "Include Team Drives" }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "google-drive:DownloadAFile",
+      "version": 3,
+      "parameters": {},
+      "mapper": {
+        "fileId": "{{1.id}}"
+      },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "parameters": [
+          { "name": "fileId", "type": "text", "label": "File ID", "required": true }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "module": "github:CreateUpdateFileContents",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "owner": "nomadandsoul",
+        "repo": "nomad-curator",
+        "path": "{{1.name}}",
+        "message": "Auto-update via Make.com: {{1.name}}",
+        "content": "{{2.data}}",
+        "branch": "main"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "restore": {
+          "parameters": {
+            "owner": { "label": "nomadandsoul" },
+            "repo": { "label": "nomad-curator" }
+          }
+        },
+        "parameters": [
+          { "name": "owner", "type": "text", "label": "Owner", "required": true },
+          { "name": "repo", "type": "text", "label": "Repository", "required": true },
+          { "name": "path", "type": "text", "label": "File Path", "required": true },
+          { "name": "message", "type": "text", "label": "Commit Message", "required": true },
+          { "name": "content", "type": "text", "label": "Content (base64)", "required": true },
+          { "name": "branch", "type": "text", "label": "Branch" }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "eu1.make.com"
+  }
+}
