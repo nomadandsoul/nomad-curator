@@ -30,11 +30,25 @@ body { font-family: 'Montserrat', sans-serif; background: #F0EAE5; color: #3D342
 .container { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
 
 /* HERO */
-.hero { background: linear-gradient(135deg, rgba(188,122,92,0.10), rgba(61,52,46,0.05)); border: 1px solid rgba(188,122,92,0.2); border-radius: 18px; padding: 32px 34px; margin-bottom: 32px; position: relative; overflow: hidden; }
-.hero-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--tc); font-weight: 700; margin-bottom: 10px; }
-.hero h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 30px; font-weight: 400; color: var(--esp); margin-bottom: 10px; }
-.hero p { font-size: 13px; color: rgba(61,52,46,0.7); line-height: 1.7; max-width: 620px; }
-.hero-star { position: absolute; right: 34px; top: 30px; font-size: 30px; color: rgba(188,122,92,0.35); }
+.hero {
+  background: linear-gradient(135deg, #BC7A5C, #3D342E);
+  border-radius: 18px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: stretch;
+  box-shadow: 0 12px 32px rgba(61,52,46,0.18);
+}
+.hero-tekst { padding: 34px 38px; position: relative; z-index: 1; }
+.hero-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,239,235,0.75); font-weight: 700; margin-bottom: 12px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 30px; font-weight: 400; color: #F5EFEB; margin-bottom: 12px; }
+.hero p { font-size: 13px; color: rgba(245,239,235,0.82); line-height: 1.7; max-width: 480px; }
+.hero-star { position: absolute; right: 24px; top: 24px; font-size: 26px; color: rgba(245,239,235,0.35); z-index: 1; }
+.hero-foto { position: relative; overflow: hidden; min-height: 200px; }
+.hero-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-foto::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, #3D342E 0%, rgba(61,52,46,0.35) 35%, rgba(61,52,46,0) 70%); }
 
 /* SECTIE LABEL */
 .sectie-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--dusty); font-weight: 700; margin: 40px 0 16px; border-bottom: 1px solid rgba(188,122,92,0.18); padding-bottom: 10px; }
@@ -94,6 +108,9 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 .dash-footer { text-align: center; font-size: 10px; color: rgba(61,52,46,0.35); letter-spacing: 1px; padding: 28px 0 12px; }
 
 @media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-foto { min-height: 140px; order: -1; }
+  .hero-foto::after { background: linear-gradient(0deg, #3D342E 0%, rgba(61,52,46,0.25) 45%, rgba(61,52,46,0) 100%); }
   .status-grid { grid-template-columns: repeat(2,1fr); }
   .grid-3 { grid-template-columns: 1fr; }
   .merk-grid { grid-template-columns: 1fr; }
@@ -105,8 +122,8 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
 <div class="topbar">
   <div>
-    <div class="topbar-brand">Nomad & Soul</div>
-    <div class="topbar-sub">Operations Dashboard</div>
+    <img src="logo-ivory.png" alt="Nomad & Soul" style="height:24px;width:auto;display:block;">
+    <div class="topbar-sub" style="margin-top:4px;">Operations Dashboard</div>
   </div>
   <div class="topbar-right">nomadandsoul.nl ✦ Vertrouwelijk</div>
 </div>
@@ -115,10 +132,15 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-star">✦</div>
-    <div class="hero-label">Bedrijfsdashboard</div>
-    <h1>Dress the life you want to live.</h1>
-    <p>Boho Mediterranean lifestyle fashion — dropshipping, geen voorraad. Doelgroep: vrouwen &amp; mannen 25–60 die leven vanuit een vrij, bewust en esthetisch gevoel, plus de Little Nomads kinderlijn.</p>
+    <div class="hero-tekst">
+      <div class="hero-star">✦</div>
+      <div class="hero-label">Bedrijfsdashboard</div>
+      <h1>Dress the life you want to live.</h1>
+      <p>Boho Mediterranean lifestyle fashion — dropshipping, geen voorraad. Doelgroep: vrouwen &amp; mannen 25–60 die leven vanuit een vrij, bewust en esthetisch gevoel, plus de Little Nomads kinderlijn.</p>
+    </div>
+    <div class="hero-foto">
+      <img src="hero-images/nomad-mail2-aarde-hero.jpg" alt="Nomad & Soul sfeer">
+    </div>
   </div>
 
   <!-- STATUS -->
