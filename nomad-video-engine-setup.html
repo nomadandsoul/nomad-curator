@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Video Engine Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Montserrat', sans-serif; background: #F5EFEB; color: #3D342E; min-height: 100vh; }
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
+.container { max-width: 960px; margin: 0 auto; padding: 36px 24px; }
+
+/* FLOW DIAGRAM */
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 40px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.flow-stap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.flow-node {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 2px solid rgba(188,122,92,0.3);
+  background: white;
+  box-shadow: 0 4px 12px rgba(61,52,46,0.08);
+}
+.flow-node.tc { background: #BC7A5C; border-color: #BC7A5C; }
+.flow-node.esp { background: #3D342E; border-color: #3D342E; }
+.flow-lbl { font-size: 10px; font-weight: 600; text-align: center; color: rgba(61,52,46,0.65); max-width: 80px; line-height: 1.4; }
+.flow-pijl { font-size: 18px; color: rgba(188,122,92,0.5); padding: 0 8px; flex-shrink: 0; margin-top: -20px; }
+
+/* STAPPEN */
+.stap { background: white; border-radius: 16px; border: 1px solid rgba(188,122,92,0.12); margin-bottom: 16px; overflow: hidden; }
+.stap-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+.stap-nr { width: 32px; height: 32px; border-radius: 50%; background: #BC7A5C; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.stap-nr.klaar { background: #2D7A3A; }
+.stap-nr.optioneel { background: #3D342E; }
+.stap-titel { font-size: 14px; font-weight: 600; color: #3D342E; flex: 1; }
+.stap-badge { font-size: 10px; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+.stap-badge.vereist { background: rgba(192,57,43,0.1); color: #C0392B; }
+.stap-badge.optioneel { background: rgba(61,52,46,0.08); color: rgba(61,52,46,0.6); }
+.stap-badge.klaar { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.stap-body { padding: 0 20px 20px; display: none; }
+.stap-body.open { display: block; }
+
+.code-box {
+  background: #3D342E;
+  color: #F5EFEB;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0;
+  position: relative;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.copy-btn { position: absolute; top: 10px; right: 12px; padding: 4px 10px; background: rgba(188,122,92,0.25); border: none; border-radius: 6px; color: #BC7A5C; font-size: 10px; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+.copy-btn:hover { background: rgba(188,122,92,0.4); }
+
+.token-row { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(188,122,92,0.08); font-size: 13px; }
+.token-row:last-child { border-bottom: none; }
+.token-naam { font-weight: 600; min-width: 240px; color: #3D342E; }
+.token-omschrijving { color: rgba(61,52,46,0.6); font-size: 12px; flex: 1; }
+.token-badge { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: rgba(192,57,43,0.1); color: #C0392B; font-weight: 600; flex-shrink: 0; }
+
+.info-box { background: rgba(188,122,92,0.06); border: 1px solid rgba(188,122,92,0.2); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: rgba(61,52,46,0.8); line-height: 1.6; margin: 12px 0; }
+.info-box strong { color: #BC7A5C; }
+
+.sectie { font-family: 'Playfair Display', serif; font-size: 20px; color: #3D342E; margin: 32px 0 16px; }
+
+/* SCORE UITLEG */
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
+.score-kaart { border-radius: 12px; padding: 16px; text-align: center; }
+.score-kaart.hoog { background: rgba(45,122,58,0.08); border: 1px solid rgba(45,122,58,0.2); }
+.score-kaart.mid { background: rgba(230,126,34,0.08); border: 1px solid rgba(230,126,34,0.2); }
+.score-kaart.laag { background: rgba(61,52,46,0.05); border: 1px solid rgba(61,52,46,0.1); }
+.score-num { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.score-num.hoog { color: #2D7A3A; }
+.score-num.mid { color: #E67E22; }
+.score-num.laag { color: rgba(61,52,46,0.4); }
+.score-lbl { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.score-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.5; }
+
+@media (max-width: 600px) { .score-grid { grid-template-columns: 1fr; } .token-naam { min-width: 160px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div><span style="font-family:'Playfair Display',serif;font-size:17px;">Nomad & Soul</span></div>
+  <div style="font-size:11px;opacity:0.5;">Video Engine Setup · Claude + Make.com + Higgsfield</div>
+</div>
+
+<div class="container">
+
+  <h1 style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:8px;">Autonome Video Content Engine</h1>
+  <p style="font-size:13px;color:rgba(61,52,46,0.6);margin-bottom:32px;">Productfoto → Claude analyse → Higgsfield cinematic video → Auto-post TikTok &amp; Instagram. Volledig zonder influencers of modellen.</p>
+
+  <!-- FLOW DIAGRAM -->
+  <div class="flow-diagram">
+    <div class="flow-stap">
+      <div class="flow-node">🛍️</div>
+      <div class="flow-lbl">Shopify product</div>
+    </div>
+    <div class="flow-pijl">→</div>
+    <div class="flow-stap">
+      <div class="flow-node tc">✦</div>
+      <div class="flow-lbl" style="color:#BC7A5C;">Claude scoort &amp; schrijft</div>
+    </div>
+    <div class="flow-pijl">→</div>
+    <div class="flow-stap">
+      <div class="flow-node" style="background:#F5EFEB;">🎯</div>
+      <div class="flow-lbl">Score ≥ 7?</div>
+    </div>
+    <div class="flow-pijl">→</div>
+    <div class="flow-stap">
+      <div class="flow-node esp">🎬</div>
+      <div class="flow-lbl" style="color:rgba(61,52,46,0.5);">Higgsfield video</div>
+    </div>
+    <div class="flow-pijl">→</div>
+    <div class="flow-stap">
+      <div class="flow-node" style="background:#F5EFEB;">📱</div>
+      <div class="flow-lbl">Buffer post</div>
+    </div>
+    <div class="flow-pijl">→</div>
+    <div class="flow-stap">
+      <div class="flow-node tc">🎵</div>
+      <div class="flow-lbl" style="color:#BC7A5C;">TikTok &amp; Instagram</div>
+    </div>
+  </div>
+
+  <!-- SCORE LOGICA -->
+  <div class="sectie">Hoe de score video-kwaliteit bepaalt</div>
+  <div class="score-grid">
+    <div class="score-kaart hoog">
+      <div class="score-num hoog">8 — 10</div>
+      <div class="score-lbl">Premium video</div>
+      <div class="score-desc">Volledige influencer-stijl opname. Vrouw op Ibiza terras, golden hour, haar beweegt mee, camera cirkelt langzaam. Meest cinematic prompt.</div>
+    </div>
+    <div class="score-kaart mid">
+      <div class="score-num mid">7 — 7.9</div>
+      <div class="score-lbl">Standaard video</div>
+      <div class="score-desc">Elegante lifestyle shot. Vrouw loopt op mediterraanse straat, stof beweegt, warme middaglicht. Iets eenvoudiger dan premium.</div>
+    </div>
+    <div class="score-kaart laag">
+      <div class="score-num laag">Onder 7</div>
+      <div class="score-lbl">Geen video</div>
+      <div class="score-desc">Product krijgt geen video — te laag ROAS-potentieel of te weinig merkfit. Alleen statische post of geen post.</div>
+    </div>
+  </div>
+
+  <!-- SETUP STAPPEN -->
+  <div class="sectie">Setup stappen — in volgorde uitvoeren</div>
+
+  <!-- STAP 1 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">1</div>
+      <div class="stap-titel">Higgsfield account + API key aanmaken</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <p style="font-size:13px;color:rgba(61,52,46,0.7);margin-bottom:12px;">Higgsfield gebruikt een KEY_ID + KEY_SECRET combinatie — niet één enkele key.</p>
+      <ol style="font-size:13px;line-height:2.2;color:rgba(61,52,46,0.8);padding-left:18px;">
+        <li>Ga naar <strong>cloud.higgsfield.ai</strong> → maak een account aan</li>
+        <li>Kies een abonnement (betaald — gratis tier heeft geen API-toegang)</li>
+        <li>Ga in je dashboard naar <strong>API Keys</strong></li>
+        <li>Klik op <strong>Generate new key</strong></li>
+        <li>Kopieer de <strong>KEY_ID</strong> en <strong>KEY_SECRET</strong> apart — je ziet de secret maar één keer</li>
+      </ol>
+      <div class="info-box">
+        <strong>Authenticatie formaat in Make.com:</strong><br>
+        Header naam: <code>Authorization</code><br>
+        Waarde: <code>Key JOUW_KEY_ID:JOUW_KEY_SECRET</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAP 2 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">2</div>
+      <div class="stap-titel">Buffer account + TikTok &amp; Instagram koppelen</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <ol style="font-size:13px;line-height:2.2;color:rgba(61,52,46,0.8);padding-left:18px;">
+        <li>Ga naar <strong>buffer.com</strong> → maak een gratis account aan</li>
+        <li>Klik op <strong>Connect channels</strong> → voeg TikTok toe → voeg Instagram toe</li>
+        <li>Ga naar <strong>buffer.com/developers</strong> → maak een app aan</li>
+        <li>Kopieer de <strong>Access Token</strong></li>
+        <li>Ga naar je Buffer dashboard → URL van jouw TikTok profiel bevat het profile ID</li>
+      </ol>
+      <div class="info-box">
+        <strong>Profile ID vinden:</strong> Ga in Buffer naar je kanaalinstellingen. Het ID staat in de URL: buffer.com/profiles/<strong>PROFILE_ID</strong>/tab/queue
+      </div>
+    </div>
+  </div>
+
+  <!-- STAP 3 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">3</div>
+      <div class="stap-titel">Google Sheet aanmaken voor content log</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <p style="font-size:13px;color:rgba(61,52,46,0.7);margin-bottom:12px;">Maak een nieuw Google Sheet aan via <strong>sheets.new</strong> met de naam <strong>Nomad &amp; Soul — Content Log</strong>. Voeg rij 1 toe met deze headers:</p>
+      <div class="code-box">A: Product ID
+B: Product naam
+C: ROAS score
+D: Merkfit score
+E: TikTok hook
+F: TikTok caption
+G: Instagram caption
+H: Video URL
+I: Collectie
+J: Seizoen
+K: Model stijl
+L: Datum gepost</div>
+      <p style="font-size:13px;color:rgba(61,52,46,0.7);margin-top:8px;">Kopieer het Sheet ID uit de URL: docs.google.com/spreadsheets/d/<strong>DIT_IS_HET_ID</strong>/edit</p>
+    </div>
+  </div>
+
+  <!-- STAP 4 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">4</div>
+      <div class="stap-titel">Blueprint importeren in Make.com</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <ol style="font-size:13px;line-height:2.2;color:rgba(61,52,46,0.8);padding-left:18px;">
+        <li>Ga naar <strong>make.com</strong> → klik op <strong>+ Create scenario</strong></li>
+        <li>Klik op het <strong>tandwiel-icoon</strong> linksboven in de scenario-editor</li>
+        <li>Kies <strong>Import Blueprint</strong></li>
+        <li>Upload het bestand <strong>make-higgsfield-blueprint.json</strong></li>
+        <li>Het scenario verschijnt met 12 modules</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- STAP 5 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">5</div>
+      <div class="stap-titel">Tokens invullen in het scenario</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <p style="font-size:13px;color:rgba(61,52,46,0.7);margin-bottom:14px;">Vervang in het scenario alle placeholders door jouw eigen keys. Klik op elke module en zoek de waarden op:</p>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_SHOPIFY_TOKEN}}</code></div>
+        <div class="token-omschrijving">Shopify Admin API access token — haal op via Shopify Partners Dev Dashboard</div>
+        <div class="token-badge">Module 1</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_CLAUDE_API_KEY}}</code></div>
+        <div class="token-omschrijving">Anthropic API key — haal op via console.anthropic.com</div>
+        <div class="token-badge">Module 3</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_HIGGSFIELD_KEY_ID}}</code></div>
+        <div class="token-omschrijving">Higgsfield KEY_ID — eerste deel van jouw API credentials</div>
+        <div class="token-badge">Module 7 + 9</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_HIGGSFIELD_KEY_SECRET}}</code></div>
+        <div class="token-omschrijving">Higgsfield KEY_SECRET — tweede deel, slechts éénmalig zichtbaar</div>
+        <div class="token-badge">Module 7 + 9</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_BUFFER_TOKEN}}</code></div>
+        <div class="token-omschrijving">Buffer Access Token — via buffer.com/developers</div>
+        <div class="token-badge">Module 11</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_TIKTOK_BUFFER_ID}}</code></div>
+        <div class="token-omschrijving">Buffer Profile ID van jouw TikTok kanaal</div>
+        <div class="token-badge">Module 11</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_INSTAGRAM_BUFFER_ID}}</code></div>
+        <div class="token-omschrijving">Buffer Profile ID van jouw Instagram kanaal</div>
+        <div class="token-badge">Module 11</div>
+      </div>
+      <div class="token-row">
+        <div class="token-naam"><code>{{JOUW_GOOGLE_SHEET_ID}}</code></div>
+        <div class="token-omschrijving">Sheet ID uit de URL van jouw Google Sheet</div>
+        <div class="token-badge">Module 12</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAP 6 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr">6</div>
+      <div class="stap-titel">Testen met één product</div>
+      <span class="stap-badge vereist">Vereist</span>
+    </div>
+    <div class="stap-body">
+      <ol style="font-size:13px;line-height:2.2;color:rgba(61,52,46,0.8);padding-left:18px;">
+        <li>Zorg dat er minimaal één actief product in Shopify staat met een productfoto</li>
+        <li>Klik in Make.com op <strong>Run once</strong></li>
+        <li>Controleer per module of de output correct is — groen vinkje = OK</li>
+        <li>Na module 3: bekijk of Claude een score en content heeft gegenereerd</li>
+        <li>Na module 7: kopieer de <code>request_id</code> en wacht 90 seconden</li>
+        <li>Na module 9: controleer of <code>status = COMPLETED</code> en of er een video URL is</li>
+        <li>Controleer Buffer of de post in de wachtrij staat</li>
+      </ol>
+      <div class="info-box">
+        <strong>Tip:</strong> Zet Buffer eerst op <strong>Draft mode</strong> zodat posts niet automatisch worden gepubliceerd tijdens het testen. Schakel dit pas uit als alles werkt.
+      </div>
+    </div>
+  </div>
+
+  <!-- STAP 7 -->
+  <div class="stap">
+    <div class="stap-header" onclick="toggleStap(this)">
+      <div class="stap-nr optioneel">7</div>
+      <div class="stap-titel">Inplannen op vaste momenten</div>
+      <span class="stap-badge optioneel">Na testen</span>
+    </div>
+    <div class="stap-body">
+      <p style="font-size:13px;color:rgba(61,52,46,0.7);margin-bottom:12px;">Zodra het testen geslaagd is, stel je een vaste planning in:</p>
+      <div style="font-size:13px;line-height:2.2;color:rgba(61,52,46,0.8);">
+        • Klik in Make.com op <strong>Schedule</strong> bovenaan het scenario<br>
+        • Stel in: <strong>Elke dinsdag om 09:00</strong><br>
+        • Dit laat je maandag nieuwe producten goedkeuren in de curator app<br>
+        • Dinsdag worden automatisch de video's gegenereerd en gepost
+      </div>
+    </div>
+  </div>
+
+  <!-- VERWACHTE OUTPUT -->
+  <div class="sectie">Wat het systeem per product genereert</div>
+  <div style="background:white;border-radius:16px;border:1px solid rgba(188,122,92,0.12);padding:20px;font-size:13px;line-height:2;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-weight:600;color:#BC7A5C;margin-bottom:8px;">✦ Claude genereert</div>
+        ☐ ROAS score (1-10)<br>
+        ☐ Merkfit score (1-10)<br>
+        ☐ TikTok hook (max 8 woorden)<br>
+        ☐ TikTok caption + hashtags<br>
+        ☐ Instagram caption + hashtags<br>
+        ☐ Pinterest beschrijving<br>
+        ☐ Higgsfield video prompt (aangepast aan score)<br>
+        ☐ Collectie-tag voor koppeling
+      </div>
+      <div>
+        <div style="font-weight:600;color:#3D342E;margin-bottom:8px;">🎬 Higgsfield genereert</div>
+        ☐ Score 8+: Premium Ibiza terras video<br>
+        &nbsp;&nbsp;&nbsp;Vrouw, golden hour, camera cirkelt<br>
+        &nbsp;&nbsp;&nbsp;Stof beweegt, haar waait, glimlach<br><br>
+        ☐ Score 7-8: Mediterrane straat video<br>
+        &nbsp;&nbsp;&nbsp;Lopende vrouw, warme licht, beweging<br><br>
+        ☐ Score onder 7: Geen video — skip<br><br>
+        ☐ Format: 9:16 verticaal (TikTok/Reels)
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleStap(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function kopieer(id, btn) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.innerText.replace('Kopieer','').trim()).then(() => {
+    btn.textContent = '✓ Klaar';
+    setTimeout(() => btn.textContent = 'Kopieer', 2000);
+  });
+}
+</script>
+</body>
+</html>
