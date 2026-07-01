@@ -16,17 +16,18 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Poppins:wght@400;500;600;700&display=swap');
   :root {
     --espresso: #3D342E;
     --terracotta: #BC7A5C;
     --zand: #F5EFEB;
     --warm: #E4DACF;
     --dusty: #7A6552;
+    --icon-accent: #E2A17E;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: #1A1410;
     color: var(--warm);
     min-height: 100vh;
@@ -91,8 +92,8 @@
   }
   .hero-sub {
     font-size: 13px;
-    color: rgba(228,218,207,0.5);
-    font-weight: 300;
+    color: rgba(228,218,207,0.62);
+    font-weight: 400;
     max-width: 480px;
     line-height: 1.7;
   }
@@ -151,7 +152,33 @@
     transform: translateY(-2px);
   }
   .app-kaart:hover::before { opacity: 1; }
-  .app-icon { font-size: 22px; margin-bottom: 4px; }
+  .app-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(226,161,126,0.14);
+    border: 1px solid rgba(226,161,126,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    color: var(--icon-accent);
+    flex-shrink: 0;
+  }
+  .app-icon svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .aktie-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: rgba(226,161,126,0.14);
+    border: 1px solid rgba(226,161,126,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-accent);
+    flex-shrink: 0;
+  }
+  .aktie-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .app-naam {
     font-family: 'Playfair Display', serif;
     font-size: 15px;
@@ -160,10 +187,10 @@
     font-weight: 400;
   }
   .app-desc {
-    font-size: 11px;
-    color: rgba(228,218,207,0.45);
-    line-height: 1.6;
-    font-weight: 300;
+    font-size: 12px;
+    color: rgba(228,218,207,0.58);
+    line-height: 1.65;
+    font-weight: 400;
     flex: 1;
   }
   .app-badge {
@@ -204,7 +231,7 @@
     padding: 14px 16px;
   }
   .merk-item h4 { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--terracotta); margin-bottom: 8px; font-weight: 600; }
-  .merk-item p { font-size: 12px; color: rgba(228,218,207,0.55); line-height: 1.7; font-weight: 300; }
+  .merk-item p { font-size: 12px; color: rgba(228,218,207,0.65); line-height: 1.7; font-weight: 400; }
   .kleur-rij { display: flex; gap: 8px; flex-wrap: wrap; }
   .kleur-dot { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(228,218,207,0.5); }
   .dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
@@ -279,42 +306,42 @@
   <div class="grid grid-3">
 
     <a href="nomad-product-curator.html" class="app-kaart">
-      <div class="app-icon">🛍️</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg></div>
       <div class="app-naam">Product Curator</div>
       <div class="app-desc">Claude scoort producten op merkfit, ROAS, kwaliteit en levering. Minimale score 7/10. Eén klik goedkeuren of afwijzen.</div>
       <span class="app-badge badge-live">Live</span>
     </a>
 
     <a href="nomad-financieel-model.html" class="app-kaart">
-      <div class="app-icon">💶</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M17 7a6.5 6.5 0 100 10"/><path d="M4 10h9M4 14h8"/></svg></div>
       <div class="app-naam">Financieel Model</div>
       <div class="app-desc">Revenue-verdeling in 5 potten. BTW 21% · Belasting 20% · Operationeel 15% · Finca 30% · Vrij 14%.</div>
       <span class="app-badge badge-live">Live</span>
     </a>
 
     <a href="nomad-omzetprognose.html" class="app-kaart">
-      <div class="app-icon">📈</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 6-8"/><path d="M14 7h5v5"/></svg></div>
       <div class="app-naam">Omzetprognose</div>
       <div class="app-desc">3 scenario's: Conservatief (J1 €58K) · Realistisch (J1 €95K) · Optimistisch (J1 €145K). Winstgevend maand 2–4.</div>
       <span class="app-badge badge-live">Live</span>
     </a>
 
     <a href="nomad-3jaar-strategie.html" class="app-kaart">
-      <div class="app-icon">🗺️</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4l-5 2v14l5-2 6 2 5-2V4l-5 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
       <div class="app-naam">3-Jaar Strategie</div>
       <div class="app-desc">Groeimijlpalen, kanaalopschaling, assortimentsuitbreiding, Zalando/Bol.com, winterlijn, B2B hotels jaar 3.</div>
       <span class="app-badge badge-live">Live</span>
     </a>
 
     <a href="nomad-make-monitor.html" class="app-kaart">
-      <div class="app-icon">⚙️</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></div>
       <div class="app-naam">Make.com Monitor</div>
       <div class="app-desc">Status-overzicht van alle Make.com automatiseringen. Shopify → Klaviyo → Higgsfield → Buffer pipeline.</div>
       <span class="app-badge badge-live">Live</span>
     </a>
 
     <a href="nomad-data-intelligence.html" class="app-kaart">
-      <div class="app-icon">🧠</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 00-3 3v1a3 3 0 000 6v1a3 3 0 003 3M15 4a3 3 0 013 3v1a3 3 0 010 6v1a3 3 0 01-3 3M9 4v14M15 4v14"/></svg></div>
       <div class="app-naam">Data Intelligence</div>
       <div class="app-desc">Live KPI's via Shopify orders API. Claude-beslissingsadviezen voor campagnes en assortiment.</div>
       <span class="app-badge badge-live">Live</span>
@@ -327,21 +354,21 @@
   <div class="grid grid-3">
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">📧</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg></div>
       <div class="app-naam">Klaviyo Mail Builder</div>
       <div class="app-desc">Welkomstflow 4 mails. Mail 1 (wind) + Mail 2 (aarde) HTML klaar in Klaviyo. Mail 3 &amp; 4 nog te bouwen. Hero-images via GitHub CDN pipeline.</div>
       <span class="app-badge badge-bouw">In bouw — 2/4</span>
     </div>
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">🎬</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M9 5v14M15 5v14M3.5 10h5.5M15 10h5.5M3.5 14h5.5M15 14h5.5"/></svg></div>
       <div class="app-naam">Video Content Engine</div>
       <div class="app-desc">Make.com + Claude + Higgsfield (dop-preview). 12 roterende Ibiza-scenario's. Buffer → TikTok + Instagram. ~€56/mnd totaal.</div>
       <span class="app-badge badge-bouw">Blueprint klaar</span>
     </div>
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">🛒</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 002 1.8h8.2a2 2 0 002-1.6L21 9H6"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg></div>
       <div class="app-naam">Shopify Collective</div>
       <div class="app-desc">ibizamode producten zichtbaar. Uitnodiging sturen zodra KVK/BTW/bank via Bionda volledig ingesteld.</div>
       <span class="app-badge badge-bouw">Wacht op Bionda</span>
@@ -354,28 +381,28 @@
   <div class="grid grid-4">
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">🔁</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0113.7-5.7L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 01-13.7 5.7L4 16M4 20v-4h4"/></svg></div>
       <div class="app-naam">Abandoned Cart Flow</div>
       <div class="app-desc">EU checkout abandon rate 71.7% — prioriteit 1 na live gaan.</div>
       <span class="app-badge badge-plan">Gepland</span>
     </div>
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">📦</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></div>
       <div class="app-naam">Droppery / Bazar Bizar</div>
       <div class="app-desc">Home accessories. 40–50% marge. EU levering 1–5 dagen. Beste directe start.</div>
       <span class="app-badge badge-plan">Gepland</span>
     </div>
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">🔧</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M16.5 8.5a4 4 0 01-5.3 3.8L6 17.5 5 20l2.5-1L12.7 13.8a4 4 0 013.8-5.3"/><path d="M16.5 8.5l3-3-2-2-3 3"/></svg></div>
       <div class="app-naam">Claude Code</div>
       <div class="app-desc">Nog niet geïnstalleerd. Installer: curl -fsSL https://claude.ai/install.sh | bash</div>
       <span class="app-badge badge-plan">Gepland</span>
     </div>
 
     <div class="app-kaart" style="cursor:default;">
-      <div class="app-icon">📮</div>
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></div>
       <div class="app-naam">Zoho Mail Lite</div>
       <div class="app-desc">€0.90/mnd professionele e-mail. Via Bionda/zakelijke rekening.</div>
       <span class="app-badge badge-plan">Gepland</span>
@@ -432,34 +459,209 @@
 
   <!-- ACTIELIJST -->
   <div class="sectie-label" style="margin-top:44px;">Directe actielijst</div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.25);border-radius:6px;border-left:2px solid var(--terracotta);">
-      <span style="font-size:14px;flex-shrink:0;">☎️</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Solidaris bellen — 02 515 02 00</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">Toestemming nevenactiviteit aanvragen. Eerste prioriteit.</div></div>
-    </div>
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.25);border-radius:6px;border-left:2px solid var(--terracotta);">
-      <span style="font-size:14px;flex-shrink:0;">☎️</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Grensinfopunt — 0800 0243</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">KBO bijberoep + verdragspolis CZ check.</div></div>
-    </div>
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.2);border-radius:6px;">
-      <span style="font-size:14px;flex-shrink:0;">📧</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Google Workspace (actie Bionda)</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">info@nomadandsoul.nl professioneel instellen via zakelijke rekening.</div></div>
-    </div>
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.2);border-radius:6px;">
-      <span style="font-size:14px;flex-shrink:0;">🏦</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Shopify volledig inrichten (actie Bionda)</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">KVK + BTW + bankrekening → dan Shopify Collective uitnodiging sturen.</div></div>
-    </div>
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.2);border-radius:6px;">
-      <span style="font-size:14px;flex-shrink:0;">📄</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Ontbrekende pagina's</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">Retourbeleid · AV · Privacy (GDPR) · FAQ · Verzending &amp; Levertijd</div></div>
-    </div>
-    <div style="display:flex;gap:12px;padding:10px 14px;background:rgba(61,52,46,0.2);border-radius:6px;">
-      <span style="font-size:14px;flex-shrink:0;">🚀</span>
-      <div><div style="font-size:13px;font-weight:600;color:var(--warm);">Winkel live + Pinterest/TikTok starten</div><div style="font-size:11px;color:rgba(228,218,207,0.45);margin-top:2px;">Wachtwoord uit · Google Shopping · organisch content beginnen.</div></div>
-    </div>
+  <div id="actielijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+  <div class="actie-add-row">
+    <input id="actie-input" type="text" placeholder="Nieuwe actie toevoegen — druk op Enter" maxlength="140">
+    <button type="button" onclick="actieToevoegen()">+ Toevoegen</button>
   </div>
+  <div style="font-size:10px;color:rgba(228,218,207,0.32);margin-top:10px;">✦ Wijzigingen (aanvinken, bewerken, toevoegen, verwijderen) worden lokaal in deze browser bewaard — niet automatisch gesynchroniseerd tussen apparaten of tussen Ludo en Bionda.</div>
 
 </div>
+
+<style>
+  .actie-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px 10px 14px;
+    background: rgba(61,52,46,0.22);
+    border-radius: 6px;
+    border-left: 2px solid rgba(188,122,92,0.35);
+    transition: opacity 0.2s ease, background 0.2s ease;
+  }
+  .actie-item.prio { border-left-color: var(--terracotta); background: rgba(61,52,46,0.28); }
+  .actie-item.gedaan { opacity: 0.45; }
+  .actie-check {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    accent-color: var(--terracotta);
+    cursor: pointer;
+  }
+  .actie-body { flex: 1; min-width: 0; }
+  .actie-titel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--warm);
+    outline: none;
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin: -1px -3px;
+  }
+  .actie-titel:focus { background: rgba(188,122,92,0.12); }
+  .actie-item.gedaan .actie-titel { text-decoration: line-through; }
+  .actie-desc {
+    font-size: 11.5px;
+    color: rgba(228,218,207,0.5);
+    margin-top: 3px;
+    outline: none;
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin-left: -3px;
+  }
+  .actie-desc:focus { background: rgba(188,122,92,0.1); }
+  .actie-del {
+    background: none;
+    border: none;
+    color: rgba(228,218,207,0.3);
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+  .actie-del:hover { color: #D98A6E; background: rgba(217,138,110,0.12); }
+  .actie-add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .actie-add-row input {
+    flex: 1;
+    background: rgba(61,52,46,0.3);
+    border: 1px solid rgba(188,122,92,0.2);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    color: var(--warm);
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+  }
+  .actie-add-row input:focus { border-color: var(--terracotta); }
+  .actie-add-row input::placeholder { color: rgba(228,218,207,0.3); }
+  .actie-add-row button {
+    background: rgba(188,122,92,0.15);
+    border: 1px solid rgba(188,122,92,0.3);
+    color: var(--terracotta);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .actie-add-row button:hover { background: var(--terracotta); color: var(--espresso); }
+</style>
+
+<script>
+  const ACTIELIJST_KEY = 'nomad-actielijst-v1';
+
+  const ACTIELIJST_DEFAULTS = [
+    { titel: 'Solidaris bellen — 02 515 02 00', desc: 'Toestemming nevenactiviteit aanvragen. Eerste prioriteit.', prio: true, gedaan: false },
+    { titel: 'Grensinfopunt — 0800 0243', desc: 'KBO bijberoep + verdragspolis CZ check.', prio: true, gedaan: false },
+    { titel: 'Google Workspace (actie Bionda)', desc: 'info@nomadandsoul.nl professioneel instellen via zakelijke rekening.', prio: false, gedaan: false },
+    { titel: 'Shopify volledig inrichten (actie Bionda)', desc: 'KVK + BTW + bankrekening → dan Shopify Collective uitnodiging sturen.', prio: false, gedaan: false },
+    { titel: "Ontbrekende pagina's", desc: "Retourbeleid · AV · Privacy (GDPR) · FAQ · Verzending & Levertijd", prio: false, gedaan: false },
+    { titel: 'Winkel live + Pinterest/TikTok starten', desc: 'Wachtwoord uit · Google Shopping · organisch content beginnen.', prio: false, gedaan: false },
+  ];
+
+  function actieLaad() {
+    try {
+      const raw = localStorage.getItem(ACTIELIJST_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return ACTIELIJST_DEFAULTS.map((item, i) => ({ id: 'a' + i, ...item }));
+  }
+
+  function actieBewaar(items) {
+    try { localStorage.setItem(ACTIELIJST_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  let actieItems = actieLaad();
+
+  function actieRender() {
+    const container = document.getElementById('actielijst');
+    container.innerHTML = '';
+    actieItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item' + (item.prio ? ' prio' : '') + (item.gedaan ? ' gedaan' : '');
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'actie-check';
+      check.checked = !!item.gedaan;
+      check.addEventListener('change', () => {
+        item.gedaan = check.checked;
+        actieBewaar(actieItems);
+        actieRender();
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const titel = document.createElement('div');
+      titel.className = 'actie-titel';
+      titel.contentEditable = 'true';
+      titel.spellcheck = false;
+      titel.innerText = item.titel;
+      titel.addEventListener('blur', () => {
+        item.titel = titel.innerText.trim() || item.titel;
+        actieBewaar(actieItems);
+      });
+      titel.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); titel.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        actieBewaar(actieItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(titel);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Verwijderen';
+      del.addEventListener('click', () => {
+        actieItems = actieItems.filter((i) => i.id !== item.id);
+        actieBewaar(actieItems);
+        actieRender();
+      });
+
+      row.appendChild(check);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+  }
+
+  function actieToevoegen() {
+    const input = document.getElementById('actie-input');
+    const val = input.value.trim();
+    if (!val) return;
+    actieItems.push({ id: 'a' + Date.now(), titel: val, desc: '', prio: false, gedaan: false });
+    actieBewaar(actieItems);
+    input.value = '';
+    actieRender();
+  }
+
+  document.getElementById('actie-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); actieToevoegen(); }
+  });
+
+  actieRender();
+</script>
 
 <div class="dash-footer">
   © 2026 Nomad &amp; Soul — nomadandsoul.nl &nbsp;✦&nbsp; Ludo De Bruyn &amp; Bionda Renate Nijhoff &nbsp;✦&nbsp; Vertrouwelijk
