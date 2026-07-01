@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — 3-Jaren Groeiplan</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; }
+body { font-family: 'Montserrat', sans-serif; background: #F0EAE5; color: #3D342E; }
+
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
+.topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 1240px; margin: 0 auto; padding: 32px 20px; }
+
+/* SCENARIO SWITCHER */
+.scenario-switcher { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+.sc-btn { border-radius: 16px; padding: 20px 22px; border: 2px solid transparent; cursor: pointer; transition: all 0.25s; text-align: left; font-family: 'Montserrat', sans-serif; }
+.sc-btn.conservatief { background: white; border-color: rgba(61,52,46,0.15); }
+.sc-btn.realistisch { background: white; border-color: rgba(188,122,92,0.2); }
+.sc-btn.optimistisch { background: linear-gradient(135deg, rgba(188,122,92,0.08), rgba(61,52,46,0.04)); border-color: rgba(188,122,92,0.3); }
+.sc-btn.actief.conservatief { border-color: #3D342E; background: rgba(61,52,46,0.04); }
+.sc-btn.actief.realistisch { border-color: #BC7A5C; background: rgba(188,122,92,0.06); }
+.sc-btn.actief.optimistisch { border-color: #BC7A5C; background: rgba(188,122,92,0.1); }
+.sc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.conservatief .sc-label { color: rgba(61,52,46,0.5); }
+.realistisch .sc-label { color: #BC7A5C; }
+.optimistisch .sc-label { color: #BC7A5C; font-weight: 700; }
+.sc-naam { font-family: 'Playfair Display', serif; font-size: 17px; color: #3D342E; margin-bottom: 10px; }
+.sc-j1 { font-size: 13px; margin-bottom: 3px; }
+.sc-j2 { font-size: 13px; margin-bottom: 3px; }
+.sc-j3 { font-size: 16px; font-weight: 700; }
+.sc-totaal { font-size: 11px; color: rgba(61,52,46,0.45); margin-top: 6px; }
+
+/* JAAR TABS */
+.jaar-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+.jaar-tab { padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(188,122,92,0.25); background: white; color: rgba(61,52,46,0.6); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Montserrat', sans-serif; }
+.jaar-tab.actief { background: #BC7A5C; color: white; border-color: #BC7A5C; }
+
+.jaar-panel { display: none; }
+.jaar-panel.actief { display: block; }
+
+/* CARDS */
+.card { background: white; border-radius: 14px; padding: 22px; border: 1px solid rgba(188,122,92,0.1); margin-bottom: 14px; }
+.card-titel { font-family: 'Playfair Display', serif; font-size: 17px; color: #3D342E; margin-bottom: 18px; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 14px; }
+.g5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 14px; }
+
+/* KPI */
+.kpi { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(188,122,92,0.1); }
+.kpi-num { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.kpi-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); }
+.kpi-sub { font-size: 11px; color: rgba(61,52,46,0.4); margin-top: 3px; }
+.tc { color: #BC7A5C; } .g { color: #2D7A3A; } .r { color: #C0392B; } .o { color: #E67E22; }
+
+/* MAANDTABEL */
+.tabel { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tabel th { padding: 8px 10px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); border-bottom: 1px solid rgba(188,122,92,0.12); background: #F5EFEB; white-space: nowrap; }
+.tabel th:first-child { text-align: left; }
+.tabel td { padding: 9px 10px; border-bottom: 1px solid rgba(188,122,92,0.06); text-align: center; }
+.tabel td:first-child { text-align: left; font-weight: 500; font-size: 12px; }
+.tabel tr.piek { background: rgba(188,122,92,0.04); }
+.tabel tr.totaal { font-weight: 700; background: rgba(61,52,46,0.04); }
+.pos { color: #2D7A3A; font-weight: 600; } .neg { color: #C0392B; font-weight: 600; } .neu { color: #E67E22; font-weight: 600; }
+
+/* GROEI ITEMS */
+.groei-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(188,122,92,0.08); align-items: flex-start; }
+.groei-item:last-child { border-bottom: none; }
+.groei-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.groei-dot.g { background: #2D7A3A; }
+.groei-dot.o { background: #E67E22; }
+.groei-dot.tc { background: #BC7A5C; }
+.groei-naam { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+.groei-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.6; }
+.groei-impact { font-size: 11px; font-weight: 600; color: #BC7A5C; margin-top: 4px; }
+
+/* CHART */
+.chart-wrap { height: 320px; position: relative; }
+
+/* ASSORTIMENT */
+.ass-rij { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(188,122,92,0.07); font-size: 12px; }
+.ass-rij:last-child { border-bottom: none; }
+.ass-icon { width: 28px; text-align: center; font-size: 16px; flex-shrink: 0; }
+.ass-naam { flex: 1; font-weight: 500; }
+.ass-balk { width: 80px; height: 5px; background: rgba(61,52,46,0.08); border-radius: 3px; overflow: hidden; }
+.ass-fill { height: 100%; border-radius: 3px; background: #BC7A5C; }
+.ass-euro { font-weight: 700; color: #BC7A5C; min-width: 70px; text-align: right; }
+.ass-badge { font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 600; flex-shrink: 0; }
+.badge-nieuw { background: rgba(45,122,58,0.1); color: #2D7A3A; }
+.badge-groei { background: rgba(188,122,92,0.12); color: #BC7A5C; }
+.badge-kern { background: rgba(61,52,46,0.07); color: rgba(61,52,46,0.55); }
+
+/* HIGHLIGHT */
+.hl { background: linear-gradient(135deg, #BC7A5C, #3D342E); border-radius: 14px; padding: 22px; color: #F5EFEB; margin-bottom: 14px; }
+.hl h3 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 10px; }
+.hl p { font-size: 13px; line-height: 1.8; opacity: 0.88; }
+
+/* EXTRA KANSEN */
+.kans-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 14px; }
+.kans { background: white; border-radius: 12px; padding: 16px; border: 1px solid rgba(188,122,92,0.1); }
+.kans-icon { font-size: 24px; margin-bottom: 8px; }
+.kans-naam { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
+.kans-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.5; margin-bottom: 8px; }
+.kans-euro { font-size: 13px; font-weight: 700; color: #BC7A5C; }
+
+.sectie { font-family: 'Playfair Display', serif; font-size: 20px; color: #3D342E; margin: 28px 0 14px; }
+
+@media (max-width: 900px) { .scenario-switcher,.g3,.g4,.g5,.kans-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px) { .scenario-switcher,.g2,.g3,.g4,.g5,.kans-grid { grid-template-columns: 1fr; } .jaar-tabs { flex-wrap: wrap; } .container { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">Nomad & Soul — 3-Jaren Groeiplan</div>
+  <div class="topbar-right">Gebaseerd op EU e-commerce marktdata 2026</div>
+</div>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="hl">
+    <h3>Van webshop naar volledig bohemian lifestyle merk</h3>
+    <p>Kleding · Interieur · Sieraden · Accessoires · Home & Wellness — aangedreven door AI-content, meerdere kanalen en data-gedreven advertenties. Drie scenario's: conservatief, realistisch en optimistisch. Kies je scenario en bekijk de maandprognose, het assortiment en alle groeikansen per jaar.</p>
+  </div>
+
+  <!-- SCENARIO SWITCHER -->
+  <div class="scenario-switcher" id="sc-switcher">
+    <button class="sc-btn conservatief actief" onclick="setScenario('conservatief',this)">
+      <div class="sc-label">Scenario 1</div>
+      <div class="sc-naam">Conservatief</div>
+      <div class="sc-j1" style="color:rgba(61,52,46,0.6);">Jaar 1: <strong>€ 58.000</strong></div>
+      <div class="sc-j2" style="color:rgba(61,52,46,0.6);">Jaar 2: <strong>€ 155.000</strong></div>
+      <div class="sc-j3" style="color:#3D342E;">Jaar 3: <strong>€ 335.000</strong></div>
+      <div class="sc-totaal">3 jaar totaal: € 548.000</div>
+    </button>
+    <button class="sc-btn realistisch" onclick="setScenario('realistisch',this)">
+      <div class="sc-label">Scenario 2 — Aanbevolen</div>
+      <div class="sc-naam">Realistisch</div>
+      <div class="sc-j1" style="color:#BC7A5C;">Jaar 1: <strong>€ 95.000</strong></div>
+      <div class="sc-j2" style="color:#BC7A5C;">Jaar 2: <strong>€ 265.000</strong></div>
+      <div class="sc-j3" style="color:#BC7A5C;">Jaar 3: <strong>€ 580.000</strong></div>
+      <div class="sc-totaal">3 jaar totaal: € 940.000</div>
+    </button>
+    <button class="sc-btn optimistisch" onclick="setScenario('optimistisch',this)">
+      <div class="sc-label">Scenario 3 — Maximaal</div>
+      <div class="sc-naam">Optimistisch</div>
+      <div class="sc-j1" style="color:#BC7A5C;">Jaar 1: <strong>€ 145.000</strong></div>
+      <div class="sc-j2" style="color:#BC7A5C;">Jaar 2: <strong>€ 420.000</strong></div>
+      <div class="sc-j3" style="color:#BC7A5C;">Jaar 3: <strong>€ 980.000</strong></div>
+      <div class="sc-totaal">3 jaar totaal: € 1.545.000</div>
+    </button>
+  </div>
+
+  <!-- JAAR TABS -->
+  <div class="jaar-tabs">
+    <button class="jaar-tab actief" onclick="setJaar(1,this)">Jaar 1 — 2026/2027</button>
+    <button class="jaar-tab" onclick="setJaar(2,this)">Jaar 2 — 2027/2028</button>
+    <button class="jaar-tab" onclick="setJaar(3,this)">Jaar 3 — 2028/2029</button>
+    <button class="jaar-tab" onclick="setJaar(0,this)">3-Jaren Overzicht</button>
+  </div>
+
+  <!-- JAAR 1 -->
+  <div class="jaar-panel actief" id="jaar-1">
+    <div class="g5" id="kpi-j1"></div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-titel">📅 Actieplan Jaar 1 per kwartaal</div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q3 2026 — Livegang & eerste omzet</div>
+            <div class="groei-desc">Brands of Ibiza B2B activeren · 20-30 producten live · Higgsfield video engine actief · TikTok + Instagram organisch starten · Klaviyo welkomstflow · Pinterest boards · Eerste 80-100 orders</div>
+            <div class="groei-impact" id="j1q3"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot o"></div>
+          <div>
+            <div class="groei-naam">Q4 2026 — Winterlijn + Home + Kerst</div>
+            <div class="groei-desc">Wintercollectie lanceren · Home accessories live · Kerst gift sets €89-€149 · Eerste Meta Ads op bewezen bestsellers · Klaviyo abandoned cart flow · Bol.com activeren</div>
+            <div class="groei-impact" id="j1q4"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q1 2027 — Consolideren + lente prep</div>
+            <div class="groei-desc">Data analyseren · Lente collectie inkopen · E-maillijst naar 500+ · Pinterest SEO · Bundels bouwen voor zomerpiek · TikTok Ads testen op €100/mnd</div>
+            <div class="groei-impact" id="j1q1"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q2 2027 — Zomerpiek maximaliseren</div>
+            <div class="groei-desc">Volledig zomer assortiment live · Meta Ads budget verhogen naar €600/mnd · Bundels "Complete Ibiza Look" pushen · Instagram Shopping actief · Bol.com zomer campagne</div>
+            <div class="groei-impact" id="j1q2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-titel">🛍️ Assortiment Jaar 1</div>
+          <div id="ass-j1"></div>
+        </div>
+        <div class="card" style="margin-top:0;">
+          <div class="card-titel">📊 Omzet per kanaal</div>
+          <div id="kanalen-j1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-titel">📊 Maandprognose Jaar 1 — <span id="sc-label-j1" style="color:#BC7A5C;"></span></div>
+      <div style="overflow-x:auto;"><table class="tabel" id="tabel-j1"></table></div>
+    </div>
+  </div>
+
+  <!-- JAAR 2 -->
+  <div class="jaar-panel" id="jaar-2">
+    <div class="g5" id="kpi-j2"></div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-titel">📅 Actieplan Jaar 2 per kwartaal</div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q3 2027 — Paid ads schalen</div>
+            <div class="groei-desc">Meta Ads budget naar €800/mnd op bewezen winners · TikTok Ads testen · Zalando partner aanvraag · Zomer assortiment uitgebreid · Bundels "Complete Ibiza Look" live</div>
+            <div class="groei-impact" id="j2q3"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot o"></div>
+          <div>
+            <div class="groei-naam">Q4 2027 — Winterlijn + Home + Duitsland</div>
+            <div class="groei-desc">Volledige wintercollectie · High-ticket interieur live · Shopify Markets DE actief · Kerst gift sets tot €199 · TikTok Shop lancering · Pinterest Shopping Ads</div>
+            <div class="groei-impact" id="j2q4"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q1 2028 — E-mail + loyaliteit</div>
+            <div class="groei-desc">Klaviyo 5 actieve flows · E-maillijst 2.000+ · Nomad Circle loyaliteitsclub lanceren · WhatsApp Commerce · SEO blog via Claude starten · Google Shopping feed</div>
+            <div class="groei-impact" id="j2q1"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q2 2028 — Zomerpiek maximaal</div>
+            <div class="groei-desc">Alle kanalen volledig actief · Meta + TikTok + Google · Zalando zomercampagne · Bol.com featured seller · B2B wholesale eerste boetieks · Ibiza Summer Box gelanceerd</div>
+            <div class="groei-impact" id="j2q2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-titel">🚀 Groeimotoren Jaar 2</div>
+          <div id="groei-j2"></div>
+        </div>
+        <div class="card">
+          <div class="card-titel">🛍️ Assortiment Jaar 2</div>
+          <div id="ass-j2"></div>
+        </div>
+        <div class="card">
+          <div class="card-titel">📣 Kanalen Jaar 2</div>
+          <div id="kanalen-j2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-titel">📊 Maandprognose Jaar 2 — <span id="sc-label-j2" style="color:#BC7A5C;"></span></div>
+      <div style="overflow-x:auto;"><table class="tabel" id="tabel-j2"></table></div>
+    </div>
+  </div>
+
+  <!-- JAAR 3 -->
+  <div class="jaar-panel" id="jaar-3">
+    <div class="g5" id="kpi-j3"></div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-titel">📅 Actieplan Jaar 3 per kwartaal</div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q3 2028 — Internationaal schalen</div>
+            <div class="groei-desc">Shopify Markets NL+BE+DE+AT actief · Amazon.de lancering · Google Shopping volledig · B2B wholesale 10+ boetieks · High-ticket interieur €150-€600 volledig assortiment</div>
+            <div class="groei-impact" id="j3q3"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot o"></div>
+          <div>
+            <div class="groei-naam">Q4 2028 — B2B + hotels + kerst</div>
+            <div class="groei-desc">Boutique hotels & wellness centers als B2B klanten · Nomad Circle 500+ leden · Kerst gift sets €89-€299 · Mediterrane geuren & wellness volledig assortiment</div>
+            <div class="groei-impact" id="j3q4"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q1 2029 — Automatisering 100%</div>
+            <div class="groei-desc">Volledig autonome content engine · Claude SEO blog 50+ artikelen · E-maillijst 5.000+ · WhatsApp Commerce volledig · Data intelligence stuurt alle beslissingen</div>
+            <div class="groei-impact" id="j3q1"></div>
+          </div>
+        </div>
+        <div class="groei-item">
+          <div class="groei-dot g"></div>
+          <div>
+            <div class="groei-naam">Q2 2029 — Dominantie Benelux + DE</div>
+            <div class="groei-desc">Marktleider boho lifestyle Benelux · 5.000+ orders zomerpiek · Alle kanalen winstgevend · Mogelijke eigen voorraad bestsellers voor hogere marges</div>
+            <div class="groei-impact" id="j3q2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-titel">🏆 Dominantie Jaar 3</div>
+          <div id="groei-j3"></div>
+        </div>
+        <div class="card">
+          <div class="card-titel">🛍️ Volledig assortiment Jaar 3</div>
+          <div id="ass-j3"></div>
+        </div>
+        <div class="card">
+          <div class="card-titel">📣 Kanalen Jaar 3</div>
+          <div id="kanalen-j3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-titel">📊 Maandprognose Jaar 3 — <span id="sc-label-j3" style="color:#BC7A5C;"></span></div>
+      <div style="overflow-x:auto;"><table class="tabel" id="tabel-j3"></table></div>
+    </div>
+  </div>
+
+  <!-- 3-JAAR OVERZICHT -->
+  <div class="jaar-panel" id="jaar-0">
+    <div class="card">
+      <div class="card-titel">📈 Omzet & winst over 3 jaar</div>
+      <div class="chart-wrap"><canvas id="grafiek"></canvas></div>
+    </div>
+
+    <div class="sectie">💡 Extra groeikansen die het verschil maken</div>
+    <div class="kans-grid">
+      <div class="kans">
+        <div class="kans-icon">💌</div>
+        <div class="kans-naam">Zalando Partner Program</div>
+        <div class="kans-desc">Europa's grootste fashion marketplace. 50M+ actieve kopers. Premium bohemian past perfect in hun lifestyle segment.</div>
+        <div class="kans-euro">+ €35.000/jaar bij jaar 2</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">📦</div>
+        <div class="kans-naam">Gift boxes & abonnementen</div>
+        <div class="kans-desc">Seizoensbox: "Ibiza Summer Box" €89. Kwartaalabonnement voor trouwe klanten. Voorspelbare recurring revenue.</div>
+        <div class="kans-euro">+ €18.000/jaar bij jaar 2</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🎨</div>
+        <div class="kans-naam">Pinterest Shopping Ads</div>
+        <div class="kans-desc">Pinterest heeft 95% boho/lifestyle content. Shopping ads op onze pin-boards. Laagste CPC van alle platforms voor onze niche.</div>
+        <div class="kans-euro">+ €22.000/jaar bij jaar 2</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🌍</div>
+        <div class="kans-naam">Etsy — Handmade & Boho</div>
+        <div class="kans-desc">100M actieve Etsy kopers zoeken exact onze stijl. Sieraden en home accessories presteren uitstekend. Geen setup kosten.</div>
+        <div class="kans-euro">+ €15.000/jaar bij jaar 1</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🤝</div>
+        <div class="kans-naam">B2B wholesale aan boetieks</div>
+        <div class="kans-desc">Kleine fashion boetieks in NL/BE inkopen via Nomad & Soul. Groothandel met 40% marge. Geen advertentiekosten.</div>
+        <div class="kans-euro">+ €40.000/jaar bij jaar 3</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🏨</div>
+        <div class="kans-naam">Hotel & wellness B2B</div>
+        <div class="kans-desc">Boutique hotels, yoga retreats en wellness centra inkopen bohemian interieur. Hoge orders €500-€5.000 per deal.</div>
+        <div class="kans-euro">+ €55.000/jaar bij jaar 3</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">📱</div>
+        <div class="kans-naam">WhatsApp Commerce</div>
+        <div class="kans-desc">WhatsApp Business API via Klaviyo. Direct klantcontact, product aanbevelingen, abandoned cart via WhatsApp. 90% openratio.</div>
+        <div class="kans-euro">+ €12.000/jaar bij jaar 2</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🔁</div>
+        <div class="kans-naam">Loyaliteitsclub "Nomad Circle"</div>
+        <div class="kans-desc">Jaarlidmaatschap €29: early access, 10% korting, gratis verzending. Voorspelbare inkomsten + hogere CLV.</div>
+        <div class="kans-euro">+ €25.000/jaar bij jaar 2</div>
+      </div>
+      <div class="kans">
+        <div class="kans-icon">🌐</div>
+        <div class="kans-naam">SEO blog — Ibiza lifestyle</div>
+        <div class="kans-desc">Claude schrijft automatisch SEO-artikelen: "Ibiza interieur inspiratie", "boho zomerjurken trends". Gratis organisch verkeer.</div>
+        <div class="kans-euro">+ €20.000/jaar bij jaar 2</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-titel">🤖 Automatisering = lagere kosten per euro omzet</div>
+      <table class="tabel">
+        <thead><tr><th>Automatisering</th><th>Jaar 1</th><th>Jaar 2</th><th>Jaar 3</th><th>Besparing/jaar</th></tr></thead>
+        <tbody>
+          <tr><td>Higgsfield video content engine</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 15.000</td></tr>
+          <tr><td>Claude productbeschrijvingen</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 8.000</td></tr>
+          <tr><td>Make.com product publicatie</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 6.000</td></tr>
+          <tr><td>Klaviyo e-mail flows</td><td class="pos">✓ Q4</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 12.000</td></tr>
+          <tr><td>Bol.com automatische sync</td><td class="pos">✓ Q4</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 9.000</td></tr>
+          <tr><td>Data intelligence dashboard</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 5.000</td></tr>
+          <tr><td>SEO blog via Claude</td><td class="neg">—</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 10.000</td></tr>
+          <tr><td>WhatsApp Commerce</td><td class="neg">—</td><td class="pos">✓</td><td class="pos">✓</td><td class="pos">€ 7.000</td></tr>
+          <tr class="totaal"><td>Totaal besparing automatisering</td><td></td><td></td><td></td><td class="pos">€ 72.000/jaar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// DATA PER SCENARIO
+const DATA = {
+  conservatief: {
+    naam: 'Conservatief',
+    j1: { omzet: 58000, winst: 8500, aov: 92, orders: 630, breakeven: 'Mnd 4' },
+    j2: { omzet: 155000, winst: 32000, aov: 112, orders: 1383 },
+    j3: { omzet: 335000, winst: 82000, aov: 128, orders: 2617 },
+    // maanden jaar 1: [orders, omzet, brutomarge, ads, vaste, netto]
+    m1: [
+      [22,2024,890,-200,-280,410], [38,3496,1538,-250,-280,1008],
+      [30,2760,1214,-250,-280,684], [42,4620,2033,-350,-280,1403],
+      [52,5720,2517,-400,-280,1837], [68,7480,3291,-500,-280,2511],
+      [28,2576,1133,-250,-280,603], [30,2760,1214,-250,-280,684],
+      [38,3496,1538,-300,-280,958], [62,5704,2510,-450,-280,1780],
+      [95,8740,3846,-600,-280,2966], [115,10580,4655,-700,-280,3675]
+    ],
+    m2: [
+      [130,14560,6542,-800,-280,5462],[155,17360,7798,-900,-280,6618],
+      [120,13440,6043,-750,-280,5013],[145,19720,8864,-950,-280,7634],
+      [175,23800,10702,-1100,-280,9322],[220,29920,13456,-1300,-280,11876],
+      [95,10640,4784,-600,-280,3904],[100,11200,5040,-650,-280,4110],
+      [125,14000,6300,-750,-280,5270],[175,19600,8820,-900,-280,7640],
+      [260,29120,13102,-1200,-280,11622],[310,34720,15624,-1400,-280,13944]
+    ],
+    m3: [
+      [340,43520,19584,-1500,-280,17804],[395,50560,22752,-1700,-280,20772],
+      [310,39680,17856,-1400,-280,16176],[360,55440,24948,-1800,-280,22868],
+      [420,64680,29106,-2000,-280,26826],[520,80080,36036,-2200,-280,33556],
+      [240,30720,13824,-1200,-280,12344],[255,32640,14688,-1200,-280,13208],
+      [310,39680,17856,-1400,-280,16176],[420,53760,24192,-1800,-280,22112],
+      [620,79360,35712,-2400,-280,33032],[740,94720,42624,-2800,-280,39544]
+    ],
+    ass1: [
+      ['👗','Boho dameskleding',22000,85,'kern'],
+      ['💎','Sieraden & armbanden',10500,68,'kern'],
+      ['👕','Linnen heren',7000,50,'kern'],
+      ['🕯️','Home accessories',6500,78,'nieuw'],
+      ['🧣','Winterlijn',5800,55,'nieuw'],
+      ['👡','Schoenen & sandalen',6200,60,'kern'],
+    ],
+    ass2: [
+      ['👗','Boho dameskleding',48000,85,'groei'],
+      ['💎','Sieraden & armbanden',26000,85,'groei'],
+      ['🏺','Interieur & home',22000,85,'groei'],
+      ['🧣','Winterlijn volledig',20000,70,'groei'],
+      ['👕','Linnen heren',18000,70,'groei'],
+      ['🌿','Mediterrane geuren',12000,85,'nieuw'],
+      ['👡','Schoenen & sandalen',9000,55,'groei'],
+    ],
+    ass3: [
+      ['👗','Boho dameskleding',88000,85,'kern'],
+      ['🏺','High-ticket interieur',70000,85,'groei'],
+      ['💎','Sieraden & armbanden',48000,85,'groei'],
+      ['🧣','Winterlijn',40000,70,'groei'],
+      ['🌿','Mediterrane geuren & wellness',35000,85,'groei'],
+      ['👕','Heren collectie',28000,65,'groei'],
+      ['👶','Little Nomads kids',16000,65,'groei'],
+      ['👡','Schoenen & sandalen',10000,55,'kern'],
+    ],
+  },
+  realistisch: {
+    naam: 'Realistisch',
+    j1: { omzet: 95000, winst: 22000, aov: 105, orders: 905, breakeven: 'Mnd 2' },
+    j2: { omzet: 265000, winst: 68000, aov: 128, orders: 2070 },
+    j3: { omzet: 580000, winst: 155000, aov: 148, orders: 3919 },
+    m1: [
+      [38,3990,1795,-300,-280,1215],[62,6510,2930,-400,-280,2250],
+      [48,5040,2268,-350,-280,1638],[68,8500,3825,-450,-280,3095],
+      [85,10625,4781,-550,-280,3951],[110,13750,6188,-650,-280,5258],
+      [45,4725,2126,-300,-280,1546],[48,5040,2268,-300,-280,1688],
+      [65,6825,3071,-400,-280,2391],[105,11025,4961,-600,-280,4081],
+      [160,16800,7560,-800,-280,6480],[195,20475,9214,-900,-280,8034]
+    ],
+    m2: [
+      [220,28160,12672,-1200,-280,11192],[265,33920,15264,-1400,-280,13584],
+      [200,25600,11520,-1100,-280,10140],[248,33800,15210,-1400,-280,13530],
+      [295,40120,18054,-1600,-280,16174],[375,51000,22950,-1900,-280,20770],
+      [160,20480,9216,-900,-280,8036],[170,21760,9792,-950,-280,8562],
+      [210,26880,12096,-1100,-280,10716],[295,37760,16992,-1500,-280,15212],
+      [440,56320,25344,-1900,-280,23164],[520,66560,29952,-2200,-280,27472]
+    ],
+    m3: [
+      [580,85840,38628,-2600,-280,35748],[695,102860,46287,-3000,-280,43007],
+      [525,77700,34965,-2400,-280,32285],[615,91500,41175,-2800,-280,38095],
+      [720,107040,48168,-3200,-280,44688],[880,130880,58896,-3600,-280,55016],
+      [410,60680,27306,-2000,-280,25026],[435,64380,28971,-2100,-280,26591],
+      [528,78144,35165,-2400,-280,32485],[712,105376,47419,-3100,-280,44039],
+      [1048,155104,69797,-4200,-280,65317],[1255,185740,83583,-4800,-280,78503]
+    ],
+    ass1: [
+      ['👗','Boho dameskleding',35000,85,'kern'],
+      ['💎','Sieraden & armbanden',17000,75,'kern'],
+      ['🕯️','Home accessories',12000,85,'nieuw'],
+      ['👕','Linnen heren',10000,60,'kern'],
+      ['🧣','Winterlijn',9500,60,'nieuw'],
+      ['👡','Schoenen & sandalen',7500,60,'kern'],
+      ['🌿','Geur & wellness',4000,85,'nieuw'],
+    ],
+    ass2: [
+      ['👗','Boho dameskleding',75000,85,'groei'],
+      ['💎','Sieraden & armbanden',42000,85,'groei'],
+      ['🏺','Interieur & home',38000,85,'groei'],
+      ['🧣','Winterlijn volledig',32000,70,'groei'],
+      ['👕','Linnen heren',28000,65,'groei'],
+      ['🌿','Mediterrane geuren',22000,85,'nieuw'],
+      ['👶','Little Nomads kids',16000,65,'nieuw'],
+      ['👡','Schoenen & sandalen',12000,55,'groei'],
+    ],
+    ass3: [
+      ['👗','Boho dameskleding',155000,85,'kern'],
+      ['🏺','High-ticket interieur',120000,85,'groei'],
+      ['💎','Sieraden & armbanden',88000,85,'groei'],
+      ['🧣','Winterlijn',68000,70,'groei'],
+      ['🌿','Mediterrane geuren & wellness',62000,85,'groei'],
+      ['👕','Heren collectie',45000,65,'groei'],
+      ['👶','Little Nomads kids',28000,65,'groei'],
+      ['👡','Schoenen & sandalen',14000,55,'kern'],
+    ],
+  },
+  optimistisch: {
+    naam: 'Optimistisch',
+    j1: { omzet: 145000, winst: 45000, aov: 122, orders: 1189, breakeven: 'Mnd 1' },
+    j2: { omzet: 420000, winst: 128000, aov: 148, orders: 2838 },
+    j3: { omzet: 980000, winst: 295000, aov: 172, orders: 5698 },
+    m1: [
+      [58,7076,3184,-500,-280,2404],[95,11590,5216,-700,-280,4236],
+      [72,8784,3953,-550,-280,3123],[105,15750,7088,-750,-280,6058],
+      [130,19500,8775,-900,-280,7595],[170,25500,11475,-1050,-280,10145],
+      [68,8296,3733,-500,-280,2953],[72,8784,3953,-520,-280,3153],
+      [98,11956,5380,-680,-280,4420],[158,19276,8674,-900,-280,7494],
+      [245,29890,13451,-1200,-280,11971],[300,36600,16470,-1400,-280,14790]
+    ],
+    m2: [
+      [338,50700,22815,-1800,-280,20735],[405,60750,27338,-2100,-280,24958],
+      [308,46200,20790,-1600,-280,18910],[382,63752,28688,-2200,-280,26208],
+      [455,75830,34124,-2600,-280,31244],[578,96374,43368,-3000,-280,40088],
+      [246,36900,16605,-1300,-280,15025],[261,39150,17618,-1400,-280,15938],
+      [322,48300,21735,-1700,-280,19755],[454,67996,30598,-2300,-280,28018],
+      [679,101798,45809,-3200,-280,42329],[800,120000,54000,-3800,-280,49920]
+    ],
+    m3: [
+      [895,153790,69206,-4500,-280,64426],[1072,184192,82886,-5200,-280,77406],
+      [810,139320,62694,-4200,-280,58214],[949,163148,73417,-4800,-280,68337],
+      [1110,191040,85968,-5500,-280,80188],[1358,233576,105109,-6400,-280,98429],
+      [635,109220,49149,-3500,-280,45369],[672,115584,52013,-3700,-280,48033],
+      [816,140352,63158,-4300,-280,58578],[1099,189028,85063,-5400,-280,79383],
+      [1618,278296,125233,-7200,-280,117753],[1938,333336,150001,-8400,-280,141321]
+    ],
+    ass1: [
+      ['👗','Boho dameskleding',52000,85,'kern'],
+      ['💎','Sieraden & armbanden',26000,85,'kern'],
+      ['🕯️','Home accessories',20000,85,'nieuw'],
+      ['👕','Linnen heren',15000,65,'kern'],
+      ['🧣','Winterlijn',14000,65,'nieuw'],
+      ['👡','Schoenen & sandalen',10000,60,'kern'],
+      ['🌿','Geur & wellness',8000,85,'nieuw'],
+    ],
+    ass2: [
+      ['👗','Boho dameskleding',115000,85,'groei'],
+      ['💎','Sieraden & armbanden',65000,85,'groei'],
+      ['🏺','Interieur & home',62000,85,'groei'],
+      ['🧣','Winterlijn volledig',52000,70,'groei'],
+      ['👕','Linnen heren',44000,65,'groei'],
+      ['🌿','Mediterrane geuren',36000,85,'nieuw'],
+      ['👶','Little Nomads kids',26000,65,'nieuw'],
+      ['👡','Schoenen & sandalen',20000,55,'groei'],
+    ],
+    ass3: [
+      ['👗','Boho dameskleding',260000,85,'kern'],
+      ['🏺','High-ticket interieur',215000,85,'groei'],
+      ['💎','Sieraden & armbanden',145000,85,'groei'],
+      ['🧣','Winterlijn',115000,70,'groei'],
+      ['🌿','Mediterrane geuren & wellness',108000,85,'groei'],
+      ['👕','Heren collectie',75000,65,'groei'],
+      ['👶','Little Nomads kids',42000,65,'groei'],
+      ['👡','Schoenen & sandalen',20000,55,'kern'],
+    ],
+  }
+};
+
+let huidigSc = 'conservatief';
+let huidigJaar = 1;
+let grafiek = null;
+
+const MAANDEN1 = ['Jul 26','Aug 26','Sep 26','Okt 26','Nov 26','Dec 26','Jan 27','Feb 27','Mrt 27','Apr 27','Mei 27','Jun 27'];
+const MAANDEN2 = ['Jul 27','Aug 27','Sep 27','Okt 27','Nov 27','Dec 27','Jan 28','Feb 28','Mrt 28','Apr 28','Mei 28','Jun 28'];
+const MAANDEN3 = ['Jul 28','Aug 28','Sep 28','Okt 28','Nov 28','Dec 28','Jan 29','Feb 29','Mrt 29','Apr 29','Mei 29','Jun 29'];
+
+function fmt(n) { return '€ ' + Math.abs(Math.round(n)).toLocaleString('nl-NL'); }
+function fmtK(n) { return '€ ' + (Math.round(n/1000)) + 'K'; }
+
+function renderKPI(id, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `
+    <div class="kpi"><div class="kpi-num tc">${fmtK(data.omzet)}</div><div class="kpi-lbl">Jaaromzet</div><div class="kpi-sub">${huidigSc}</div></div>
+    <div class="kpi"><div class="kpi-num g">${fmtK(data.winst)}</div><div class="kpi-lbl">Nettoresultaat</div><div class="kpi-sub">${Math.round(data.winst/data.omzet*100)}% marge</div></div>
+    <div class="kpi"><div class="kpi-num tc">€ ${data.aov}</div><div class="kpi-lbl">Gem. orderwaarde</div><div class="kpi-sub">AOV</div></div>
+    <div class="kpi"><div class="kpi-num">${data.orders.toLocaleString('nl-NL')}</div><div class="kpi-lbl">Orders</div><div class="kpi-sub">~${Math.round(data.orders/12)}/mnd</div></div>
+    <div class="kpi"><div class="kpi-num g">${data.breakeven || 'Mnd 1-3'}</div><div class="kpi-lbl">Winstgevend vanaf</div><div class="kpi-sub">Cumulatief</div></div>
+  `;
+}
+
+function renderTabel(id, maanden, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let rows = '<thead><tr><th>Maand</th><th>Orders</th><th>Omzet</th><th>Brutomarge</th><th>Ads</th><th>Vaste k.</th><th>Netto</th><th>Cumulatief</th></tr></thead><tbody>';
+  let cum = 0;
+  let totO = 0, totOmz = 0, totBr = 0, totAd = 0, totV = 0, totN = 0;
+  data.forEach((r,i) => {
+    const [ord,omz,br,ad,vaste,netto] = r;
+    cum += netto;
+    totO+=ord; totOmz+=omz; totBr+=br; totAd+=ad; totV+=vaste; totN+=netto;
+    const piek = i >= 4 && i <= 5 || i >= 9 ? 'piek' : '';
+    rows += `<tr class="${piek}">
+      <td>${maanden[i]}</td><td>${ord}</td>
+      <td class="pos">${fmt(omz)}</td>
+      <td class="pos">${fmt(br)}</td>
+      <td class="neg">-${fmt(Math.abs(ad))}</td>
+      <td class="neg">-${fmt(Math.abs(vaste))}</td>
+      <td class="${netto>0?'pos':'neg'}">${netto>0?'+':'-'}${fmt(netto)}</td>
+      <td class="${cum>0?'pos':'neg'}">${cum>0?'+':'-'}${fmt(cum)}</td>
+    </tr>`;
+  });
+  rows += `<tr class="totaal"><td>TOTAAL</td><td>${totO}</td><td class="pos">${fmt(totOmz)}</td><td class="pos">${fmt(totBr)}</td><td class="neg">-${fmt(Math.abs(totAd))}</td><td class="neg">-${fmt(Math.abs(totV))}</td><td class="${totN>0?'pos':'neg'}">${fmt(totN)}</td><td class="${cum>0?'pos':'neg'}">${fmt(cum)}</td></tr>`;
+  el.innerHTML = rows + '</tbody>';
+}
+
+function renderAss(id, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const max = Math.max(...data.map(d=>d[1]));
+  el.innerHTML = data.map(([icon,naam,euro,marge,type]) => {
+    const badgeClass = type==='nieuw'?'badge-nieuw':type==='groei'?'badge-groei':'badge-kern';
+    const badgeTxt = type==='nieuw'?'Nieuw':type==='groei'?'Groei':'Kern';
+    return `<div class="ass-rij">
+      <div class="ass-icon">${icon}</div>
+      <div class="ass-naam">${naam}</div>
+      <div class="ass-balk"><div class="ass-fill" style="width:${Math.round(euro/max*100)}%"></div></div>
+      <div class="ass-euro">${fmt(euro)}</div>
+      <div class="ass-badge ${badgeClass}">${badgeTxt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderGroeiJ2(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const d = DATA[huidigSc];
+  const items = [
+    ['g','Paid ads schalen op bewezen winners','Meta + TikTok Ads budget verhoogd. Alleen ROAS 4+ producten krijgen budget. Data-gedreven.', fmtK(d.j2.omzet*0.24) + ' via paid'],
+    ['g','Bol.com + Zalando volledig actief','Top producten op beide marketplaces. Automatische sync via Make.com. Geen extra ad kosten.', fmtK(d.j2.omzet*0.20) + ' marketplace'],
+    ['o','Bundels & complete looks','AOV stijgt naar €' + d.j2.aov + ' via Complete Ibiza Look bundels. Zelfde ROAS, meer marge.', '+' + Math.round((d.j2.aov-d.j1.aov)/d.j1.aov*100) + '% AOV stijging'],
+    ['g','Klaviyo volledig — 5 actieve flows','Welcome · Abandoned cart · Post-purchase · Winback · Seizoenslaunch. Lijst 2.000+ contacten.', fmtK(d.j2.omzet*0.12) + ' via e-mail'],
+    ['o','Duitsland + België intensief','Shopify Markets · Lokale pricing · Meta Ads targeting per land. DE = grootste EU fashionmarkt.', fmtK(d.j2.omzet*0.15) + ' internationaal'],
+    ['g','TikTok Shop gelanceerd','Direct kopen via TikTok video. Onze AI-video content drijft directe verkopen in de app.', fmtK(d.j2.omzet*0.08) + ' TikTok Shop'],
+  ];
+  el.innerHTML = items.map(([dot,naam,desc,impact]) => `
+    <div class="groei-item">
+      <div class="groei-dot ${dot}"></div>
+      <div><div class="groei-naam">${naam}</div><div class="groei-desc">${desc}</div><div class="groei-impact">${impact}</div></div>
+    </div>`).join('');
+}
+
+function renderGroeiJ3(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const d = DATA[huidigSc];
+  const items = [
+    ['g','Volledig autonome AI content engine','Dagelijkse TikTok + Instagram posts. Pinterest 100K+ maandelijkse views. €0 content kosten.', '€ 15.000 besparing/jaar'],
+    ['g','Multi-market: NL + BE + DE + AT + Zalando','Shopify Markets 4 landen. Claude vertaalt automatisch. Lokale pricing per markt.', fmtK(d.j3.omzet*0.22) + ' internationaal'],
+    ['g','High-ticket interieur €150-€600','Rotan meubels · handgeweven kleden · terracotta. Hogere AOV · lagere retourpercentage.', fmtK(d.j3.omzet*0.22) + ' high-ticket'],
+    ['g','B2B wholesale aan boetieks & hotels','Grossist voor kleine NL/BE boetieks + boutique hotels. Orders €500-€5.000 per deal.', fmtK(d.j3.omzet*0.12) + ' B2B'],
+    ['g','Google Shopping volledig actief','Product feed → Google Merchant Center. Shopping ads op bestsellers. Hoge koopintentie.', fmtK(d.j3.omzet*0.09) + ' Google'],
+    ['g','Loyaliteitsclub Nomad Circle','Jaarlidmaatschap €29. Early access · 10% korting · gratis verzending. Recurring revenue.', fmtK(d.j3.omzet*0.08) + ' loyaliteit'],
+  ];
+  el.innerHTML = items.map(([dot,naam,desc,impact]) => `
+    <div class="groei-item">
+      <div class="groei-dot ${dot}"></div>
+      <div><div class="groei-naam">${naam}</div><div class="groei-desc">${desc}</div><div class="groei-impact">${impact}</div></div>
+    </div>`).join('');
+}
+
+function renderGrafiek() {
+  const d = DATA[huidigSc];
+  const alle = [...d.m1, ...d.m2, ...d.m3];
+  const labels = [...MAANDEN1, ...MAANDEN2, ...MAANDEN3];
+  const omzet = alle.map(r => r[1]);
+  const winst = alle.map(r => r[5]);
+  let cum = 0;
+  const cumulatief = alle.map(r => { cum += r[5]; return cum; });
+
+  if (grafiek) grafiek.destroy();
+  grafiek = new Chart(document.getElementById('grafiek'), {
+    data: {
+      labels,
+      datasets: [
+        { type:'bar', label:'Omzet', data:omzet, backgroundColor:'rgba(188,122,92,0.25)', borderColor:'#BC7A5C', borderWidth:1.5, borderRadius:4, yAxisID:'y' },
+        { type:'bar', label:'Nettoresultaat', data:winst, backgroundColor: winst.map(v => v>=0 ? 'rgba(45,122,58,0.3)' : 'rgba(192,57,43,0.2)'), borderColor: winst.map(v => v>=0 ? '#2D7A3A' : '#C0392B'), borderWidth:1, borderRadius:3, yAxisID:'y' },
+        { type:'line', label:'Cumulatief', data:cumulatief, borderColor:'#3D342E', borderWidth:2, pointRadius:0, tension:0.4, fill:false, yAxisID:'y1', borderDash:[4,3] }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ labels:{ font:{family:'Montserrat',size:11}, color:'#3D342E' } }, tooltip:{ callbacks:{ label: ctx => ctx.dataset.label + ': € ' + (ctx.raw||0).toLocaleString('nl-NL') } } },
+      scales: {
+        x:{ grid:{display:false}, ticks:{font:{size:9},color:'rgba(61,52,46,0.45)',maxRotation:45} },
+        y:{ grid:{color:'rgba(61,52,46,0.05)'}, ticks:{font:{size:10}, callback: v=>'€'+Math.round(v/1000)+'K'} },
+        y1:{ position:'right', grid:{display:false}, ticks:{font:{size:10}, callback: v=>'€'+Math.round(v/1000)+'K'} }
+      }
+    }
+  });
+}
+
+function renderKanalen(id, nr) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const sets = {
+    1: [['🌐','Eigen webshop',62],['📌','Pinterest organisch',16],['🛒','Bol.com',12],['🎵','TikTok organisch',7],['📦','Etsy',3]],
+    2: [['🌐','Eigen webshop',48],['🛒','Bol.com + Zalando',22],['📌','Pinterest',11],['📧','E-mail Klaviyo',10],['🎵','TikTok Shop',9]],
+    3: [['🌐','Eigen webshop (4 landen)',40],['🛒','Marketplaces',24],['📧','E-mail 5.000+',14],['🎵','TikTok Shop',12],['🔍','Google Shopping',10]]
+  };
+  const data = sets[nr];
+  el.innerHTML = data.map(([icon,naam,pct]) => `
+    <div class="ass-rij">
+      <div class="ass-icon">${icon}</div>
+      <div class="ass-naam">${naam}</div>
+      <div class="ass-balk"><div class="ass-fill" style="width:${pct}%"></div></div>
+      <div class="ass-euro">${pct}%</div>
+    </div>`).join('');
+}
+
+function renderAll() {
+  const d = DATA[huidigSc];
+  renderKPI('kpi-j1', {...d.j1});
+  renderKPI('kpi-j2', {...d.j2, breakeven:'Mnd 1'});
+  renderKPI('kpi-j3', {...d.j3, breakeven:'Mnd 1'});
+  renderTabel('tabel-j1', MAANDEN1, d.m1);
+  renderTabel('tabel-j2', MAANDEN2, d.m2);
+  renderTabel('tabel-j3', MAANDEN3, d.m3);
+  renderAss('ass-j1', d.ass1);
+  renderAss('ass-j2', d.ass2);
+  renderAss('ass-j3', d.ass3);
+  renderGroeiJ2('groei-j2');
+  renderGroeiJ3('groei-j3');
+  renderKanalen('kanalen-j1', 1);
+  renderKanalen('kanalen-j2', 2);
+  renderKanalen('kanalen-j3', 3);
+  ['j1','j2','j3'].forEach(j => {
+    const el = document.getElementById('sc-label-'+j);
+    if(el) el.textContent = d.naam;
+  });
+
+  // Q targets helper
+  const setQ = (id, maanden) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = '🎯 Doel: ' + fmt(maanden.reduce((s,r)=>s+r[1],0)) + ' omzet · ' + fmt(maanden.reduce((s,r)=>s+r[5],0)) + ' netto';
+  };
+
+  // Jaar 1 kwartalen
+  const m1 = d.m1;
+  setQ('j1q3', [m1[0],m1[1],m1[2]]);
+  setQ('j1q4', [m1[3],m1[4],m1[5]]);
+  setQ('j1q1', [m1[6],m1[7],m1[8]]);
+  setQ('j1q2', [m1[9],m1[10],m1[11]]);
+
+  // Jaar 2 kwartalen
+  const m2 = d.m2;
+  setQ('j2q3', [m2[0],m2[1],m2[2]]);
+  setQ('j2q4', [m2[3],m2[4],m2[5]]);
+  setQ('j2q1', [m2[6],m2[7],m2[8]]);
+  setQ('j2q2', [m2[9],m2[10],m2[11]]);
+
+  // Jaar 3 kwartalen
+  const m3 = d.m3;
+  setQ('j3q3', [m3[0],m3[1],m3[2]]);
+  setQ('j3q4', [m3[3],m3[4],m3[5]]);
+  setQ('j3q1', [m3[6],m3[7],m3[8]]);
+  setQ('j3q2', [m3[9],m3[10],m3[11]]);
+
+  if (huidigJaar === 0) setTimeout(renderGrafiek, 100);
+}
+
+function setScenario(sc, el) {
+  huidigSc = sc;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('actief'));
+  el.classList.add('actief');
+  renderAll();
+  if (huidigJaar === 0) setTimeout(renderGrafiek, 100);
+}
+
+function setJaar(nr, el) {
+  huidigJaar = nr;
+  document.querySelectorAll('.jaar-tab').forEach(t => t.classList.remove('actief'));
+  el.classList.add('actief');
+  document.querySelectorAll('.jaar-panel').forEach(p => p.classList.remove('actief'));
+  document.getElementById('jaar-' + nr).classList.add('actief');
+  if (nr === 0) setTimeout(renderGrafiek, 100);
+}
+
+renderAll();
+</script>
+</body>
+</html>
