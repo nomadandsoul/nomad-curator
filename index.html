@@ -204,7 +204,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     <input id="leverancier-input" type="text" placeholder="Nieuwe leverancier toevoegen — druk op Enter" maxlength="80">
     <button type="button" onclick="leverancierToevoegen()">+ Toevoegen</button>
   </div>
-  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Vink een leverancier af zodra de samenwerking actief is, of verwijder (✕) zodra jullie er niet meer mee werken. Dit werkt lokaal in je browser, net als de actielijst.</div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Vink een leverancier af zodra de samenwerking actief is, of verwijder (✕) zodra jullie er niet meer mee werken. Synchroniseert automatisch tussen jouw apparaten en met Bionda.</div>
 
   <!-- LIVE APPS -->
   <div class="sectie-label">Apps &amp; tools — live</div>
@@ -383,13 +383,48 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     <input id="actie-input" type="text" placeholder="Nieuwe actie toevoegen — druk op Enter" maxlength="140">
     <button type="button" onclick="actieToevoegen()">+ Toevoegen</button>
   </div>
-  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Wijzigingen (aanvinken, bewerken, toevoegen, verwijderen) worden lokaal in deze browser bewaard — niet automatisch gesynchroniseerd tussen apparaten of tussen Ludo en Bionda.</div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Wijzigingen (aanvinken, bewerken, toevoegen, verwijderen) synchroniseren automatisch tussen jouw apparaten en met Bionda — even wachten na een wijziging op andere apparaten totdat de pagina opnieuw geladen wordt.</div>
 
   <div class="dash-footer">© 2026 Nomad &amp; Soul — nomadandsoul.nl ✦ Ludo De Bruyn &amp; Bionda Renate Nijhoff ✦ Vertrouwelijk</div>
 
 </div>
 
 <script>
+  // --- SYNC MET GOOGLE APPS SCRIPT (zodat telefoon/pc en Ludo/Bionda synchroniseren) ---
+  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxzY1gVh_GPKceVgI8alfLMPmCFWfDUUtDaI49uACrT_QlLpLllvKWI-0a8hA3A5ICm/exec';
+  const SYNC_INDICATOR = document.createElement('div');
+  SYNC_INDICATOR.style.cssText = 'position:fixed;bottom:14px;right:14px;font-size:10px;padding:5px 10px;border-radius:20px;background:rgba(61,52,46,0.85);color:#F5EFEB;z-index:200;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
+  document.body.appendChild(SYNC_INDICATOR);
+  function syncMelding(tekst, blijvend) {
+    SYNC_INDICATOR.textContent = tekst;
+    SYNC_INDICATOR.style.opacity = '1';
+    if (!blijvend) setTimeout(() => { SYNC_INDICATOR.style.opacity = '0'; }, 2000);
+  }
+
+  async function syncGet(key) {
+    try {
+      const res = await fetch(`${SYNC_URL}?action=get&key=${key}`);
+      const data = await res.json();
+      return data.value;
+    } catch (e) {
+      console.warn('Sync ophalen mislukt voor', key, e);
+      return undefined; // undefined = kon niet bereiken, null = wel bereikt maar leeg
+    }
+  }
+
+  async function syncSet(key, value) {
+    try {
+      syncMelding('✦ Synchroniseren...', true);
+      const url = `${SYNC_URL}?action=set&key=${key}&value=${encodeURIComponent(JSON.stringify(value))}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.ok) { syncMelding('✓ Gesynchroniseerd'); } else { syncMelding('⚠ Sync-fout'); }
+    } catch (e) {
+      console.warn('Sync opslaan mislukt voor', key, e);
+      syncMelding('⚠ Geen verbinding — lokaal bewaard');
+    }
+  }
+
   const ACTIELIJST_KEY = 'nomad-actielijst-v1';
 
   const ACTIELIJST_DEFAULTS = [
@@ -411,9 +446,22 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   function actieBewaar(items) {
     try { localStorage.setItem(ACTIELIJST_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('actielijst', items);
   }
 
   let actieItems = actieLaad();
+
+  async function actieSyncBijWerk() {
+    const remote = await syncGet('actielijst');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      actieItems = remote;
+      try { localStorage.setItem(ACTIELIJST_KEY, JSON.stringify(actieItems)); } catch (e) {}
+      actieRender();
+    } else if (remote === null) {
+      // backend bereikt maar nog leeg (eerste keer) -> onze huidige lijst erheen sturen
+      syncSet('actielijst', actieItems);
+    }
+  }
 
   function actieRender() {
     const container = document.getElementById('actielijst');
@@ -493,6 +541,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   });
 
   actieRender();
+  actieSyncBijWerk();
 
   // --- LEVERANCIERS ---
   const LEVERANCIER_KEY = 'nomad-leveranciers-v1';
@@ -513,9 +562,21 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   function leverancierBewaar(items) {
     try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('leveranciers', items);
   }
 
   let leverancierItems = leverancierLaad();
+
+  async function leverancierSyncBijWerk() {
+    const remote = await syncGet('leveranciers');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      leverancierItems = remote;
+      try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(leverancierItems)); } catch (e) {}
+      leverancierRender();
+    } else if (remote === null) {
+      syncSet('leveranciers', leverancierItems);
+    }
+  }
 
   function modelSubBijwerken() {
     const actief = leverancierItems.filter((l) => l.actief);
@@ -610,6 +671,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   });
 
   leverancierRender();
+  leverancierSyncBijWerk();
 </script>
 
 </body>
