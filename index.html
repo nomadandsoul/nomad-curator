@@ -162,17 +162,20 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   </div>
 
   <!-- STATUS -->
-  <div class="sectie-label">Status overzicht</div>
+  <div class="sectie-label" style="display:flex;justify-content:space-between;align-items:baseline;">
+    <span>Status overzicht</span>
+    <span style="font-size:10px;font-weight:400;letter-spacing:0.5px;color:rgba(61,52,46,0.4);text-transform:none;">✦ Live gecontroleerd op 2 juli 2026</span>
+  </div>
   <div class="status-grid">
     <div class="status-item">
       <div class="status-label">Webshop</div>
       <div class="status-val">Offline</div>
-      <div class="status-sub">Wachtwoord aan — in opbouw</div>
+      <div class="status-sub">"Opening soon" — wachtwoordpagina actief (live gecheckt)</div>
     </div>
     <div class="status-item">
       <div class="status-label">Platform</div>
       <div class="status-val">Shopify</div>
-      <div class="status-sub">Horizon thema · 9 collecties</div>
+      <div class="status-sub">Horizon thema · 18 collecties totaal — 9 merk, 9 generiek (<a href="#opschonen" style="color:var(--tc);">opschonen aanbevolen</a>)</div>
     </div>
     <div class="status-item">
       <div class="status-label">E-mail</div>
@@ -182,9 +185,24 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     <div class="status-item">
       <div class="status-label">Model</div>
       <div class="status-val">Dropship</div>
-      <div class="status-sub">Shopify Collective (ibizamode) · geen voorraad</div>
+      <div class="status-sub" id="model-leverancier-sub">Nog geen actieve leverancier — Shopify Collective in aanvraag</div>
     </div>
   </div>
+
+  <div id="opschonen" class="app-kaart" style="margin-top:14px;border-left:3px solid #A34936;">
+    <div style="font-size:12px;color:rgba(61,52,46,0.75);line-height:1.7;">
+      <strong style="color:#A34936;">⚠ Gevonden bij live check:</strong> je Shopify-winkel heeft 18 collecties, waarvan er 9 niets met Nomad &amp; Soul te maken hebben — <em>Personal Care, Health &amp; Beauty, Health Care, Sporting Goods, Cameras &amp; Optics, Pet Supplies, Apparel &amp; Accessories, Clothing Accessories</em> en de standaard <em>Homepage</em>-collectie. Dit zijn vermoedelijk automatisch aangemaakte voorbeeldcollecties. Voor een professionele uitstraling raad ik aan deze te verwijderen via Shopify-admin → Producten → Collecties.
+    </div>
+  </div>
+
+  <!-- LEVERANCIERS (bewerkbaar) -->
+  <div class="sectie-label" style="margin-top:32px;">Huidige leveranciers</div>
+  <div id="leverancierslijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="actie-add-row">
+    <input id="leverancier-input" type="text" placeholder="Nieuwe leverancier toevoegen — druk op Enter" maxlength="80">
+    <button type="button" onclick="leverancierToevoegen()">+ Toevoegen</button>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Vink een leverancier af zodra de samenwerking actief is, of verwijder (✕) zodra jullie er niet meer mee werken. Dit werkt lokaal in je browser, net als de actielijst.</div>
 
   <!-- LIVE APPS -->
   <div class="sectie-label">Apps &amp; tools — live</div>
@@ -473,6 +491,123 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   });
 
   actieRender();
+
+  // --- LEVERANCIERS ---
+  const LEVERANCIER_KEY = 'nomad-leveranciers-v1';
+
+  const LEVERANCIER_DEFAULTS = [
+    { naam: 'Shopify Collective (ibizamode)', desc: 'Boho kleding NL — uitnodiging klaar, wacht op volledige Shopify-setup (KVK/BTW/bank via Bionda).', actief: false },
+    { naam: 'Droppery.io (Bazar Bizar)', desc: 'Boho home accessories, 40–50% marge, EU levering 1–5 dagen. Nog niet gestart.', actief: false },
+    { naam: 'Aurobelle Ibiza / Jaase / Brands of Ibiza', desc: 'Directe merken — outreach verstuurd, nog geen bevestiging.', actief: false },
+  ];
+
+  function leverancierLaad() {
+    try {
+      const raw = localStorage.getItem(LEVERANCIER_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return LEVERANCIER_DEFAULTS.map((item, i) => ({ id: 'l' + i, ...item }));
+  }
+
+  function leverancierBewaar(items) {
+    try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  let leverancierItems = leverancierLaad();
+
+  function modelSubBijwerken() {
+    const actief = leverancierItems.filter((l) => l.actief);
+    const el = document.getElementById('model-leverancier-sub');
+    if (!el) return;
+    if (actief.length === 0) {
+      el.textContent = 'Nog geen actieve leverancier — Shopify Collective in aanvraag';
+    } else {
+      el.textContent = actief.map((l) => l.naam).join(' · ');
+    }
+  }
+
+  function leverancierRender() {
+    const container = document.getElementById('leverancierslijst');
+    container.innerHTML = '';
+    leverancierItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item' + (item.actief ? ' prio' : '');
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'actie-check';
+      check.title = 'Actief als leverancier';
+      check.checked = !!item.actief;
+      check.addEventListener('change', () => {
+        item.actief = check.checked;
+        leverancierBewaar(leverancierItems);
+        leverancierRender();
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const naam = document.createElement('div');
+      naam.className = 'actie-titel';
+      naam.contentEditable = 'true';
+      naam.spellcheck = false;
+      naam.innerText = item.naam;
+      naam.addEventListener('blur', () => {
+        item.naam = naam.innerText.trim() || item.naam;
+        leverancierBewaar(leverancierItems);
+        modelSubBijwerken();
+      });
+      naam.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); naam.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        leverancierBewaar(leverancierItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(naam);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Niet meer samenwerken — verwijderen';
+      del.addEventListener('click', () => {
+        leverancierItems = leverancierItems.filter((i) => i.id !== item.id);
+        leverancierBewaar(leverancierItems);
+        leverancierRender();
+        modelSubBijwerken();
+      });
+
+      row.appendChild(check);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+    modelSubBijwerken();
+  }
+
+  function leverancierToevoegen() {
+    const input = document.getElementById('leverancier-input');
+    const val = input.value.trim();
+    if (!val) return;
+    leverancierItems.push({ id: 'l' + Date.now(), naam: val, desc: '', actief: false });
+    leverancierBewaar(leverancierItems);
+    input.value = '';
+    leverancierRender();
+  }
+
+  document.getElementById('leverancier-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); leverancierToevoegen(); }
+  });
+
+  leverancierRender();
 </script>
 
 </body>
