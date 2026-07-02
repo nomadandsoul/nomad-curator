@@ -14,7 +14,20 @@
     --dusty: #7A6552;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Montserrat', sans-serif; background: var(--zand); color: var(--espresso); font-size: 14px; line-height: 1.7; }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--espresso);
+    font-size: 14px;
+    line-height: 1.7;
+    background-image: url('sfeer-achtergrond.jpg');
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-color: var(--zand);
+    position: relative;
+  }
+  body::before { content: ''; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(245,239,235,0.88); z-index: 0; pointer-events: none; }
+  .page { position: relative; z-index: 1; }
   .page { max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
 
   /* HEADER */
