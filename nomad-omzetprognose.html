@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>Nomad & Soul — Omzetprognose</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --sand: #E4DACF; --groen: #2D7A3A; --rood: #C0392B; --oranje: #E67E22; }
@@ -461,7 +461,17 @@ function bereken() {
 
   for (let i = 0; i < 12; i++) {
     const maandIdx = (startMaand + i) % 12;
-    const seizoenFactor = SEIZOEN[maandIdx];
+    let seizoenFactor = SEIZOEN[maandIdx];
+
+    // Seizoenscampagnes: versterkt de bestaande piekmaanden (mei-aug) extra,
+    // vanaf de startmaand van de campagne. Dit was voorheen alleen als data
+    // aanwezig maar nergens daadwerkelijk in de berekening verwerkt.
+    if (actieveKansen.has('seizoen') && i >= KANSEN_DATA.seizoen.startMnd - 1) {
+      // Bonus schaalt mee met hoe uitgesproken het seizoen al is (piekmaanden
+      // profiteren het meest van een seizoenscampagne, net als in de praktijk)
+      const piekGewicht = Math.max(0, seizoenFactor - 1);
+      seizoenFactor += piekGewicht * KANSEN_DATA.seizoen.seizoenBonus * 2;
+    }
 
     // Omzet uit groeikanalen (Pinterest, TikTok, influencers, etc.) — telt nu mee
     // als ECHTE omzet, niet als losse winst-optelling naast de omzetberekening.
@@ -625,7 +635,7 @@ function bereken() {
   });
 }
 
-bereken();
+document.addEventListener('DOMContentLoaded', bereken);
 </script>
 </body>
 </html>
