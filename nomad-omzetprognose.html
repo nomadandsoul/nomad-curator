@@ -451,7 +451,7 @@ function bereken() {
     if (KANSEN_DATA[k].retourBonus) retourBonus += KANSEN_DATA[k].retourBonus;
   });
 
-  const effectiefAOV = d.aov * (1 + aovBonus / 100);
+  const basisAOV = d.aov * (1 + aovBonus / 100);
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
   let maandData = [];
@@ -463,26 +463,25 @@ function bereken() {
     const maandIdx = (startMaand + i) % 12;
     const seizoenFactor = SEIZOEN[maandIdx];
 
-    // Kansen extra omzet
-    let kansenExtra = 0;
+    // Omzet uit groeikanalen (Pinterest, TikTok, influencers, etc.) — telt nu mee
+    // als ECHTE omzet, niet als losse winst-optelling naast de omzetberekening.
+    let kansenOmzet = 0;
     actieveKansen.forEach(k => {
       const kd = KANSEN_DATA[k];
       if (kd.mndExtra && i >= kd.startMnd - 1) {
         const aanloopFactor = Math.min(1, (i - kd.startMnd + 2) / 3);
-        kansenExtra += kd.mndExtra * aanloopFactor;
-      }
-      if (kd.seizoenBonus && i >= kd.startMnd - 1) {
-        // Seizoen bonus wordt in seizoenFactor verwerkt
+        kansenOmzet += kd.mndExtra * aanloopFactor;
       }
     });
 
     const effectiefOrders = Math.round(orders * seizoenFactor);
-    const omzet = effectiefOrders * effectiefAOV;
+    const basisOmzet = effectiefOrders * basisAOV;
+    const omzet = basisOmzet + kansenOmzet; // TOTALE omzet inclusief groeikanalen
     const brutoMargeEuro = omzet * (d.marge / 100);
     const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
     const adKosten = d.adBudget;
     const vasteKosten = d.vaste + 79; // Shopify
-    const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten + kansenExtra;
+    const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten;
     cumulatief += netto;
 
     if (!breakEven && cumulatief >= 0) breakEven = i + 1;
@@ -494,7 +493,7 @@ function bereken() {
       brutomarge: brutoMargeEuro,
       adKosten,
       vasteKosten: vasteKosten + retourKosten,
-      kansenExtra,
+      kansenExtra: kansenOmzet,
       netto,
       cumulatief,
       isCurrent: i === 0,
@@ -507,6 +506,9 @@ function bereken() {
   const jaarOmzet = maandData.reduce((s, m) => s + m.omzet, 0);
   const jaarWinst = maandData.reduce((s, m) => s + m.netto, 0);
   const jaarOrders = maandData.reduce((s, m) => s + m.orders, 0);
+  const jaarKansenOmzet = maandData.reduce((s, m) => s + m.kansenExtra, 0);
+  // Eerlijk gewogen gemiddelde orderwaarde: totale omzet (incl. groeikanalen) / totale orders
+  const gewogenAOV = jaarOrders > 0 ? jaarOmzet / jaarOrders : basisAOV;
 
   document.getElementById('kpi-jaar').textContent = fmtK(jaarOmzet);
   document.getElementById('kpi-jaar').className = 'kpi-num tc';
@@ -514,8 +516,14 @@ function bereken() {
   document.getElementById('kpi-winst').textContent = fmtK(jaarWinst);
   document.getElementById('kpi-winst').className = 'kpi-num ' + (jaarWinst > 0 ? 'groen' : 'rood');
   document.getElementById('kpi-winst-sub').textContent = jaarWinst > 0 ? 'Winstgevend' : 'Investeringsfase';
-  document.getElementById('kpi-aov').textContent = '€ ' + Math.round(effectiefAOV);
-  document.getElementById('kpi-aov-sub').textContent = aovBonus > 0 ? '+' + aovBonus + '% via bundels' : 'Basis AOV';
+  document.getElementById('kpi-aov').textContent = '€ ' + Math.round(gewogenAOV);
+  document.getElementById('kpi-aov-sub').textContent = aovBonus > 0 && jaarKansenOmzet > 0
+    ? '+' + aovBonus + '% bundels + kanalen'
+    : aovBonus > 0
+      ? '+' + aovBonus + '% via bundels'
+      : jaarKansenOmzet > 0
+        ? 'incl. groeikanalen'
+        : 'Basis AOV';
   document.getElementById('kpi-orders').textContent = jaarOrders;
   document.getElementById('kpi-orders-sub').textContent = Math.round(jaarOrders / 12) + ' gem/mnd';
   document.getElementById('kpi-break').textContent = breakEven ? 'Mnd ' + breakEven : 'Jaar 2+';
