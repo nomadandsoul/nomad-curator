@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Nomad & Soul — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
@@ -135,6 +138,65 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   .merk-grid { grid-template-columns: 1fr; }
   .hero-star { display: none; }
 }
+
+/* DOCUMENT MODAL — vertrouwelijke documenten worden hier ingeladen i.p.v. naar Drive te linken */
+.doc-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(61,52,46,0.55);
+  backdrop-filter: blur(3px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.doc-modal-overlay.open { display: flex; }
+.doc-modal-box {
+  background: #F5EFEB;
+  width: 100%;
+  max-width: 980px;
+  height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.doc-modal-topbar {
+  background: #3D342E;
+  color: #F5EFEB;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.doc-modal-titel { font-family: 'Playfair Display', serif; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.doc-modal-close {
+  background: rgba(245,239,235,0.12);
+  border: 1px solid rgba(245,239,235,0.25);
+  color: #F5EFEB;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+}
+.doc-modal-close:hover { background: rgba(245,239,235,0.22); }
+.doc-modal-body { flex: 1; position: relative; background: #fff; }
+.doc-modal-body iframe { width: 100%; height: 100%; border: none; }
+.doc-modal-status {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: rgba(61,52,46,0.6); text-align: center; padding: 30px;
+  background: #F5EFEB;
+}
+.doc-modal-status a { color: #BC7A5C; }
+@media (max-width: 768px) {
+  .doc-modal-overlay { padding: 0; }
+  .doc-modal-box { height: 100%; max-width: 100%; border-radius: 0; }
+}
 </style>
 </head>
 <body>
@@ -258,18 +320,18 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   <div class="sectie-label">Referentie &amp; documentatie</div>
   <div class="grid-3">
 
-    <a href="https://drive.google.com/file/d/1Z9PIz2R6oTgZjkgQb5D4x7gEqVPQV1Xz/view" target="_blank" class="app-kaart">
+    <a href="#" onclick="openDocument('projectoverzicht','Projectoverzicht'); return false;" class="app-kaart">
       <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
       <div class="app-naam">Projectoverzicht</div>
       <div class="app-desc">Volledig projectdocument — status, financiën, leveranciers, tech stack en actielijst in één overzicht.</div>
-      <span class="app-badge badge-ref">🔒 Besloten Drive</span>
+      <span class="app-badge badge-ref">🔒 Vertrouwelijk</span>
     </a>
 
-    <a href="https://drive.google.com/file/d/1MP0fNiI8Sz5OhaQmqQnPuOLGfUfVdPtp/view" target="_blank" class="app-kaart">
+    <a href="#" onclick="openDocument('systemprompt','Claude System Prompt'); return false;" class="app-kaart">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4z"/><path d="M8 9h8M8 12.5h5"/></svg></div>
       <div class="app-naam">Claude System Prompt</div>
       <div class="app-desc">Volledige merkstijl- en content-prompt voor gebruik in Make.com automatiseringen. Kopieerbaar.</div>
-      <span class="app-badge badge-ref">🔒 Besloten Drive</span>
+      <span class="app-badge badge-ref">🔒 Vertrouwelijk</span>
     </a>
 
     <a href="nomad-video-engine-setup.html" class="app-kaart">
@@ -281,7 +343,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   </div>
 
-  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Projectoverzicht en System Prompt bevatten vertrouwelijke informatie en staan daarom niet meer publiek — alleen bereikbaar voor wie toegang heeft tot de besloten Drive-map.</div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Projectoverzicht en System Prompt bevatten vertrouwelijke informatie. Ze openen hierboven rechtstreeks in het dashboard — de inhoud staat niet in de publieke code van deze app, maar wordt live opgehaald uit een besloten Drive-map.</div>
 
   <!-- IN OPBOUW -->
   <div class="sectie-label">In opbouw</div>
@@ -391,6 +453,20 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
 </div>
 
+<!-- DOCUMENT MODAL -->
+<div class="doc-modal-overlay" id="doc-modal-overlay">
+  <div class="doc-modal-box">
+    <div class="doc-modal-topbar">
+      <div class="doc-modal-titel">🔒 <span id="doc-modal-titel-tekst">Document</span></div>
+      <button type="button" class="doc-modal-close" onclick="closeDocument()">Sluiten ✕</button>
+    </div>
+    <div class="doc-modal-body">
+      <div class="doc-modal-status" id="doc-modal-status">Document laden…</div>
+      <iframe id="doc-modal-iframe" style="display:none;"></iframe>
+    </div>
+  </div>
+</div>
+
 <script>
   // --- SYNC MET GOOGLE APPS SCRIPT (zodat telefoon/pc en Ludo/Bionda synchroniseren) ---
   const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxzY1gVh_GPKceVgI8alfLMPmCFWfDUUtDaI49uACrT_QlLpLllvKWI-0a8hA3A5ICm/exec';
@@ -426,6 +502,45 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
       syncMelding('⚠ Geen verbinding — lokaal bewaard');
     }
   }
+
+  // --- VERTROUWELIJKE DOCUMENTEN IN-APP LADEN ---
+  // Haalt de HTML van projectoverzicht/systemprompt live op uit de besloten Drive-map
+  // via de Apps Script backend (getdoc-actie). De inhoud zelf staat nergens in deze
+  // publieke GitHub-code — enkel de sleutelnaam ('projectoverzicht'/'systemprompt') wordt verstuurd.
+  async function openDocument(key, titel) {
+    const overlay = document.getElementById('doc-modal-overlay');
+    const status = document.getElementById('doc-modal-status');
+    const iframe = document.getElementById('doc-modal-iframe');
+    document.getElementById('doc-modal-titel-tekst').textContent = titel;
+    status.style.display = 'flex';
+    status.textContent = 'Document laden…';
+    iframe.style.display = 'none';
+    iframe.srcdoc = '';
+    overlay.classList.add('open');
+
+    try {
+      const res = await fetch(`${SYNC_URL}?action=getdoc&id=${key}`);
+      const data = await res.json();
+      if (data.error || !data.html) {
+        status.innerHTML = 'Kon het document niet laden.<br><span style="font-size:11px;">' + (data.error || 'Onbekende fout') + '</span>';
+        return;
+      }
+      iframe.srcdoc = data.html;
+      iframe.style.display = 'block';
+      status.style.display = 'none';
+    } catch (e) {
+      status.innerHTML = 'Geen verbinding — probeer het later opnieuw.';
+    }
+  }
+
+  function closeDocument() {
+    document.getElementById('doc-modal-overlay').classList.remove('open');
+    document.getElementById('doc-modal-iframe').srcdoc = '';
+  }
+
+  document.getElementById('doc-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'doc-modal-overlay') closeDocument();
+  });
 
   const ACTIELIJST_KEY = 'nomad-actielijst-v1';
 
