@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad Curator — Nomad &amp; Soul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#3D342E;
+    --espresso-soft:#5A4D42;
+    --espresso-2:#473A32;
+    --terracotta:#BC7A5C;
+    --terracotta-dark:#A36549;
+    --zand:#E4DACF;
+    --ivory:#F5EFEB;
+    --white:#FFFFFF;
+    --muted:#8A7B6D;
+    --serif:'Playfair Display', Georgia, serif;
+    --sans:'Montserrat', Arial, sans-serif;
+    --dw:1280px;
+    --dh:720px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--espresso);}
+  body{font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
+
+  .stage{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 15% 85%, #2c2620 0%, transparent 55%),
+      radial-gradient(circle at 85% 15%, #2c2620 0%, transparent 55%),
+      var(--espresso);
+  }
+  .deck{
+    position:relative; width:var(--dw); height:var(--dh);
+    background:var(--ivory);
+    box-shadow:0 40px 90px rgba(0,0,0,.45), 0 4px 18px rgba(0,0,0,.25);
+    border-radius:6px;
+    overflow:hidden;
+    transform-origin:center center;
+    flex-shrink:0;
+  }
+
+  .slide{
+    position:absolute; inset:0; padding:0;
+    display:flex; flex-direction:column;
+    opacity:0; visibility:hidden;
+    transform:translateX(60px);
+    transition:opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1);
+    pointer-events:none;
+  }
+  .slide.dark{ background:var(--espresso); color:var(--ivory); }
+  .slide.light{ background:var(--ivory); color:var(--espresso); }
+
+  .slide.active{ opacity:1; visibility:visible; transform:translateX(0); pointer-events:auto; z-index:2;}
+  .slide.exit-left{ opacity:0; transform:translateX(-60px); }
+
+  .pad{ padding:46px 60px 66px 60px; height:100%; position:relative; }
+
+  .orb{ position:absolute; border-radius:50%; background:var(--espresso-2); pointer-events:none; }
+
+  .eyebrow{
+    font-family:var(--sans); font-weight:700; font-size:11.5px; letter-spacing:3px;
+    color:var(--terracotta-dark); text-transform:uppercase; margin:0 0 8px 0;
+  }
+  .dark .eyebrow{ color:var(--terracotta); }
+  .headline{
+    font-family:var(--serif); font-weight:500; font-size:30px; line-height:1.15; margin:0 0 6px 0;
+    color:var(--espresso);
+  }
+  .dark .headline{ color:var(--ivory); }
+
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .active .reveal.show{ opacity:1; transform:translateY(0); }
+
+  .diamond{ color:var(--terracotta); font-size:26px; font-family:var(--serif); }
+
+  .icon-badge{
+    width:44px; height:44px; border-radius:50%; background:var(--zand);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .dark .icon-badge{ background:var(--espresso-2); }
+  .icon-badge svg{ width:20px; height:20px; stroke:var(--terracotta); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+  .card{
+    background:var(--white); border-radius:12px; box-shadow:0 10px 26px rgba(61,52,46,.07);
+  }
+  .dark .card{ background:var(--espresso-2); box-shadow:none; }
+
+  .row-item{ display:flex; gap:16px; align-items:flex-start; }
+  .row-item h4{ font-family:var(--serif); font-weight:500; font-size:15.5px; margin:2px 0 5px 0; color:var(--espresso); }
+  .dark .row-item h4{ color:var(--ivory); }
+  .row-item p{ font-family:var(--sans); font-size:12px; line-height:1.48; margin:0; color:var(--muted); max-width:560px; }
+  .dark .row-item p{ color:#D8CCC0; }
+
+  .footer-note{
+    position:absolute; left:60px; bottom:24px; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase;
+  }
+  .dark .footer-note{ color:#9C8E80; }
+  .page-num{
+    position:absolute; right:60px; bottom:24px; font-size:9px; color:var(--muted);
+  }
+  .dark .page-num{ color:#9C8E80; }
+
+  .controls{
+    position:absolute; left:0; right:0; bottom:0; height:56px;
+    display:flex; align-items:center; justify-content:center; gap:18px;
+    z-index:10; pointer-events:none;
+  }
+  .controls > *{ pointer-events:auto; }
+  .nav-btn{
+    width:34px; height:34px; border-radius:50%; border:1px solid rgba(61,52,46,.18);
+    background:rgba(255,255,255,.75); backdrop-filter:blur(6px); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .2s ease;
+  }
+  .nav-btn:hover{ background:var(--terracotta); border-color:var(--terracotta); }
+  .nav-btn:hover svg{ stroke:#fff; }
+  .nav-btn svg{ width:14px; height:14px; stroke:var(--espresso); fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+
+  .dots{ display:flex; gap:6px; flex-wrap:wrap; max-width:360px; justify-content:center; }
+  .dot{ width:6px; height:6px; border-radius:50%; background:rgba(61,52,46,.22); cursor:pointer; transition:all .25s ease; }
+  .dot.active{ background:var(--terracotta); width:18px; border-radius:4px; }
+
+  .counter{
+    font-family:var(--sans); font-size:10px; letter-spacing:1px; color:var(--espresso-soft);
+    min-width:46px; text-align:center;
+  }
+
+  .progress-bar{ position:absolute; top:0; left:0; height:3px; background:var(--terracotta); z-index:11; transition:width .5s ease; }
+
+  .hint{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+    color:#C9BBAE; font-family:var(--sans); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    opacity:1; transition:opacity .8s ease; z-index:12; pointer-events:none; text-align:center;
+  }
+  .hint.hidden{ opacity:0; }
+
+  .fs-btn{
+    position:fixed; top:18px; right:22px; z-index:12; width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); backdrop-filter:blur(6px);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .fs-btn svg{ width:15px; height:15px; stroke:#F5EFEB; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .fs-btn:hover{ background:rgba(255,255,255,.18); }
+
+  .click-zone{ position:absolute; top:0; bottom:56px; width:14%; z-index:9; cursor:pointer; }
+  .click-zone.left{ left:0; } .click-zone.right{ right:0; }
+
+  img{ display:block; }
+
+  /* ===================== SLIDE-SPECIFIC ===================== */
+
+  /* Slide 1 — title with photo */
+  #s1 .bgphoto{ position:absolute; inset:0; }
+  #s1 .bgphoto img{ width:100%; height:100%; object-fit:cover; object-position:center 20%; }
+  #s1 .bgphoto::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(100deg, rgba(61,52,46,.97) 0%, rgba(61,52,46,.92) 38%, rgba(61,52,46,.62) 68%, rgba(61,52,46,.32) 100%);
+  }
+  #s1 .content{ position:relative; z-index:1; }
+  #s1 .kicker{ font-size:12px; font-weight:700; letter-spacing:3px; color:var(--terracotta); text-transform:uppercase; }
+  #s1 .maintitle{ font-family:var(--serif); font-size:64px; color:var(--ivory); margin:12px 0 6px 0; line-height:1; }
+  #s1 .subtitle{ font-family:var(--serif); font-style:italic; font-size:19px; color:var(--zand); margin:8px 0 16px 0; }
+  #s1 .desc{ font-size:13px; color:#D8CCC0; max-width:560px; line-height:1.5; }
+  #s1 .rule{ width:120px; height:1px; background:var(--terracotta); margin:22px 0 12px 0; }
+  #s1 .meta{ font-size:10px; color:#AFA093; letter-spacing:.5px; }
+
+  /* Slide 2 */
+  .two-col{ display:flex; gap:50px; margin-top:26px; }
+  .two-col .left{ flex:0 0 380px; font-size:12.5px; line-height:1.6; color:var(--espresso-soft); }
+  .two-col .right{ flex:1; display:flex; flex-direction:column; gap:18px; }
+
+  /* Slide 3 */
+  .split3{ display:flex; gap:22px; margin-top:22px; height:420px; }
+  .split3 .panel-l{ flex:0 0 44%; padding:26px; display:flex; flex-direction:column; }
+  .split3 .panel-l h3{ font-family:var(--serif); font-weight:500; font-size:17px; margin:0 0 10px 0; }
+  .split3 .panel-l p{ font-size:11.5px; line-height:1.55; color:var(--espresso-soft); margin:0 0 16px 0; }
+  .feat-mini{ display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+  .feat-mini span{ font-size:11px; color:var(--espresso); }
+  .panel-r{ flex:1; border-radius:12px; padding:24px; background:var(--espresso); color:var(--ivory); overflow-y:auto; }
+  .panel-r .tag{ font-family:var(--serif); font-style:italic; color:var(--terracotta); font-size:14px; margin-bottom:12px; }
+  .panel-r ul{ list-style:none; margin:0; padding:0; }
+  .panel-r li{ font-size:11.5px; padding:6px 0; display:flex; align-items:center; gap:9px; }
+  .panel-r li::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--terracotta); flex-shrink:0; }
+
+  /* Slide 4 — 8-card grid */
+  .grid8{ display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-top:20px; }
+  .g-card{ padding:16px; display:flex; flex-direction:column; gap:8px; height:172px; transition:transform .25s ease; }
+  .g-card:hover{ transform:translateY(-4px); }
+  .g-card h4{ font-family:var(--serif); font-size:13.5px; font-weight:500; margin:0; color:var(--espresso); }
+  .g-card p{ font-size:10px; line-height:1.4; color:var(--muted); margin:0; }
+  .g-card .icon-badge{ width:36px; height:36px; }
+  .g-card .icon-badge svg{ width:16px; height:16px; }
+
+  /* Slide 5 — value stats dark */
+  .stat-row{ display:flex; gap:14px; margin-top:22px; }
+  .stat-card{ flex:1; padding:20px 18px; height:250px; display:flex; flex-direction:column; gap:12px; }
+  .stat-card h4{ font-family:var(--serif); font-size:15px; font-weight:500; margin:4px 0 0 0; color:var(--ivory); }
+  .stat-card p{ font-size:10.5px; line-height:1.45; color:#D8CCC0; margin:0; }
+
+  /* Gallery (weekly product curation) */
+  .gallery-row{ display:flex; gap:14px; margin-top:22px; }
+  .gallery-card{ flex:1; border-radius:12px; overflow:hidden; background:var(--white); box-shadow:0 8px 20px rgba(61,52,46,.08); }
+  .gallery-card .imgwrap{ width:100%; height:150px; overflow:hidden; background:var(--zand); }
+  .gallery-card .imgwrap img{ width:100%; height:100%; object-fit:cover; }
+  .gallery-card .cap{ padding:10px 12px; }
+  .gallery-card .cap h5{ font-family:var(--serif); font-size:12.5px; font-weight:500; margin:0 0 2px 0; color:var(--espresso); }
+  .gallery-card .cap span{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+
+  .flow-steps{ display:flex; gap:10px; margin-top:18px; }
+  .flow-step{ flex:1; background:rgba(188,122,92,.08); border:1px solid rgba(188,122,92,.2); border-radius:10px; padding:12px 14px; }
+  .flow-step .num{ font-family:var(--serif); font-size:18px; color:var(--terracotta); margin-bottom:4px; }
+  .flow-step p{ font-size:10.5px; line-height:1.4; color:var(--espresso-soft); margin:0; }
+
+  /* Split with photo (Klaviyo) */
+  .split-photo{ display:flex; gap:26px; margin-top:20px; height:400px; }
+  .split-photo .text-col{ flex:1.15; display:flex; flex-direction:column; }
+  .split-photo .photo-col{ flex:0.85; border-radius:14px; overflow:hidden; position:relative; box-shadow:0 14px 34px rgba(61,52,46,.14); }
+  .split-photo .photo-col img{ width:100%; height:100%; object-fit:cover; }
+  .split-photo .photo-col::after{ content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(61,52,46,.55), transparent 45%); }
+  .split-photo .photo-tag{ position:absolute; left:16px; bottom:14px; z-index:1; color:var(--ivory); font-family:var(--serif); font-style:italic; font-size:14px; }
+
+  /* Mini grid (content engine) */
+  .mini-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px; }
+  .mini-card{ border-radius:10px; overflow:hidden; height:130px; position:relative; }
+  .mini-card img{ width:100%; height:100%; object-fit:cover; }
+  .mini-card .lbl{ position:absolute; left:0; right:0; bottom:0; padding:8px 10px; background:linear-gradient(to top, rgba(61,52,46,.85), transparent); color:var(--ivory); font-size:10px; letter-spacing:.5px; text-transform:uppercase; }
+
+  .tag-pill{ display:inline-flex; align-items:center; gap:6px; background:rgba(188,122,92,.12); border:1px solid rgba(188,122,92,.3); border-radius:50px; padding:5px 12px; font-size:10px; color:var(--terracotta-dark); font-weight:600; letter-spacing:.5px; margin-right:8px; margin-bottom:8px; }
+  .dark .tag-pill{ background:rgba(188,122,92,.15); color:var(--terracotta); border-color:rgba(188,122,92,.35); }
+
+  /* Financial donut */
+  .fin-wrap{ display:flex; gap:50px; margin-top:22px; align-items:center; }
+  .legend-list{ flex:0 0 360px; }
+  .legend-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(188,122,92,.15); }
+  .legend-row:first-child{ padding-top:0; }
+  .legend-dot{ width:11px; height:11px; border-radius:50%; margin-right:11px; flex-shrink:0; }
+  .legend-name{ flex:1; font-size:12px; color:var(--espresso); display:flex; align-items:center; }
+  .legend-pct{ font-family:var(--serif); font-weight:600; font-size:13.5px; color:var(--terracotta-dark); }
+  .donut-wrap{ position:relative; width:250px; height:250px; flex-shrink:0; }
+  .donut-wrap svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .donut-wrap circle{ opacity:0; transition:opacity .55s ease; }
+  .active .donut-wrap circle{ opacity:1; }
+  .donut-center{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+  .donut-center .n{ font-family:var(--serif); font-size:24px; color:var(--espresso); }
+  .donut-center .l{ font-size:8.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:2px; }
+
+  /* Bar chart */
+  .chart-note{ font-size:10.5px; font-style:italic; color:var(--muted); margin-top:4px; }
+  .bars{ display:flex; justify-content:space-between; align-items:flex-end; height:300px; margin-top:20px; padding:0 10px; border-bottom:1px solid rgba(61,52,46,.15); position:relative; }
+  .bar-group{ display:flex; gap:8px; align-items:flex-end; flex:1; justify-content:center; height:100%; }
+  .bar{ width:42px; border-radius:3px 3px 0 0; position:relative; height:0; transition:height 1.1s cubic-bezier(.16,.84,.44,1); }
+  .bar .val{ position:absolute; top:-20px; left:0; right:0; text-align:center; font-size:10.5px; color:var(--espresso); opacity:0; transition:opacity .4s ease .6s; }
+  .active .bar .val{ opacity:1; }
+  .bar.c1{ background:var(--zand); } .bar.c2{ background:var(--terracotta); } .bar.c3{ background:var(--espresso); }
+  .year-label{ text-align:center; font-size:12px; color:var(--espresso-soft); margin-top:8px; }
+  .years-row{ display:flex; }
+  .years-row > div{ flex:1; }
+  .chart-legend{ display:flex; gap:22px; margin-top:16px; justify-content:center; }
+  .chart-legend div{ display:flex; align-items:center; gap:7px; font-size:10.5px; color:var(--espresso-soft); }
+  .chart-legend span{ width:10px; height:10px; border-radius:3px; }
+
+  /* Slide emphasis dark (kanttekening) */
+  .warn-head{ display:flex; align-items:center; gap:16px; margin-bottom:4px; }
+  .point-row{ display:flex; gap:14px; align-items:flex-start; padding:12px 0; }
+  .point-row .bullet{ width:8px; height:8px; border-radius:50%; background:var(--terracotta); margin-top:5px; flex-shrink:0; }
+  .point-row p{ font-size:12px; line-height:1.5; color:#D8CCC0; margin:0; }
+
+  /* Closing */
+  #s14 .orb{ width:420px; height:420px; top:-210px; left:-210px; }
+  #s14 .closing-title{ font-family:var(--serif); font-size:34px; color:var(--ivory); margin:16px 0 14px 0; }
+  #s14 .closing-desc{ font-size:13px; color:#D8CCC0; max-width:600px; line-height:1.55; }
+  #s14 .tagline{ font-family:var(--serif); font-style:italic; color:var(--terracotta); font-size:14px; }
+
+  .compact-headline{ margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="progress-bar" id="progress"></div>
+  <div class="deck" id="deck">
+
+    <!-- ============ SLIDE 1 — TITLE ============ -->
+    <section class="slide dark active" id="s1">
+      <div class="bgphoto">
+        <img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-yuliya-shik-304107051-14535750.jpg?v=1780870433" alt="Nomad & Soul sfeer">
+      </div>
+      <div class="pad content">
+        <div class="reveal show" style="transition-delay:.05s;"><span class="diamond">✦</span></div>
+        <div class="kicker reveal show" style="transition-delay:.12s; margin-top:16px;">Nomad &amp; Soul · Intern overleg</div>
+        <div class="maintitle reveal show" style="transition-delay:.2s;">Nomad Curator</div>
+        <div class="subtitle reveal show" style="transition-delay:.32s;">Het centrale besturingssysteem achter Nomad &amp; Soul</div>
+        <div class="desc reveal show" style="transition-delay:.42s;">Eén overzicht voor product, financiën, marketing en groei — gebouwd om samen sneller en scherper te beslissen.</div>
+        <div class="rule reveal show" style="transition-delay:.55s;"></div>
+        <div class="meta reveal show" style="transition-delay:.62s;">Voorbereid voor Bionda Nijhoff &amp; Ludo De Bruyn · Juli 2026</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 2 — AANLEIDING ============ -->
+    <section class="slide light" id="s2">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Aanleiding</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Waarom we dit systeem hebben gebouwd</div>
+        <div class="two-col">
+          <div class="left reveal show" style="transition-delay:.22s;">
+            Nomad &amp; Soul groeit over meerdere platformen tegelijk: Shopify, Klaviyo, boekhouding, Make.com, contentproductie en socialmediaplanning. Zonder centraal overzicht wordt het steeds lastiger om snel en gezamenlijk de juiste beslissingen te nemen.
+          </div>
+          <div class="right">
+            <div class="row-item reveal" data-d=".3">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg></div>
+              <div><h4>Versnipperde data</h4><p>Cijfers en status stonden verspreid over losse tools en spreadsheets.</p></div>
+            </div>
+            <div class="row-item reveal" data-d=".42">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.4"/><path d="M22 20c0-2.6-2-4.8-5-5.4"/></svg></div>
+              <div><h4>Geen gedeelde bron</h4><p>Bionda en Ludo keken niet altijd naar dezelfde, actuele cijfers.</p></div>
+            </div>
+            <div class="row-item reveal" data-d=".54">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg></div>
+              <div><h4>Tijdverlies</h4><p>Handmatig schakelen tussen systemen kostte tijd die naar groei kon gaan.</p></div>
+            </div>
+            <div class="row-item reveal" data-d=".66">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17" r=".6" fill="var(--terracotta)"/></svg></div>
+              <div><h4>Beperkt zicht op risico's</h4><p>Financiële buffers en prognoses waren niet in één oogopslag te overzien.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">02</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 3 — WAT IS HET ============ -->
+    <section class="slide light" id="s3">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Het systeem</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Wat Nomad Curator precies is</div>
+        <div class="split3">
+          <div class="panel-l card reveal" data-d=".22">
+            <h3>Eén dashboard, acht samenhangende modules</h3>
+            <p>Nomad Curator bundelt productstrategie, financiën, boekhouding, marketing en contentproductie in één omgeving — speciaal gebouwd rond de manier van werken van Nomad &amp; Soul, in het Nederlands en in de huisstijl van het merk.</p>
+            <div class="feat-mini"><div class="icon-badge" style="width:34px;height:34px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><span>Synchroniseert automatisch tussen telefoon en computer</span></div>
+            <div class="feat-mini"><div class="icon-badge" style="width:34px;height:34px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div><span>Werkt als app op de telefoon (beginscherm)</span></div>
+            <div class="feat-mini"><div class="icon-badge" style="width:34px;height:34px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M12 3l7 3v6c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6l7-3z"/></svg></div><span>Gevoelige documenten staan afgeschermd</span></div>
+          </div>
+          <div class="panel-r reveal" data-d=".34">
+            <div class="tag">✦ Altijd actueel</div>
+            <ul>
+              <li>Wekelijkse productcuratie &amp; leveranciers</li>
+              <li>Omzetprognose per scenario</li>
+              <li>Financieel model &amp; reserveringen</li>
+              <li>Automatische boekhouding (Moneybird)</li>
+              <li>Klaviyo e-mailautomatisering</li>
+              <li>Content engine: Higgsfield &amp; social media</li>
+              <li>Status van Make.com-automatiseringen</li>
+              <li>3-jaren groeistrategie</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">03</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 4 — KERNFUNCTIES (8 cards) ============ -->
+    <section class="slide light" id="s4">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Kernfuncties</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Acht modules, één samenhangend geheel</div>
+        <div class="grid8">
+          <div class="g-card card reveal" data-d=".18">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>
+            <h4>Product Curator</h4><p>Wekelijkse, kant-en-klare productselectie op basis van leveranciers en trends.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".23">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l3-4 3 2 4-6"/></svg></div>
+            <h4>Omzetprognose</h4><p>Concrete scenario's — conservatief, realistisch, optimistisch.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".28">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7"/></svg></div>
+            <h4>Financieel Model</h4><p>Bewaakt de vaste verdeling over BTW, belasting, operationeel, finca en vrij beschikbaar.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".33">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M4 10h16"/><path d="M8 3v5"/><path d="M16 3v5"/></svg></div>
+            <h4>Boekhouding</h4><p>Automatische verwerking via Moneybird, klaar voor overdracht aan de accountant.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".38">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+            <h4>Klaviyo E-mail</h4><p>Welkomstreeks en abandoned cart flow, automatisch gebouwd en gepubliceerd.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".43">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M8 8l3 3 2-2 3 3"/></svg></div>
+            <h4>Content Engine</h4><p>Higgsfield-video's en social posting, automatisch gegenereerd en ingepland.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".48">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="10" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r=".7" fill="var(--terracotta)"/><circle cx="14.5" cy="13" r=".7" fill="var(--terracotta)"/></svg></div>
+            <h4>Make Monitor</h4><p>Houdt de status van alle geautomatiseerde workflows in de gaten.</p>
+          </div>
+          <div class="g-card card reveal" data-d=".53">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><line x1="9" y1="4" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="20"/></svg></div>
+            <h4>3-Jaar Strategie</h4><p>Routekaart richting de gezamenlijke mijlpalen, inclusief de finca.</p>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">04</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 5 — VOORDELEN ============ -->
+    <section class="slide dark" id="s5">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Waarde</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Wat dit concreet oplevert voor de webshop</div>
+        <div class="stat-row">
+          <div class="stat-card card reveal" data-d=".22">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg></div>
+            <h4>Tijdswinst</h4><p>Geen tijd meer kwijt aan losse spreadsheets en het bij elkaar zoeken van cijfers.</p>
+          </div>
+          <div class="stat-card card reveal" data-d=".3">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.4"/><path d="M22 20c0-2.6-2-4.8-5-5.4"/></svg></div>
+            <h4>Gedeeld overzicht</h4><p>Bionda en Ludo kijken naar dezelfde actuele cijfers — dezelfde bron van waarheid.</p>
+          </div>
+          <div class="stat-card card reveal" data-d=".38">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l3-4 3 2 4-6"/></svg></div>
+            <h4>Scherpere keuzes</h4><p>Scenario's en trends direct beschikbaar bij elk besluit over budget of groei.</p>
+          </div>
+          <div class="stat-card card reveal" data-d=".46">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6l7-3z"/></svg></div>
+            <h4>Financiële rust</h4><p>De vaste verdeling over de vijf potten is altijd zichtbaar en dus bewaakt.</p>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">05</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 6 — WEKELIJKSE PRODUCTCURATIE ============ -->
+    <section class="slide light" id="s6">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Product Curator</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Elke week een kant-en-klare productpagina</div>
+        <div class="two-col" style="margin-top:16px;">
+          <div class="left reveal show" style="transition-delay:.2s; flex:0 0 420px;">
+            Wekelijks analyseer ik het leveranciersaanbod, verkooptrends en seizoenspatronen, en stel ik een onderbouwde productselectie samen — compleet met beschrijving, prijsadvies en marge-inschatting. Ludo beoordeelt en keurt goed; niets gaat automatisch live zonder controle.
+            <div style="margin-top:16px;">
+              <span class="tag-pill">Leveranciersaanbod</span>
+              <span class="tag-pill">Verkooptrends</span>
+              <span class="tag-pill">Seizoenspatronen</span>
+              <span class="tag-pill">Marge-inschatting</span>
+            </div>
+          </div>
+          <div class="right" style="flex:1;">
+            <div class="gallery-row reveal" data-d=".32" style="margin-top:0;">
+              <div class="gallery-card">
+                <div class="imgwrap"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-rachel-claire-4577201_e5e1c656-f333-4676-b332-117c8ff502e9.jpg?v=1782252555" alt="Dames collectie"></div>
+                <div class="cap"><h5>Dames</h5><span>Bohemian maxi jurken</span></div>
+              </div>
+              <div class="gallery-card">
+                <div class="imgwrap"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-olly-5035605.jpg?v=1780870436" alt="Heren collectie"></div>
+                <div class="cap"><h5>Heren</h5><span>Linnen shirts &amp; broeken</span></div>
+              </div>
+            </div>
+            <div class="gallery-row reveal" data-d=".44">
+              <div class="gallery-card">
+                <div class="imgwrap"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-alexeydemidov-9692389.jpg?v=1780870435" alt="Sieraden"></div>
+                <div class="cap"><h5>Sieraden</h5><span>Handpicked boho stukken</span></div>
+              </div>
+              <div class="gallery-card">
+                <div class="imgwrap"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-vika-glitter-392079-27391418.jpg?v=1780870438" alt="Bestsellers"></div>
+                <div class="cap"><h5>Bestsellers</h5><span>Meest geliefde stukken</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">06</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 7 — KLAVIYO ============ -->
+    <section class="slide light" id="s7">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">E-mailautomatisering</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Klaviyo: automatische klantreis per e-mail</div>
+        <div class="split-photo">
+          <div class="text-col reveal" data-d=".2">
+            <p style="font-size:12px; line-height:1.55; color:var(--espresso-soft); margin:6px 0 14px 0;">
+              De welkomstreeks (4 mails: Wind, Aarde, Vuur en Maan) verwelkomt nieuwe klanten stap voor stap in de merkbeleving. Nieuwe mails worden automatisch gebouwd en via GitHub Actions rechtstreeks in Klaviyo gepubliceerd — geen handmatig kopieerwerk meer.
+            </p>
+            <div class="flow-steps">
+              <div class="flow-step"><div class="num">01</div><p>Mail wordt geschreven in huisstijl (Playfair + Montserrat, ✦ als anker)</p></div>
+              <div class="flow-step"><div class="num">02</div><p>Automatisch gepusht naar GitHub</p></div>
+              <div class="flow-step"><div class="num">03</div><p>GitHub Actions plaatst 'm direct als template in Klaviyo</p></div>
+            </div>
+            <p style="font-size:11.5px; line-height:1.5; color:var(--espresso-soft); margin-top:16px;">
+              <strong style="color:var(--espresso);">Volgende prioriteit:</strong> de abandoned cart flow — in de EU laat gemiddeld <strong style="color:var(--terracotta-dark);">72%</strong> van de gevulde winkelwagens de aankoop onvoltooid. Dit is de flow met de grootste verwachte omzetimpact.
+            </p>
+          </div>
+          <div class="photo-col reveal" data-d=".32">
+            <img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-enes-celik-3908473-7747277.jpg?v=1780870433" alt="Klaviyo mail sfeer">
+            <div class="photo-tag">✦ Dress the life you want to live.</div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">07</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 8 — BOEKHOUDING (MONEYBIRD) ============ -->
+    <section class="slide light" id="s8">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Financiële administratie</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Automatische boekhouding via Moneybird</div>
+        <div style="margin-top:22px;">
+          <div class="row-item reveal" data-d=".24" style="margin-bottom:18px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M4 10h16"/><path d="M8 3v5"/><path d="M16 3v5"/></svg></div>
+            <div><h4>Gekoppeld aan de zakelijke rekening</h4><p>Inkomsten en uitgaven van de webshop worden automatisch verwerkt in Moneybird, gesynchroniseerd met de zakelijke bankrekening.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".34" style="margin-bottom:18px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7"/></svg></div>
+            <div><h4>Sluit direct aan op het vijf-potten model</h4><p>Elke transactie is herleidbaar naar BTW, belasting, operationeel, finca-spaarpot en vrij beschikbaar — geen los rekenwerk nodig.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".44" style="margin-bottom:18px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+            <div><h4>Altijd klaar voor de accountant</h4><p>Volgens Artikel 4.4 van de samenwerkingsovereenkomst zorgt dit voor een efficiënte, geautomatiseerde overdracht bij de kwartaal- en jaaraangifte.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".54">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.4"/><path d="M22 20c0-2.6-2-4.8-5-5.4"/></svg></div>
+            <div><h4>Volledig transparant voor beide partners</h4><p>Bionda en Ludo hebben te allen tijde hetzelfde, actuele inzicht in de financiële stand van zaken.</p></div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">08</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 9 — FINANCIEEL MODEL ============ -->
+    <section class="slide light" id="s9">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Financieel model</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">De vaste verdeling over vijf potten</div>
+        <p class="reveal show" style="transition-delay:.2s; font-size:11.5px; color:var(--espresso-soft); max-width:500px; line-height:1.5; margin-top:10px;">
+          Elke maand wordt de netto-omzet automatisch verdeeld volgens vaste percentages uit de samenwerkingsovereenkomst — bewaakt door Moneybird en zichtbaar in het dashboard.
+        </p>
+        <div class="fin-wrap">
+          <div class="legend-list">
+            <div class="legend-row reveal" data-d=".3"><span class="legend-dot" style="background:#BC7A5C;"></span><span class="legend-name">Finca Spaarpot</span><span class="legend-pct">30%</span></div>
+            <div class="legend-row reveal" data-d=".36"><span class="legend-dot" style="background:#A36549;"></span><span class="legend-name">BTW Reservering</span><span class="legend-pct">21%</span></div>
+            <div class="legend-row reveal" data-d=".42"><span class="legend-dot" style="background:#8A5A42;"></span><span class="legend-name">Belasting Reservering</span><span class="legend-pct">20%</span></div>
+            <div class="legend-row reveal" data-d=".48"><span class="legend-dot" style="background:#E4DACF;"></span><span class="legend-name">Operationeel</span><span class="legend-pct">15%</span></div>
+            <div class="legend-row reveal" data-d=".54"><span class="legend-dot" style="background:#6F5D50;"></span><span class="legend-name">Vrij Beschikbaar</span><span class="legend-pct">14%</span></div>
+          </div>
+          <div class="donut-wrap reveal" data-d=".3">
+            <svg viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#EDE4DA" stroke-width="26"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#BC7A5C" stroke-width="26" stroke-dasharray="150.8 351.86" stroke-dashoffset="0" style="transition-delay:.4s;"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#A36549" stroke-width="26" stroke-dasharray="105.56 397.1" stroke-dashoffset="-150.8" style="transition-delay:.55s;"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#8A5A42" stroke-width="26" stroke-dasharray="100.53 402.13" stroke-dashoffset="-256.36" style="transition-delay:.7s;"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#E4DACF" stroke-width="26" stroke-dasharray="75.4 427.26" stroke-dashoffset="-356.89" style="transition-delay:.85s;"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#6F5D50" stroke-width="26" stroke-dasharray="70.37 432.29" stroke-dashoffset="-432.29" style="transition-delay:1s;"/>
+            </svg>
+            <div class="donut-center"><div class="n">100%</div><div class="l">Netto-omzet</div></div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">09</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 10 — CONTENT ENGINE ============ -->
+    <section class="slide light" id="s10">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Content &amp; social</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Higgsfield content engine + automatische posting</div>
+        <p class="reveal show" style="transition-delay:.2s; font-size:11.5px; color:var(--espresso-soft); max-width:900px; line-height:1.5; margin-top:8px;">
+          Make.com, Claude en Higgsfield werken samen tot een videomotor die telkens nieuwe content genereert: wisselende Ibiza-achtergronden, gender-bewuste personagelogica (dames/heren/kids/festival) en steeds een ander product in beeld — gebouwd met gelaagde prompts (onderwerp, camera, omgeving, techniek, beweging).
+        </p>
+        <div class="mini-grid reveal" data-d=".3">
+          <div class="mini-card"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-followingnyc-8436758.jpg?v=1782331361" alt="Festival achtergrond"><div class="lbl">Achtergrond · Festival</div></div>
+          <div class="mini-card"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-oveja-bohemia-2157013567-34488673.jpg?v=1780870437" alt="Ibiza sfeer achtergrond"><div class="lbl">Achtergrond · Ibiza sfeer</div></div>
+          <div class="mini-card"><img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/pexels-elly-fairytale-6202157.jpg?v=1782331362" alt="Little Nomads achtergrond"><div class="lbl">Achtergrond · Little Nomads</div></div>
+        </div>
+        <div class="reveal" data-d=".46" style="margin-top:18px;">
+          <span class="tag-pill">Mensbeoordeling vóór publicatie</span>
+          <span class="tag-pill">Automatisch geplaatst via Buffer</span>
+          <span class="tag-pill">TikTok + Instagram</span>
+          <span class="tag-pill">Pinterest &amp; TikTok organisch = prioriteit</span>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">10</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 11 — OMZETPROGNOSE ============ -->
+    <section class="slide light" id="s11">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Groeimodel</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Omzetprognose in drie scenario's</div>
+        <div class="chart-note reveal show" style="transition-delay:.2s;">Alle bedragen in € duizend, cumulatief per jaar</div>
+
+        <div class="bars" id="bars">
+          <div class="bar-group">
+            <div class="bar c1" data-h="58" style="width:42px;"><span class="val">58</span></div>
+            <div class="bar c2" data-h="95" style="width:42px;"><span class="val">95</span></div>
+            <div class="bar c3" data-h="145" style="width:42px;"><span class="val">145</span></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar c1" data-h="155" style="width:42px;"><span class="val">155</span></div>
+            <div class="bar c2" data-h="265" style="width:42px;"><span class="val">265</span></div>
+            <div class="bar c3" data-h="420" style="width:42px;"><span class="val">420</span></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar c1" data-h="335" style="width:42px;"><span class="val">335</span></div>
+            <div class="bar c2" data-h="580" style="width:42px;"><span class="val">580</span></div>
+            <div class="bar c3" data-h="980" style="width:42px;"><span class="val">980</span></div>
+          </div>
+        </div>
+        <div class="years-row"><div class="year-label">Jaar 1</div><div class="year-label">Jaar 2</div><div class="year-label">Jaar 3</div></div>
+        <div class="chart-legend reveal show" style="transition-delay:.3s;">
+          <div><span style="background:#E4DACF;"></span>Conservatief</div>
+          <div><span style="background:#BC7A5C;"></span>Realistisch</div>
+          <div><span style="background:#3D342E;"></span>Optimistisch</div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">11</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 12 — ONDERBOUWING ============ -->
+    <section class="slide light" id="s12">
+      <div class="pad">
+        <div class="eyebrow reveal show" style="transition-delay:.05s;">Onderbouwing</div>
+        <div class="headline reveal show" style="transition-delay:.12s;">Hoe de scenario's zijn bepaald</div>
+        <div style="margin-top:20px;">
+          <div class="row-item reveal" data-d=".24" style="margin-bottom:16px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-3.5 5.5L8 12l4-2 3-1z"/></svg></div>
+            <div><h4>Branchebenchmarks</h4><p>De bandbreedte is afgeleid van vergelijkbare dropshipping- en modemerken in Nederland en België, niet uit een losse aanname.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".32" style="margin-bottom:16px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l3-4 3 2 4-6"/></svg></div>
+            <div><h4>Minimale ROAS als ondergrens</h4><p>Een advertentie-rendement van 3,5–4× geldt als grens waarboven verdere schaalvergroting rendabel wordt geacht.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".4" style="margin-bottom:16px;">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg></div>
+            <div><h4>Seizoensspreiding</h4><p>Circa 68% van de jaaromzet valt historisch in de periode april–augustus; dit patroon is verwerkt in elk scenario.</p></div>
+          </div>
+          <div class="row-item reveal" data-d=".48">
+            <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><line x1="8" y1="7.2" x2="16" y2="7.2"/><line x1="7" y1="8" x2="11" y2="16"/><line x1="17" y1="8" x2="13" y2="16"/></svg></div>
+            <div><h4>Drie snelheden van groei</h4><p>Conservatief gaat uit van trage advertentie-efficiëntie, realistisch van gemiddelde marktprestaties, optimistisch van sterke organische groei via Pinterest en TikTok.</p></div>
+          </div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">12</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 13 — KANTTEKENING ============ -->
+    <section class="slide dark" id="s13">
+      <div class="pad">
+        <div class="warn-head">
+          <div class="icon-badge reveal show" style="transition-delay:.05s;"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17" r=".6" fill="var(--terracotta)"/></svg></div>
+          <div class="eyebrow reveal show" style="transition-delay:.1s; margin:0;">Belangrijke kanttekening</div>
+        </div>
+        <div class="closing-title reveal show" style="transition-delay:.18s; margin-top:0; font-size:28px; font-family:var(--serif); color:var(--ivory);">Dit zijn prognoses — geen garanties</div>
+        <div style="margin-top:16px;">
+          <div class="point-row reveal" data-d=".3"><div class="bullet"></div><p>De omzetcijfers zijn een inschatting op basis van aannames, historische benchmarks en marktomstandigheden — geen toezegging of belofte.</p></div>
+          <div class="point-row reveal" data-d=".4"><div class="bullet"></div><p>De werkelijke omzet kan afwijken door externe factoren: concurrentie, advertentiekosten, leveranciersprestaties en seizoensinvloeden.</p></div>
+          <div class="point-row reveal" data-d=".5"><div class="bullet"></div><p>Het dashboard wordt periodiek bijgewerkt met actuele cijfers, zodat de prognose steeds scherper wordt naarmate er meer data is.</p></div>
+          <div class="point-row reveal" data-d=".6"><div class="bullet"></div><p>Bedoeld als richtinggevend kompas voor besluitvorming — niet als financiële garantie richting de finca-spaarpot.</p></div>
+        </div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">13</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 14 — AFSLUITING ============ -->
+    <section class="slide dark" id="s14">
+      <div class="orb"></div>
+      <div class="pad">
+        <div class="diamond reveal show" style="transition-delay:.05s;">✦</div>
+        <div class="closing-title reveal show" style="transition-delay:.16s;">Eén overzicht. Twee partners. Eén koers.</div>
+        <div class="closing-desc reveal show" style="transition-delay:.28s;">Nomad Curator geeft ons gedeeld overzicht, snellere beslissingen en een concrete, onderbouwde koers richting de gezamenlijke doelen — met de scenario's steeds duidelijk gemarkeerd als prognose, niet als garantie.</div>
+        <div class="rule reveal show" style="transition-delay:.4s; width:120px; height:1px; background:var(--terracotta); margin-top:22px;"></div>
+        <div class="reveal show" style="transition-delay:.46s; font-size:11px; font-style:italic; color:var(--zand); margin-top:12px;">Volgende stap: samen doornemen en openstaande vragen bespreken.</div>
+        <div class="tagline reveal show" style="transition-delay:.58s; position:absolute; left:60px; bottom:56px;">Dress the life you want to live.</div>
+        <div class="footer-note">Nomad &amp; Soul · Curator</div><div class="page-num">14</div>
+      </div>
+    </section>
+
+    <div class="click-zone left" id="zoneLeft"></div>
+    <div class="click-zone right" id="zoneRight"></div>
+
+    <div class="controls">
+      <button class="nav-btn" id="prevBtn" aria-label="Vorige"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="dots" id="dots"></div>
+      <span class="counter" id="counter">01 / 14</span>
+      <button class="nav-btn" id="nextBtn" aria-label="Volgende"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<button class="fs-btn" id="fsBtn" aria-label="Volledig scherm">
+  <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+</button>
+<div class="hint" id="hint">Gebruik ← → of klik om te navigeren</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+  const dots = Array.from(dotsEl.children);
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function animateBars(slide){
+    const bars = slide.querySelectorAll('.bar');
+    bars.forEach(b => { b.style.height = '0px'; });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bars.forEach(b => {
+          const h = parseFloat(b.getAttribute('data-h'));
+          const maxH = 260;
+          const scaled = (h / 980) * maxH;
+          b.style.height = scaled + 'px';
+        });
+      });
+    });
+  }
+
+  function resetReveals(slide){
+    slide.querySelectorAll('.reveal').forEach(el => {
+      el.classList.remove('show');
+    });
+  }
+  function playReveals(slide){
+    slide.querySelectorAll('.reveal').forEach(el => {
+      const delay = el.getAttribute('data-d');
+      if(delay){ el.style.transitionDelay = delay + 's'; }
+      void el.offsetWidth;
+      el.classList.add('show');
+    });
+  }
+
+  function goTo(newIdx){
+    if(newIdx < 0 || newIdx >= total || newIdx === idx) return;
+    const dir = newIdx > idx ? 1 : -1;
+    const current = slides[idx];
+    const next = slides[newIdx];
+
+    current.classList.remove('active');
+    if(dir > 0){ current.classList.add('exit-left'); }
+    if(dir < 0){ current.style.transform = 'translateX(60px)'; }
+
+    next.style.transform = dir > 0 ? 'translateX(60px)' : 'translateX(-60px)';
+    next.classList.remove('exit-left');
+    resetReveals(next);
+    void next.offsetWidth;
+    next.classList.add('active');
+    next.style.transform = '';
+
+    setTimeout(() => {
+      current.classList.remove('exit-left');
+      current.style.transform = '';
+      playReveals(next);
+      if(next.id === 's11') animateBars(next);
+    }, 30);
+
+    dots[idx].classList.remove('active');
+    dots[newIdx].classList.add('active');
+    counter.textContent = pad(newIdx+1) + ' / ' + pad(total);
+    progress.style.width = ((newIdx+1)/total*100) + '%';
+    idx = newIdx;
+    hideHint();
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(idx-1));
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(idx+1));
+  document.getElementById('zoneLeft').addEventListener('click', () => goTo(idx-1));
+  document.getElementById('zoneRight').addEventListener('click', () => goTo(idx+1));
+
+  window.addEventListener('keydown', (e) => {
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); goTo(idx+1); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); goTo(idx-1); }
+    else if(e.key === 'Home'){ goTo(0); }
+    else if(e.key === 'End'){ goTo(total-1); }
+  });
+
+  let touchX = null;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 50){ dx < 0 ? goTo(idx+1) : goTo(idx-1); }
+    touchX = null;
+  }, {passive:true});
+
+  document.getElementById('fsBtn').addEventListener('click', () => {
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen().catch(()=>{}); }
+    else { document.exitFullscreen(); }
+  });
+
+  const deck = document.getElementById('deck');
+  function scaleDeck(){
+    const scale = Math.min(window.innerWidth/1280, window.innerHeight/720) * 0.94;
+    deck.style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', scaleDeck);
+  scaleDeck();
+
+  const hint = document.getElementById('hint');
+  function hideHint(){ hint.classList.add('hidden'); }
+  setTimeout(hideHint, 4200);
+
+  progress.style.width = (1/total*100) + '%';
+  counter.textContent = '01 / ' + pad(total);
+  animateBars(document.getElementById('s11'));
+})();
+</script>
+</body>
+</html>
