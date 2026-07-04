@@ -118,7 +118,7 @@ input[type="range"] { width: 100%; accent-color: #BC7A5C; cursor: pointer; }
     <a href="index.html" style="display:flex;align-items:center;gap:5px;color:#F5EFEB;opacity:0.75;text-decoration:none;font-size:11px;letter-spacing:0.5px;border-right:1px solid rgba(245,239,235,0.25);padding-right:16px;">← Dashboard</a>
     <div><img src="logo-ivory.png" alt="Nomad & Soul" style="height:18px;width:auto;margin-bottom:3px;"><div class="topbar-sub">Omzetprognose 2026 — Interactief Model</div></div>
   </div>
-  <div style="font-size:11px;opacity:0.5;">Gebaseerd op CBS, FashionUnited & Sectorcijfers NL/BE</div>
+  <div style="font-size:11px;opacity:0.5;text-align:right;">Gebaseerd op CBS, FashionUnited &amp; Sectorcijfers NL/BE<br><span style="opacity:0.7;">Model bijgewerkt: 5 juli 2026 · gekoppeld aan 3-jarenplan</span></div>
 </div>
 
 <div class="container">
@@ -313,6 +313,18 @@ input[type="range"] { width: 100%; accent-color: #BC7A5C; cursor: pointer; }
     </div>
   </div>
 
+  <!-- DRIEJARENPROGNOSE -->
+  <div class="card">
+    <div class="card-title">🗓️ Driejarenprognose — doorgetrokken vanuit Jaar 1</div>
+    <p style="font-size:12px;color:rgba(61,52,46,0.6);margin-bottom:16px;line-height:1.6;">Jaar 2 en 3 worden automatisch berekend op basis van de Jaar 1-uitkomst hierboven, met dezelfde groeifactoren als het <a href="nomad-3jaar-strategie.html" style="color:#BC7A5C;font-weight:600;">3-jarenplan</a> — beide tools blijven zo altijd consistent.</p>
+    <table class="tabel">
+      <thead>
+        <tr><th>Jaar</th><th>Orders</th><th>Omzet</th><th>Nettoresultaat</th><th>Gem. orderwaarde</th></tr>
+      </thead>
+      <tbody id="driejaar-tabel"></tbody>
+    </table>
+  </div>
+
   <!-- GROEISTRATEGIE TABEL -->
   <div class="card">
     <div class="card-title">🎯 Groeistrategie per kwartaal</div>
@@ -357,11 +369,25 @@ let grafiek = null;
 const MAANDEN = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
 const SEIZOEN = [0.7, 0.75, 0.9, 1.1, 1.3, 1.5, 1.4, 1.2, 1.0, 0.9, 1.1, 1.2];
 
+// Herijkt op 5 juli 2026: startOrders/groei zijn opnieuw doorgerekend (zie
+// werkdocument) zodat de jaartotalen 1-op-1 aansluiten bij de vaste cijfers
+// uit nomad-3jaar-strategie.html (Jaar 1: €58K / €95K / €145K).
 const SCENARIOS_DATA = {
-  conservatief: { startOrders: 35, groei: 8, aov: 79, marge: 38, adBudget: 200, vaste: 120, retour: 30 },
-  realistisch:  { startOrders: 42, groei: 11, aov: 89, marge: 42, adBudget: 400, vaste: 120, retour: 25 },
-  optimistisch: { startOrders: 44, groei: 14, aov: 109, marge: 47, adBudget: 800, vaste: 120, retour: 20 },
-  custom:       { startOrders: 42, groei: 11, aov: 89, marge: 42, adBudget: 400, vaste: 120, retour: 25 },
+  conservatief: { startOrders: 20, groei: 9,  aov: 79,  marge: 38, adBudget: 200, vaste: 120, retour: 30 },
+  realistisch:  { startOrders: 34, groei: 12, aov: 89,  marge: 42, adBudget: 400, vaste: 120, retour: 25 },
+  optimistisch: { startOrders: 42, groei: 13, aov: 109, marge: 47, adBudget: 800, vaste: 120, retour: 20 },
+  custom:       { startOrders: 34, groei: 12, aov: 89,  marge: 42, adBudget: 400, vaste: 120, retour: 25 },
+};
+
+// Groeifactoren Jaar1→Jaar2 en Jaar2→Jaar3, direct afgeleid uit de vaste
+// cijfers van het 3-jarenplan (nomad-3jaar-strategie.html). Wordt gebruikt
+// om de Jaar 1-uitkomst van dit model door te trekken naar een consistente
+// 3-jarenprognose, zodat beide tools nooit meer uit elkaar kunnen lopen.
+const DRIEJAAR_FACTOR = {
+  conservatief: { omzet: [155000/58000, 335000/155000], winst: [32000/8500, 82000/32000], orders: [1383/630, 2617/1383] },
+  realistisch:  { omzet: [265000/95000, 580000/265000], winst: [68000/22000, 155000/68000], orders: [2070/905, 3919/2070] },
+  optimistisch: { omzet: [420000/145000, 980000/420000], winst: [128000/45000, 295000/128000], orders: [2838/1189, 5698/2838] },
+  custom:       { omzet: [265000/95000, 580000/265000], winst: [68000/22000, 155000/68000], orders: [2070/905, 3919/2070] },
 };
 
 const KANSEN_DATA = {
@@ -454,6 +480,13 @@ function bereken() {
   const basisAOV = d.aov * (1 + aovBonus / 100);
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
+  // BELANGRIJK: het aantal orders (hieronder) mag NOOIT afhangen van
+  // basisAOV, aovBonus of bundels — alleen scenario (startOrders/groei) en
+  // seizoensfactor bepalen het ordervolume. Bundels/loyaliteit veranderen
+  // uitsluitend orderwaarde en retourpercentage, nooit het aantal orders.
+  // (Vroegere versie liet "Orders jaar 1" per ongeluk vast blijven staan
+  // ongeacht welke groeikans je aanvinkte — dat is hiermee structureel
+  // uitgesloten.)
   let maandData = [];
   let orders = d.startOrders;
   let cumulatief = 0;
@@ -490,7 +523,11 @@ function bereken() {
     const brutoMargeEuro = omzet * (d.marge / 100);
     const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
     const adKosten = d.adBudget;
-    const vasteKosten = d.vaste + 79; // Shopify
+    // Eenmalige opstartkosten in maand 1: content shoot, tools/setup, eerste
+    // voorraad-testorders bij leveranciers. Voorkomt een onrealistisch
+    // break-even in maand 1 puur door een toevallig sterke seizoensmaand.
+    const opstartKosten = i === 0 ? 350 : 0;
+    const vasteKosten = d.vaste + 79 + opstartKosten; // Shopify + eenmalig
     const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten;
     cumulatief += netto;
 
@@ -565,6 +602,33 @@ function bereken() {
     <td class="${jaarWinst > 0 ? 'positief' : 'negatief'}">${fmt(jaarWinst)}</td>
     <td class="${maandData[11].cumulatief > 0 ? 'positief' : 'negatief'}">${fmt(maandData[11].cumulatief)}</td>
   </tr>`;
+
+  // Driejarenprognose — Jaar 1 komt rechtstreeks uit de maandberekening
+  // hierboven; Jaar 2 en 3 worden ermee doorgerekend via DRIEJAAR_FACTOR.
+  const dj = DRIEJAAR_FACTOR[huidigScenario];
+  const jaar1 = { orders: jaarOrders, omzet: jaarOmzet, netto: jaarWinst };
+  const jaar2 = {
+    orders: Math.round(jaar1.orders * dj.orders[0]),
+    omzet: Math.round(jaar1.omzet * dj.omzet[0]),
+    netto: Math.round(jaar1.netto * dj.winst[0]),
+  };
+  const jaar3 = {
+    orders: Math.round(jaar2.orders * dj.orders[1]),
+    omzet: Math.round(jaar2.omzet * dj.omzet[1]),
+    netto: Math.round(jaar2.netto * dj.winst[1]),
+  };
+  const driejaarTbody = document.getElementById('driejaar-tabel');
+  if (driejaarTbody) {
+    driejaarTbody.innerHTML = [jaar1, jaar2, jaar3].map((j, idx) => `
+      <tr>
+        <td>Jaar ${idx + 1}${idx === 0 ? ' (dit model)' : ''}</td>
+        <td>${j.orders.toLocaleString('nl-NL')}</td>
+        <td>${fmt(j.omzet)}</td>
+        <td class="${j.netto > 0 ? 'positief' : 'negatief'}">${fmt(j.netto)}</td>
+        <td>€ ${Math.round(j.omzet / j.orders)}</td>
+      </tr>
+    `).join('');
+  }
 
   // Grafiek
   const labels = maandData.map(m => m.maand);
