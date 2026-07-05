@@ -480,13 +480,15 @@ function bereken() {
   const basisAOV = d.aov * (1 + aovBonus / 100);
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
-  // BELANGRIJK: het aantal orders (hieronder) mag NOOIT afhangen van
-  // basisAOV, aovBonus of bundels — alleen scenario (startOrders/groei) en
-  // seizoensfactor bepalen het ordervolume. Bundels/loyaliteit veranderen
-  // uitsluitend orderwaarde en retourpercentage, nooit het aantal orders.
-  // (Vroegere versie liet "Orders jaar 1" per ongeluk vast blijven staan
+  // BELANGRIJK: het ORGANISCHE ordervolume (scenario startOrders/groei +
+  // seizoen) hangt nooit af van AOV-bonussen of bundels — dat blijft puur
+  // scenario-gedreven. Kanaalomzet (Bol.com, adverteren, etc.) wordt WEL
+  // omgerekend naar extra orders tegen de actuele basisAOV (zie verderop) —
+  // dat is bewust: meer adverteren of Bol.com activeren levert dus ook
+  // meetelbare extra bestellingen op, in plaats van orderloze omzet.
+  // (De vroegere bug liet "Orders jaar 1" per ongeluk vast blijven staan
   // ongeacht welke groeikans je aanvinkte — dat is hiermee structureel
-  // uitgesloten.)
+  // uitgesloten; elke koppeling die nu bestaat is bewust en navolgbaar.)
   let maandData = [];
   let orders = d.startOrders;
   let cumulatief = 0;
@@ -517,8 +519,16 @@ function bereken() {
       }
     });
 
-    const effectiefOrders = Math.round(orders * seizoenFactor);
-    const basisOmzet = effectiefOrders * basisAOV;
+    // Organisch/scenario-gedreven orders (startOrders + groei, met seizoen)
+    const baseOrders = Math.round(orders * seizoenFactor);
+    // Kanaalomzet (Bol.com, adverteren, influencers, etc.) vertegenwoordigt
+    // ECHTE extra bestellingen, geen orderloze omzet — dus rekenen we die euro's
+    // om naar orders tegen de basis-orderwaarde. Meer adverteren of Bol.com
+    // activeren laat het ordervolume dus ook daadwerkelijk meestijgen.
+    const kansenOrders = basisAOV > 0 ? Math.round(kansenOmzet / basisAOV) : 0;
+    const effectiefOrders = baseOrders + kansenOrders;
+
+    const basisOmzet = baseOrders * basisAOV;
     const omzet = basisOmzet + kansenOmzet; // TOTALE omzet inclusief groeikanalen
     const brutoMargeEuro = omzet * (d.marge / 100);
     const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
