@@ -480,6 +480,15 @@ function bereken() {
   const basisAOV = d.aov * (1 + aovBonus / 100);
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
+  // Zonder ENIG actief groeikanaal (geen e-mail, geen social, geen
+  // marketplace, geen bundels/loyaliteit) is de volledige scenario-groei
+  // niet realistisch — die snelheid veronderstelt altijd wél wat actieve
+  // marketinginspanning. Dan valt de groei terug naar een minimale
+  // organische snelheid (alleen directe traffic/mond-tot-mond). Zodra je
+  // minstens één kanaal aanvinkt, geldt weer de volledige scenario-groei.
+  const geenKanalenActief = actieveKansen.size === 0;
+  const effectieveGroei = geenKanalenActief ? Math.min(d.groei, 2) : d.groei;
+
   // BELANGRIJK: het ORGANISCHE ordervolume (scenario startOrders/groei +
   // seizoen + loyaliteit-herhaalaankopen) hangt nooit af van AOV-bonussen
   // of bundels — dat blijft puur scenario/retentie-gedreven. Kanaalomzet
@@ -568,7 +577,7 @@ function bereken() {
       isCurrent: i === 0,
     });
 
-    orders = Math.round(orders * (1 + d.groei / 100));
+    orders = Math.round(orders * (1 + effectieveGroei / 100));
   }
 
   // KPI's bijwerken
