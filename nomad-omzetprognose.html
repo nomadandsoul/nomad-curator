@@ -400,7 +400,7 @@ const KANSEN_DATA = {
   influencer:  { mndExtra: 900, startMnd: 3 },
   uitbreiding: { mndExtra: 2400, startMnd: 7 },
   seizoen:     { seizoenBonus: 0.15, startMnd: 4 },
-  loyaliteit:  { retourBonus: -8, startMnd: 4 },
+  loyaliteit:  { orderBonus: 25, startMnd: 4 },
   bol:         { mndExtra: 1800, startMnd: 6 },
 };
 
@@ -481,14 +481,15 @@ function bereken() {
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
   // BELANGRIJK: het ORGANISCHE ordervolume (scenario startOrders/groei +
-  // seizoen) hangt nooit af van AOV-bonussen of bundels — dat blijft puur
-  // scenario-gedreven. Kanaalomzet (Bol.com, adverteren, etc.) wordt WEL
-  // omgerekend naar extra orders tegen de actuele basisAOV (zie verderop) —
-  // dat is bewust: meer adverteren of Bol.com activeren levert dus ook
-  // meetelbare extra bestellingen op, in plaats van orderloze omzet.
-  // (De vroegere bug liet "Orders jaar 1" per ongeluk vast blijven staan
-  // ongeacht welke groeikans je aanvinkte — dat is hiermee structureel
-  // uitgesloten; elke koppeling die nu bestaat is bewust en navolgbaar.)
+  // seizoen + loyaliteit-herhaalaankopen) hangt nooit af van AOV-bonussen
+  // of bundels — dat blijft puur scenario/retentie-gedreven. Kanaalomzet
+  // (Bol.com, adverteren, etc.) wordt omgerekend naar extra orders tegen de
+  // BASIS-AOV (d.aov), niet tegen de bundel-verhoogde basisAOV — dus
+  // "Bundels" aanvinken kan het totale ordervolume nooit meer verlagen.
+  // (Eerdere versies lieten "Orders jaar 1" per ongeluk vast blijven staan
+  // ongeacht welke groeikans je aanvinkte, en lieten "Loyaliteit" niets
+  // doen terwijl de tegel expliciet +25% repeat purchase rate belooft —
+  // dat is hiermee beide structureel opgelost.)
   let maandData = [];
   let orders = d.startOrders;
   let cumulatief = 0;
@@ -520,12 +521,23 @@ function bereken() {
     });
 
     // Organisch/scenario-gedreven orders (startOrders + groei, met seizoen)
-    const baseOrders = Math.round(orders * seizoenFactor);
-    // Kanaalomzet (Bol.com, adverteren, influencers, etc.) vertegenwoordigt
-    // ECHTE extra bestellingen, geen orderloze omzet — dus rekenen we die euro's
-    // om naar orders tegen de basis-orderwaarde. Meer adverteren of Bol.com
-    // activeren laat het ordervolume dus ook daadwerkelijk meestijgen.
-    const kansenOrders = basisAOV > 0 ? Math.round(kansenOmzet / basisAOV) : 0;
+    // + herhaalaankopen via het loyaliteitsprogramma. Dat laatste levert
+    // ECHTE extra bestellingen op (repeat purchases), geen losse omzet —
+    // vandaar dat het hier het ordervolume zelf verhoogt, net als seizoen.
+    let orderBonusPct = 0;
+    actieveKansen.forEach(k => {
+      const kd = KANSEN_DATA[k];
+      if (kd.orderBonus && i >= kd.startMnd - 1) {
+        const aanloopFactor = Math.min(1, (i - kd.startMnd + 2) / 3);
+        orderBonusPct += kd.orderBonus * aanloopFactor;
+      }
+    });
+    const baseOrders = Math.round(orders * seizoenFactor * (1 + orderBonusPct / 100));
+    // Kanaalomzet (Bol.com, adverteren, etc.) wordt omgerekend tegen de
+    // BASIS-orderwaarde (d.aov, zonder bundel-bonus) — dat zijn immers
+    // aparte bestellingen op andere kanalen, niet on-site bundel-upsells.
+    // Zo blijft "Bundels aanvinken" nooit het totale ordervolume verlagen.
+    const kansenOrders = d.aov > 0 ? Math.round(kansenOmzet / d.aov) : 0;
     const effectiefOrders = baseOrders + kansenOrders;
 
     const basisOmzet = baseOrders * basisAOV;
