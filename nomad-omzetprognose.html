@@ -400,7 +400,7 @@ const KANSEN_DATA = {
   influencer:  { mndExtra: 900, startMnd: 3 },
   uitbreiding: { mndExtra: 2400, startMnd: 7 },
   seizoen:     { seizoenBonus: 0.15, startMnd: 4 },
-  loyaliteit:  { orderBonus: 25, startMnd: 4 },
+  loyaliteit:  { retourBonus: -8, startMnd: 4 },
   bol:         { mndExtra: 1800, startMnd: 6 },
 };
 
@@ -480,25 +480,13 @@ function bereken() {
   const basisAOV = d.aov * (1 + aovBonus / 100);
   const effectiefRetour = Math.max(5, d.retour + retourBonus);
 
-  // Zonder ENIG actief groeikanaal (geen e-mail, geen social, geen
-  // marketplace, geen bundels/loyaliteit) is de volledige scenario-groei
-  // niet realistisch — die snelheid veronderstelt altijd wél wat actieve
-  // marketinginspanning. Dan valt de groei terug naar een minimale
-  // organische snelheid (alleen directe traffic/mond-tot-mond). Zodra je
-  // minstens één kanaal aanvinkt, geldt weer de volledige scenario-groei.
-  const geenKanalenActief = actieveKansen.size === 0;
-  const effectieveGroei = geenKanalenActief ? Math.min(d.groei, 2) : d.groei;
-
-  // BELANGRIJK: het ORGANISCHE ordervolume (scenario startOrders/groei +
-  // seizoen + loyaliteit-herhaalaankopen) hangt nooit af van AOV-bonussen
-  // of bundels — dat blijft puur scenario/retentie-gedreven. Kanaalomzet
-  // (Bol.com, adverteren, etc.) wordt omgerekend naar extra orders tegen de
-  // BASIS-AOV (d.aov), niet tegen de bundel-verhoogde basisAOV — dus
-  // "Bundels" aanvinken kan het totale ordervolume nooit meer verlagen.
-  // (Eerdere versies lieten "Orders jaar 1" per ongeluk vast blijven staan
-  // ongeacht welke groeikans je aanvinkte, en lieten "Loyaliteit" niets
-  // doen terwijl de tegel expliciet +25% repeat purchase rate belooft —
-  // dat is hiermee beide structureel opgelost.)
+  // BELANGRIJK: het aantal orders (hieronder) mag NOOIT afhangen van
+  // basisAOV, aovBonus of bundels — alleen scenario (startOrders/groei) en
+  // seizoensfactor bepalen het ordervolume. Bundels/loyaliteit veranderen
+  // uitsluitend orderwaarde en retourpercentage, nooit het aantal orders.
+  // (Vroegere versie liet "Orders jaar 1" per ongeluk vast blijven staan
+  // ongeacht welke groeikans je aanvinkte — dat is hiermee structureel
+  // uitgesloten.)
   let maandData = [];
   let orders = d.startOrders;
   let cumulatief = 0;
@@ -529,27 +517,8 @@ function bereken() {
       }
     });
 
-    // Organisch/scenario-gedreven orders (startOrders + groei, met seizoen)
-    // + herhaalaankopen via het loyaliteitsprogramma. Dat laatste levert
-    // ECHTE extra bestellingen op (repeat purchases), geen losse omzet —
-    // vandaar dat het hier het ordervolume zelf verhoogt, net als seizoen.
-    let orderBonusPct = 0;
-    actieveKansen.forEach(k => {
-      const kd = KANSEN_DATA[k];
-      if (kd.orderBonus && i >= kd.startMnd - 1) {
-        const aanloopFactor = Math.min(1, (i - kd.startMnd + 2) / 3);
-        orderBonusPct += kd.orderBonus * aanloopFactor;
-      }
-    });
-    const baseOrders = Math.round(orders * seizoenFactor * (1 + orderBonusPct / 100));
-    // Kanaalomzet (Bol.com, adverteren, etc.) wordt omgerekend tegen de
-    // BASIS-orderwaarde (d.aov, zonder bundel-bonus) — dat zijn immers
-    // aparte bestellingen op andere kanalen, niet on-site bundel-upsells.
-    // Zo blijft "Bundels aanvinken" nooit het totale ordervolume verlagen.
-    const kansenOrders = d.aov > 0 ? Math.round(kansenOmzet / d.aov) : 0;
-    const effectiefOrders = baseOrders + kansenOrders;
-
-    const basisOmzet = baseOrders * basisAOV;
+    const effectiefOrders = Math.round(orders * seizoenFactor);
+    const basisOmzet = effectiefOrders * basisAOV;
     const omzet = basisOmzet + kansenOmzet; // TOTALE omzet inclusief groeikanalen
     const brutoMargeEuro = omzet * (d.marge / 100);
     const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
@@ -577,7 +546,7 @@ function bereken() {
       isCurrent: i === 0,
     });
 
-    orders = Math.round(orders * (1 + effectieveGroei / 100));
+    orders = Math.round(orders * (1 + d.groei / 100));
   }
 
   // KPI's bijwerken
