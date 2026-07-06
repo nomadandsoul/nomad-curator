@@ -137,51 +137,65 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   .grid-3 { grid-template-columns: 1fr; }
   .merk-grid { grid-template-columns: 1fr; }
   .hero-star { display: none; }
-  body { background-attachment: scroll; }
 }
 
-/* DOCUMENT WEERGAVE — vloeit in de app zelf, geen losse popup/dialoog */
-.doc-view {
+/* DOCUMENT MODAL — vertrouwelijke documenten worden hier ingeladen i.p.v. naar Drive te linken */
+.doc-modal-overlay {
   display: none;
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(61,52,46,0.55);
+  backdrop-filter: blur(3px);
   z-index: 500;
-  flex-direction: column;
-  background: #F5EFEB;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
-.doc-view.open { display: flex; }
-.doc-view-topbar {
+.doc-modal-overlay.open { display: flex; }
+.doc-modal-box {
+  background: #F5EFEB;
+  width: 100%;
+  max-width: 980px;
+  height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.doc-modal-topbar {
   background: #3D342E;
   color: #F5EFEB;
-  padding: 14px 28px;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
 }
-.doc-view-back {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: none;
+.doc-modal-titel { font-family: 'Playfair Display', serif; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.doc-modal-close {
+  background: rgba(245,239,235,0.12);
+  border: 1px solid rgba(245,239,235,0.25);
   color: #F5EFEB;
-  opacity: 0.85;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.5px;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
   cursor: pointer;
-  padding: 0;
+  font-family: 'Montserrat', sans-serif;
 }
-.doc-view-back:hover { opacity: 1; }
-.doc-view-titel { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-.doc-view-body { flex: 1; position: relative; background: #fff; }
-.doc-view-body iframe { width: 100%; height: 100%; border: none; display: block; }
-.doc-view-status {
+.doc-modal-close:hover { background: rgba(245,239,235,0.22); }
+.doc-modal-body { flex: 1; position: relative; background: #fff; }
+.doc-modal-body iframe { width: 100%; height: 100%; border: none; }
+.doc-modal-status {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; color: rgba(61,52,46,0.6); text-align: center; padding: 30px;
   background: #F5EFEB;
+}
+.doc-modal-status a { color: #BC7A5C; }
+@media (max-width: 768px) {
+  .doc-modal-overlay { padding: 0; }
+  .doc-modal-box { height: 100%; max-width: 100%; border-radius: 0; }
 }
 </style>
 </head>
@@ -439,22 +453,23 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
 </div>
 
-<!-- DOCUMENT WEERGAVE -->
-<div class="doc-view" id="doc-view">
-  <div class="doc-view-topbar">
-    <button type="button" class="doc-view-back" onclick="closeDocument()">← Dashboard</button>
-    <div class="doc-view-titel">🔒 <span id="doc-view-titel-tekst">Document</span></div>
-    <div style="width:80px;"></div>
-  </div>
-  <div class="doc-view-body">
-    <div class="doc-view-status" id="doc-view-status">Document laden…</div>
-    <iframe id="doc-view-iframe" style="display:none;"></iframe>
+<!-- DOCUMENT MODAL -->
+<div class="doc-modal-overlay" id="doc-modal-overlay">
+  <div class="doc-modal-box">
+    <div class="doc-modal-topbar">
+      <div class="doc-modal-titel">🔒 <span id="doc-modal-titel-tekst">Document</span></div>
+      <button type="button" class="doc-modal-close" onclick="closeDocument()">Sluiten ✕</button>
+    </div>
+    <div class="doc-modal-body">
+      <div class="doc-modal-status" id="doc-modal-status">Document laden…</div>
+      <iframe id="doc-modal-iframe" style="display:none;"></iframe>
+    </div>
   </div>
 </div>
 
 <script>
   // --- SYNC MET GOOGLE APPS SCRIPT (zodat telefoon/pc en Ludo/Bionda synchroniseren) ---
-  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbz15RO87CRYzw1jQaa0iZk4WkHlp_esLosJKJ8S_QZsAnEtk15GqyChELTVsKSeOsCz/exec';
+  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxzY1gVh_GPKceVgI8alfLMPmCFWfDUUtDaI49uACrT_QlLpLllvKWI-0a8hA3A5ICm/exec';
   const SYNC_INDICATOR = document.createElement('div');
   SYNC_INDICATOR.style.cssText = 'position:fixed;bottom:14px;right:14px;font-size:10px;padding:5px 10px;border-radius:20px;background:rgba(61,52,46,0.85);color:#F5EFEB;z-index:200;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
   document.body.appendChild(SYNC_INDICATOR);
@@ -492,18 +507,16 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   // Haalt de HTML van projectoverzicht/systemprompt live op uit de besloten Drive-map
   // via de Apps Script backend (getdoc-actie). De inhoud zelf staat nergens in deze
   // publieke GitHub-code — enkel de sleutelnaam ('projectoverzicht'/'systemprompt') wordt verstuurd.
-  // Wordt getoond als volledige paginaovername (zelfde stijl als dashboard), geen losse popup.
   async function openDocument(key, titel) {
-    const view = document.getElementById('doc-view');
-    const status = document.getElementById('doc-view-status');
-    const iframe = document.getElementById('doc-view-iframe');
-    document.getElementById('doc-view-titel-tekst').textContent = titel;
+    const overlay = document.getElementById('doc-modal-overlay');
+    const status = document.getElementById('doc-modal-status');
+    const iframe = document.getElementById('doc-modal-iframe');
+    document.getElementById('doc-modal-titel-tekst').textContent = titel;
     status.style.display = 'flex';
     status.textContent = 'Document laden…';
     iframe.style.display = 'none';
     iframe.srcdoc = '';
-    view.classList.add('open');
-    window.scrollTo(0, 0);
+    overlay.classList.add('open');
 
     try {
       const res = await fetch(`${SYNC_URL}?action=getdoc&id=${key}`);
@@ -521,9 +534,13 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   }
 
   function closeDocument() {
-    document.getElementById('doc-view').classList.remove('open');
-    document.getElementById('doc-view-iframe').srcdoc = '';
+    document.getElementById('doc-modal-overlay').classList.remove('open');
+    document.getElementById('doc-modal-iframe').srcdoc = '';
   }
+
+  document.getElementById('doc-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'doc-modal-overlay') closeDocument();
+  });
 
   const ACTIELIJST_KEY = 'nomad-actielijst-v1';
 
