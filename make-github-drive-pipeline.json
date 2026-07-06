@@ -20,8 +20,7 @@
         },
         "parameters": [
           { "name": "drive", "type": "select", "label": "Drive", "required": true },
-          { "name": "folderId", "type": "select", "label": "Folder", "required": true },
-          { "name": "includeTeamDrives", "type": "boolean", "label": "Include Team Drives" }
+          { "name": "folderId", "type": "select", "label": "Folder", "required": true }
         ]
       }
     },
@@ -30,9 +29,7 @@
       "module": "google-drive:DownloadAFile",
       "version": 3,
       "parameters": {},
-      "mapper": {
-        "fileId": "{{1.id}}"
-      },
+      "mapper": { "fileId": "{{1.id}}" },
       "metadata": {
         "designer": { "x": 300, "y": 0 },
         "parameters": [
@@ -55,12 +52,6 @@
       },
       "metadata": {
         "designer": { "x": 600, "y": 0 },
-        "restore": {
-          "parameters": {
-            "owner": { "label": "nomadandsoul" },
-            "repo": { "label": "nomad-curator" }
-          }
-        },
         "parameters": [
           { "name": "owner", "type": "text", "label": "Owner", "required": true },
           { "name": "repo", "type": "text", "label": "Repository", "required": true },
@@ -79,15 +70,8 @@
       "roundtrips": 1,
       "maxErrors": 3,
       "autoCommit": true,
-      "autoCommitTriggerLast": true,
-      "sequential": false,
-      "slots": null,
-      "confidential": false,
-      "dataloss": false,
-      "dlq": false,
-      "freshVariables": false
+      "sequential": false
     },
-    "designer": { "orphans": [] },
     "zone": "eu1.make.com"
   }
 }
