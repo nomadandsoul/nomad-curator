@@ -261,13 +261,13 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   <!-- STATUS -->
   <div class="sectie-label" style="display:flex;justify-content:space-between;align-items:baseline;">
     <span>Status overzicht</span>
-    <span style="font-size:10px;font-weight:400;letter-spacing:0.5px;color:rgba(61,52,46,0.4);text-transform:none;">✦ Live gecontroleerd op 8 juli 2026</span>
+    <span style="font-size:10px;font-weight:400;letter-spacing:0.5px;color:rgba(61,52,46,0.4);text-transform:none;">✦ Webshop automatisch live gecheckt · overige velden handmatig bijgewerkt op 8 juli 2026</span>
   </div>
   <div class="status-grid">
     <a href="https://nomadandsoul.nl" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;transition:box-shadow 0.2s ease;">
       <div class="status-label">Webshop ↗</div>
-      <div class="status-val">Live</div>
-      <div class="status-sub">Publiek toegankelijk — geen wachtwoordpagina meer (live gecheckt)</div>
+      <div class="status-val" id="webshop-status-val">Live</div>
+      <div class="status-sub" id="webshop-status-sub">Publiek toegankelijk — geen wachtwoordpagina meer (live gecheckt)</div>
     </a>
     <a href="https://admin.shopify.com/store/i1r1nd-f0/collections" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
       <div class="status-label">Platform ↗</div>
@@ -1099,6 +1099,30 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     }
   }
   pipelineTriggerSyncBijwerk();
+
+  // --- WEBSHOP STATUS: live check via Apps Script (geen handmatige update meer nodig) ---
+  async function webshopStatusLaden() {
+    const val = document.getElementById('webshop-status-val');
+    const sub = document.getElementById('webshop-status-sub');
+    try {
+      const res = await fetch(`${SYNC_URL}?action=webshopstatus`);
+      const data = await res.json();
+      if (data.live === true) {
+        val.textContent = 'Live';
+        sub.textContent = 'Publiek toegankelijk — automatisch gecheckt zonet';
+      } else if (data.live === false) {
+        val.textContent = 'Offline';
+        sub.textContent = 'Wachtwoordpagina actief — automatisch gecheckt zonet';
+      } else {
+        val.textContent = 'Onbekend';
+        sub.textContent = 'Kon status niet automatisch bepalen';
+      }
+    } catch (e) {
+      val.textContent = 'Onbekend';
+      sub.textContent = 'Kon Apps Script niet bereiken voor live check';
+    }
+  }
+  webshopStatusLaden();
 </script>
 
 </body>
