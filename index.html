@@ -127,6 +127,40 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 .actie-add-row button { background: var(--tc); border: none; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 0 18px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
 .actie-add-row button:hover { background: var(--esp); }
 
+/* STATUS SELECT — leveranciers, kanalen, pipeline */
+.status-select {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--esp);
+  background: rgba(245,239,235,0.7);
+  border: 1px solid rgba(188,122,92,0.25);
+  border-radius: 8px;
+  padding: 6px 8px;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-start;
+  max-width: 128px;
+}
+.status-select:focus { border-color: var(--tc); }
+.pipeline-select {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tc);
+  background: white;
+  border: 1px solid rgba(188,122,92,0.25);
+  border-radius: 8px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  margin-top: 4px;
+  width: 100%;
+}
+.fase-editable { outline: none; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; cursor: text; }
+.fase-editable:focus { background: rgba(188,122,92,0.08); }
+
 .dash-footer { text-align: center; font-size: 10px; color: rgba(61,52,46,0.35); letter-spacing: 1px; padding: 28px 0 12px; }
 
 @media (max-width: 900px) {
@@ -266,7 +300,66 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     <input id="leverancier-input" type="text" placeholder="Nieuwe leverancier toevoegen — druk op Enter" maxlength="80">
     <button type="button" onclick="leverancierToevoegen()">+ Toevoegen</button>
   </div>
-  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Vink een leverancier af zodra de samenwerking actief is, of verwijder (✕) zodra jullie er niet meer mee werken. Synchroniseert automatisch tussen jouw apparaten en met Bionda.</div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Status per leverancier bijwerken via de dropdown, of verwijder (✕) zodra jullie er niet meer mee werken. Synchroniseert automatisch tussen jouw apparaten en met Bionda.</div>
+
+  <!-- OMZET & PROGNOSE -->
+  <div class="sectie-label" style="margin-top:32px;">Omzet &amp; prognose</div>
+  <div class="status-grid">
+    <div class="status-item">
+      <div class="status-label">Huidige fase</div>
+      <div class="status-val fase-editable" id="omzet-fase-val" contenteditable="true" spellcheck="false" style="font-size:15px;">Voorbereiding</div>
+      <div class="status-sub">Klik om aan te passen</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Conservatief J1</div>
+      <div class="status-val">€58K</div>
+      <div class="status-sub">J2 €155K · J3 €335K</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Realistisch J1</div>
+      <div class="status-val">€95K</div>
+      <div class="status-sub">J2 €265K · J3 €580K</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Optimistisch J1</div>
+      <div class="status-val">€145K</div>
+      <div class="status-sub">J2 €420K · J3 €980K</div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:8px;">✦ Volledige prognose met kanaal-breakdown: <a href="nomad-omzetprognose.html" style="color:var(--tc);">open Omzetprognose-tool ↗</a>. Fase-veld synchroniseert tussen apparaten — pas aan zodra de winkel live gaat of omzet binnenkomt.</div>
+
+  <!-- KANALEN & MARKETING STATUS -->
+  <div class="sectie-label" style="margin-top:32px;">Kanalen &amp; marketing status</div>
+  <div id="kanalenlijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="actie-add-row">
+    <input id="kanaal-input" type="text" placeholder="Nieuw kanaal toevoegen — druk op Enter" maxlength="60">
+    <button type="button" onclick="kanaalToevoegen()">+ Toevoegen</button>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Kanaalprioriteit: Pinterest → TikTok → Google Shopping → Micro-influencers → Klaviyo. Status bijwerken via de dropdown zodra een kanaal live gaat.</div>
+
+  <!-- PIPELINE STATUS -->
+  <div class="sectie-label" style="margin-top:32px;">Techniek &amp; pipeline status</div>
+  <div class="status-grid" style="grid-template-columns:repeat(3,1fr);">
+    <a href="https://github.com/nomadandsoul/nomad-curator/commits/main" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Laatste GitHub push ↗</div>
+      <div class="status-val" id="pipeline-commit-val" style="font-size:15px;">Laden…</div>
+      <div class="status-sub" id="pipeline-commit-sub">nomadandsoul/nomad-curator</div>
+    </a>
+    <div class="status-item">
+      <div class="status-label">Apps Script trigger</div>
+      <select id="pipeline-trigger-select" class="pipeline-select">
+        <option>Actief · elke 5 min</option>
+        <option>Onbekend — nog te controleren</option>
+        <option>Uitgeschakeld</option>
+      </select>
+      <div class="status-sub">script.google.com → klokje → Time-driven</div>
+    </div>
+    <a href="https://nomadandsoul.github.io/nomad-curator/" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Live dashboard ↗</div>
+      <div class="status-val" style="font-size:15px;">GitHub Pages</div>
+      <div class="status-sub">nomadandsoul.github.io/nomad-curator</div>
+    </a>
+  </div>
 
   <!-- LIVE APPS -->
   <div class="sectie-label">Apps &amp; tools — live</div>
@@ -469,7 +562,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
 <script>
   // --- SYNC MET GOOGLE APPS SCRIPT (zodat telefoon/pc en Ludo/Bionda synchroniseren) ---
-  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxzY1gVh_GPKceVgI8alfLMPmCFWfDUUtDaI49uACrT_QlLpLllvKWI-0a8hA3A5ICm/exec';
+  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbz15RO87CRYzw1jQaa0iZk4WkHlp_esLosJKJ8S_QZsAnEtk15GqyChELTVsKSeOsCz/exec';
   const SYNC_INDICATOR = document.createElement('div');
   SYNC_INDICATOR.style.cssText = 'position:fixed;bottom:14px;right:14px;font-size:10px;padding:5px 10px;border-radius:20px;background:rgba(61,52,46,0.85);color:#F5EFEB;z-index:200;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
   document.body.appendChild(SYNC_INDICATOR);
@@ -662,17 +755,26 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   // --- LEVERANCIERS ---
   const LEVERANCIER_KEY = 'nomad-leveranciers-v1';
+  const LEVERANCIER_STATUSSEN = ['Actief', 'Outreach verstuurd', 'In aanvraag', 'Wacht op setup', 'Niet gestart', 'Afgewezen'];
+  const LEVERANCIER_KLEUR = { 'Actief': '#2D7A3A', 'Outreach verstuurd': '#BC7A5C', 'In aanvraag': '#BC7A5C', 'Wacht op setup': '#7A6552', 'Niet gestart': 'rgba(61,52,46,0.25)', 'Afgewezen': '#A34936' };
 
   const LEVERANCIER_DEFAULTS = [
-    { naam: 'Shopify Collective (ibizamode)', desc: 'Boho kleding NL — uitnodiging klaar, wacht op volledige Shopify-setup (KVK/BTW/bank via Bionda).', actief: false },
-    { naam: 'Droppery.io (Bazar Bizar)', desc: 'Boho home accessories, 40–50% marge, EU levering 1–5 dagen. Nog niet gestart.', actief: false },
-    { naam: 'Aurobelle Ibiza / Jaase / Brands of Ibiza', desc: 'Directe merken — outreach verstuurd, nog geen bevestiging.', actief: false },
+    { naam: 'Shopify Collective (ibizamode)', desc: 'Boho kleding NL — uitnodiging klaar, wacht op volledige Shopify-setup (KVK/BTW/bank via Bionda).', status: 'Wacht op setup' },
+    { naam: 'Droppery.io (Bazar Bizar + J-Line)', desc: 'Boho home accessories, 40–50% marge, EU levering 1–5 dagen. Nog niet gestart.', status: 'Niet gestart' },
+    { naam: 'Different Fashion', desc: 'Boho chic kleding, warehouse Portugal, CSV/XML feed. Nog niet gestart.', status: 'Niet gestart' },
+    { naam: 'Aurobelle Ibiza / Jaase / Turquoise by Daan', desc: 'Directe merken — outreach verstuurd, nog geen bevestiging.', status: 'Outreach verstuurd' },
+    { naam: 'Brands of Ibiza (via Bionda)', desc: 'WhatsApp-contact via Bionda — in aanvraag.', status: 'In aanvraag' },
   ];
+
+  function leverancierMigreer(item, i) {
+    if (item.status) return item;
+    return { ...item, status: item.actief ? 'Actief' : 'In aanvraag' };
+  }
 
   function leverancierLaad() {
     try {
       const raw = localStorage.getItem(LEVERANCIER_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) return JSON.parse(raw).map(leverancierMigreer);
     } catch (e) {}
     return LEVERANCIER_DEFAULTS.map((item, i) => ({ id: 'l' + i, ...item }));
   }
@@ -687,7 +789,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   async function leverancierSyncBijWerk() {
     const remote = await syncGet('leveranciers');
     if (remote && Array.isArray(remote) && remote.length > 0) {
-      leverancierItems = remote;
+      leverancierItems = remote.map(leverancierMigreer);
       try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(leverancierItems)); } catch (e) {}
       leverancierRender();
     } else if (remote === null) {
@@ -696,11 +798,11 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
   }
 
   function modelSubBijwerken() {
-    const actief = leverancierItems.filter((l) => l.actief);
+    const actief = leverancierItems.filter((l) => l.status === 'Actief');
     const el = document.getElementById('model-leverancier-sub');
     if (!el) return;
     if (actief.length === 0) {
-      el.textContent = 'Nog geen actieve leverancier — Shopify Collective in aanvraag';
+      el.textContent = 'Nog geen actieve leverancier — ' + (leverancierItems[0] ? leverancierItems[0].naam : 'wacht op setup');
     } else {
       el.textContent = actief.map((l) => l.naam).join(' · ');
     }
@@ -711,17 +813,23 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     container.innerHTML = '';
     leverancierItems.forEach((item) => {
       const row = document.createElement('div');
-      row.className = 'actie-item' + (item.actief ? ' prio' : '');
+      row.className = 'actie-item';
+      row.style.borderLeftColor = LEVERANCIER_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
 
-      const check = document.createElement('input');
-      check.type = 'checkbox';
-      check.className = 'actie-check';
-      check.title = 'Actief als leverancier';
-      check.checked = !!item.actief;
-      check.addEventListener('change', () => {
-        item.actief = check.checked;
+      const select = document.createElement('select');
+      select.className = 'status-select';
+      select.title = 'Status leverancier';
+      LEVERANCIER_STATUSSEN.forEach((s) => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        if (s === item.status) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', () => {
+        item.status = select.value;
+        row.style.borderLeftColor = LEVERANCIER_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
         leverancierBewaar(leverancierItems);
-        leverancierRender();
+        modelSubBijwerken();
       });
 
       const body = document.createElement('div');
@@ -765,7 +873,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
         modelSubBijwerken();
       });
 
-      row.appendChild(check);
+      row.appendChild(select);
       row.appendChild(body);
       row.appendChild(del);
       container.appendChild(row);
@@ -789,6 +897,214 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
 
   leverancierRender();
   leverancierSyncBijWerk();
+
+  // --- OMZET & PROGNOSE: fase-veld ---
+  const OMZET_FASE_KEY = 'nomad-omzet-fase-v1';
+
+  function omzetFaseLaad() {
+    try { const raw = localStorage.getItem(OMZET_FASE_KEY); if (raw) return raw; } catch (e) {}
+    return 'Voorbereiding';
+  }
+
+  let omzetFaseVal = omzetFaseLaad();
+  const omzetFaseEl = document.getElementById('omzet-fase-val');
+  omzetFaseEl.innerText = omzetFaseVal;
+
+  omzetFaseEl.addEventListener('blur', () => {
+    omzetFaseVal = omzetFaseEl.innerText.trim() || omzetFaseVal;
+    try { localStorage.setItem(OMZET_FASE_KEY, omzetFaseVal); } catch (e) {}
+    syncSet('omzet-fase', omzetFaseVal);
+  });
+  omzetFaseEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); omzetFaseEl.blur(); } });
+
+  async function omzetFaseSyncBijwerk() {
+    const remote = await syncGet('omzet-fase');
+    if (remote && typeof remote === 'string') {
+      omzetFaseVal = remote;
+      omzetFaseEl.innerText = remote;
+      try { localStorage.setItem(OMZET_FASE_KEY, remote); } catch (e) {}
+    } else if (remote === null) {
+      syncSet('omzet-fase', omzetFaseVal);
+    }
+  }
+  omzetFaseSyncBijwerk();
+
+  // --- KANALEN & MARKETING STATUS ---
+  const KANAAL_KEY = 'nomad-kanalen-v1';
+  const KANAAL_STATUSSEN = ['Live', 'In opbouw', 'Gepland', 'Niet gestart'];
+  const KANAAL_KLEUR = { 'Live': '#2D7A3A', 'In opbouw': '#BC7A5C', 'Gepland': '#7A6552', 'Niet gestart': 'rgba(61,52,46,0.25)' };
+
+  const KANAAL_DEFAULTS = [
+    { naam: 'Pinterest organisch', desc: 'Kanaalprioriteit 1 — nog niet gestart, wacht op live webshop.', status: 'Niet gestart' },
+    { naam: 'TikTok organisch', desc: 'Kanaalprioriteit 2 — Higgsfield/Buffer contentpijplijn klaar, nog geen posts live.', status: 'Niet gestart' },
+    { naam: 'Google Shopping', desc: 'Kanaalprioriteit 3 — wacht op live webshop en productfeed.', status: 'Niet gestart' },
+    { naam: 'Micro-influencers', desc: 'Kanaalprioriteit 4 — nog geen outreach gestart.', status: 'Niet gestart' },
+    { naam: 'Klaviyo e-mail', desc: 'Kanaalprioriteit 5 — welkomstreeks 3/3 mails klaar, abandoned cart flow in ontwikkeling.', status: 'In opbouw' },
+  ];
+
+  function kanaalLaad() {
+    try {
+      const raw = localStorage.getItem(KANAAL_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return KANAAL_DEFAULTS.map((item, i) => ({ id: 'k' + i, ...item }));
+  }
+
+  function kanaalBewaar(items) {
+    try { localStorage.setItem(KANAAL_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('kanalen', items);
+  }
+
+  let kanaalItems = kanaalLaad();
+
+  async function kanaalSyncBijwerk() {
+    const remote = await syncGet('kanalen');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      kanaalItems = remote;
+      try { localStorage.setItem(KANAAL_KEY, JSON.stringify(kanaalItems)); } catch (e) {}
+      kanaalRender();
+    } else if (remote === null) {
+      syncSet('kanalen', kanaalItems);
+    }
+  }
+
+  function kanaalRender() {
+    const container = document.getElementById('kanalenlijst');
+    container.innerHTML = '';
+    kanaalItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item';
+      row.style.borderLeftColor = KANAAL_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+
+      const select = document.createElement('select');
+      select.className = 'status-select';
+      select.title = 'Status kanaal';
+      KANAAL_STATUSSEN.forEach((s) => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        if (s === item.status) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', () => {
+        item.status = select.value;
+        row.style.borderLeftColor = KANAAL_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+        kanaalBewaar(kanaalItems);
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const naam = document.createElement('div');
+      naam.className = 'actie-titel';
+      naam.contentEditable = 'true';
+      naam.spellcheck = false;
+      naam.innerText = item.naam;
+      naam.addEventListener('blur', () => {
+        item.naam = naam.innerText.trim() || item.naam;
+        kanaalBewaar(kanaalItems);
+      });
+      naam.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); naam.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        kanaalBewaar(kanaalItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(naam);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Verwijderen';
+      del.addEventListener('click', () => {
+        kanaalItems = kanaalItems.filter((i) => i.id !== item.id);
+        kanaalBewaar(kanaalItems);
+        kanaalRender();
+      });
+
+      row.appendChild(select);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+  }
+
+  function kanaalToevoegen() {
+    const input = document.getElementById('kanaal-input');
+    const val = input.value.trim();
+    if (!val) return;
+    kanaalItems.push({ id: 'k' + Date.now(), naam: val, desc: '', status: 'Niet gestart' });
+    kanaalBewaar(kanaalItems);
+    input.value = '';
+    kanaalRender();
+  }
+
+  document.getElementById('kanaal-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); kanaalToevoegen(); }
+  });
+
+  kanaalRender();
+  kanaalSyncBijwerk();
+
+  // --- PIPELINE STATUS: live GitHub commit + Apps Script trigger ---
+  async function pipelineCommitLaden() {
+    const val = document.getElementById('pipeline-commit-val');
+    const sub = document.getElementById('pipeline-commit-sub');
+    try {
+      const res = await fetch('https://api.github.com/repos/nomadandsoul/nomad-curator/commits/main');
+      const data = await res.json();
+      const datum = new Date(data.commit.author.date);
+      const nu = new Date();
+      const uurVerschil = Math.round((nu - datum) / 3600000);
+      let tijdTekst;
+      if (uurVerschil < 1) tijdTekst = '< 1 uur geleden';
+      else if (uurVerschil < 24) tijdTekst = uurVerschil + ' uur geleden';
+      else tijdTekst = Math.round(uurVerschil / 24) + ' dagen geleden';
+      val.textContent = tijdTekst;
+      sub.textContent = (data.commit.message || 'nomadandsoul/nomad-curator').split('\n')[0].slice(0, 60);
+    } catch (e) {
+      val.textContent = 'Onbekend';
+      sub.textContent = 'Kon GitHub niet bereiken';
+    }
+  }
+  pipelineCommitLaden();
+
+  const PIPELINE_TRIGGER_KEY = 'nomad-pipeline-trigger-v1';
+
+  function pipelineTriggerLaad() {
+    try { const raw = localStorage.getItem(PIPELINE_TRIGGER_KEY); if (raw) return raw; } catch (e) {}
+    return 'Onbekend — nog te controleren';
+  }
+
+  let pipelineTriggerVal = pipelineTriggerLaad();
+  const pipelineSelect = document.getElementById('pipeline-trigger-select');
+  pipelineSelect.value = pipelineTriggerVal;
+
+  pipelineSelect.addEventListener('change', () => {
+    pipelineTriggerVal = pipelineSelect.value;
+    try { localStorage.setItem(PIPELINE_TRIGGER_KEY, pipelineTriggerVal); } catch (e) {}
+    syncSet('pipeline-trigger', pipelineTriggerVal);
+  });
+
+  async function pipelineTriggerSyncBijwerk() {
+    const remote = await syncGet('pipeline-trigger');
+    if (remote && typeof remote === 'string') {
+      pipelineTriggerVal = remote;
+      pipelineSelect.value = remote;
+      try { localStorage.setItem(PIPELINE_TRIGGER_KEY, remote); } catch (e) {}
+    } else if (remote === null) {
+      syncSet('pipeline-trigger', pipelineTriggerVal);
+    }
+  }
+  pipelineTriggerSyncBijwerk();
 </script>
 
 </body>
