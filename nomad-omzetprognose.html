@@ -463,7 +463,7 @@ function bereken() {
     const maandIdx = (startMaand + i) % 12;
     const seizoenFactor = SEIZOEN[maandIdx];
 
-    // Kansen extra omzet
+    // Kansen extra omzet (deel onafhankelijk van omzet zelf)
     let kansenExtra = 0;
     actieveKansen.forEach(k => {
       const kd = KANSEN_DATA[k];
@@ -471,18 +471,27 @@ function bereken() {
         const aanloopFactor = Math.min(1, (i - kd.startMnd + 2) / 3);
         kansenExtra += kd.mndExtra * aanloopFactor;
       }
-      if (kd.seizoenBonus && i >= kd.startMnd - 1) {
-        // Seizoen bonus wordt in seizoenFactor verwerkt
-      }
     });
 
     const effectiefOrders = Math.round(orders * seizoenFactor);
-    const omzet = effectiefOrders * effectiefAOV;
+    const basisOmzet = effectiefOrders * effectiefAOV;
+
+    // Seizoensbonus hangt af van omzet, dus pas hierna toepassen (piekmaanden mei-aug/dec)
+    actieveKansen.forEach(k => {
+      const kd = KANSEN_DATA[k];
+      if (kd.seizoenBonus && i >= kd.startMnd - 1 && seizoenFactor >= 1.2) {
+        kansenExtra += basisOmzet * kd.seizoenBonus;
+      }
+    });
+
+    // Kansen-omzet (extra kanalen) telt mee als omzet en loopt door dezelfde marge/kosten —
+    // dit voorkomt dat nettoresultaat hoger kan uitkomen dan de omzet zelf.
+    const omzet = basisOmzet + kansenExtra;
     const brutoMargeEuro = omzet * (d.marge / 100);
     const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
     const adKosten = d.adBudget;
     const vasteKosten = d.vaste + 79; // Shopify
-    const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten + kansenExtra;
+    const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten;
     cumulatief += netto;
 
     if (!breakEven && cumulatief >= 0) breakEven = i + 1;
