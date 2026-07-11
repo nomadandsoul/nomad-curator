@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Klantenservice Macro's</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --zand: #E4DACF; --dusty: #7A6552; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F0EAE5;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(245, 239, 235, 0.88);
+  z-index: 0;
+  pointer-events: none;
+}
+.topbar, .container { position: relative; z-index: 1; }
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-left a { color: #F5EFEB; text-decoration: none; font-size: 11px; opacity: 0.7; }
+.topbar-left a:hover { opacity: 1; }
+.topbar-titel { font-family: 'Playfair Display', serif; font-size: 16px; margin-top: 4px; }
+.topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 860px; margin: 0 auto; padding: 32px 24px 60px; }
+
+.pagina-titel { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 400; color: var(--esp); margin-bottom: 8px; }
+.pagina-sub { font-size: 13px; color: rgba(61,52,46,0.6); margin-bottom: 32px; line-height: 1.6; }
+
+.macro-kaart { background: white; border: 1px solid rgba(188,122,92,0.15); border-radius: 16px; padding: 24px 26px; margin-bottom: 18px; box-shadow: 0 6px 20px rgba(61,52,46,0.05); }
+.macro-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.macro-titel { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--esp); }
+.macro-onderwerp { font-size: 11px; color: var(--tc); font-weight: 600; margin-top: 4px; }
+.copy-btn { background: rgba(188,122,92,0.1); color: var(--tc); border: 1px solid rgba(188,122,92,0.3); border-radius: 8px; padding: 8px 16px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s ease; }
+.copy-btn:hover { background: var(--tc); color: white; }
+.copy-btn.copied { background: #2D7A3A; color: white; border-color: #2D7A3A; }
+.macro-body { font-size: 13.5px; line-height: 1.8; color: rgba(61,52,46,0.85); white-space: pre-wrap; outline: none; border-radius: 6px; padding: 2px 4px; margin: -2px -4px; }
+.macro-body:focus { background: rgba(188,122,92,0.06); }
+.macro-body .placeholder { background: rgba(163,73,54,0.1); color: #A34936; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+.macro-tag { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(61,52,46,0.4); margin-bottom: 6px; }
+
+.footer-note { font-size: 10px; color: rgba(61,52,46,0.4); margin-top: 24px; line-height: 1.7; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html">← Terug naar dashboard</a>
+    <div class="topbar-titel">Klantenservice Macro's</div>
+  </div>
+  <div class="topbar-right">nomadandsoul.nl ✦ Vertrouwelijk</div>
+</div>
+
+<div class="container">
+  <h1 class="pagina-titel">Eén-klik afhandeling</h1>
+  <p class="pagina-sub">Vijf kant-en-klare reacties voor de meestvoorkomende klantvragen. Klik "Kopieer" en plak in je e-mail — pas de gemarkeerde velden aan waar nodig. Teksten zijn direct bewerkbaar op deze pagina (klik erin), maar wijzigingen worden niet automatisch opgeslagen.</p>
+
+  <!-- MACRO 1 -->
+  <div class="macro-kaart">
+    <div class="macro-header">
+      <div>
+        <span class="macro-tag">Maatafwijking</span>
+        <div class="macro-titel">Te groot / te klein</div>
+        <div class="macro-onderwerp">Onderwerp: Over de pasvorm van je bestelling</div>
+      </div>
+      <button class="copy-btn" onclick="kopieer(this, 'macro-1')">Kopieer</button>
+    </div>
+    <div class="macro-body" id="macro-1" contenteditable="true" spellcheck="false">Wat vervelend dat de maat niet helemaal klopt — dat begrijpen we. Onze stukken vallen soms net iets anders dan verwacht, en we willen dat je iets draagt wat echt goed zit.
+
+Je kunt binnen 14 dagen na ontvangst ruilen of retourneren. Stuur het artikel ongedragen en met labels terug via [retourlink], en laat ons weten of je liever ruilt voor een andere maat of je geld terugkrijgt. Zodra we de zending in ons magazijn hebben ontvangen en gecontroleerd, verwerken we dit binnen enkele werkdagen.</div>
+  </div>
+
+  <!-- MACRO 2 -->
+  <div class="macro-kaart">
+    <div class="macro-header">
+      <div>
+        <span class="macro-tag">Bezorging</span>
+        <div class="macro-titel">Vermist pakket</div>
+        <div class="macro-onderwerp">Onderwerp: We zoeken je pakket samen met je uit</div>
+      </div>
+      <button class="copy-btn" onclick="kopieer(this, 'macro-2')">Kopieer</button>
+    </div>
+    <div class="macro-body" id="macro-2" contenteditable="true" spellcheck="false">We snappen dat dit spannend is als je bestelling niet aankomt. Laten we dit meteen uitzoeken.
+
+Kun je je ordernummer en bezorgadres bevestigen? We zetten de zending direct uit bij de vervoerder. Blijkt het pakket onvindbaar, dan sturen we een nieuwe zending of betalen we terug — wat jij het prettigst vindt.</div>
+  </div>
+
+  <!-- MACRO 3 -->
+  <div class="macro-kaart">
+    <div class="macro-header">
+      <div>
+        <span class="macro-tag">Kwaliteit</span>
+        <div class="macro-titel">Defect product</div>
+        <div class="macro-onderwerp">Onderwerp: Sorry voor het defect — we lossen dit op</div>
+      </div>
+      <button class="copy-btn" onclick="kopieer(this, 'macro-3')">Kopieer</button>
+    </div>
+    <div class="macro-body" id="macro-3" contenteditable="true" spellcheck="false">Dat een artikel niet in orde aankomt, hoort niet bij het gevoel dat we willen geven. Onze excuses daarvoor.
+
+Kun je een foto van het defect meesturen, samen met je ordernummer? Op basis daarvan sturen we kosteloos een vervangend artikel of betalen we terug — jouw keuze. Een retourzending is hiervoor niet altijd nodig; dat laten we je per geval weten.</div>
+  </div>
+
+  <!-- MACRO 4 -->
+  <div class="macro-kaart">
+    <div class="macro-header">
+      <div>
+        <span class="macro-tag">Terugbetaling</span>
+        <div class="macro-titel">Ongeduldige geld-terug-claim</div>
+        <div class="macro-onderwerp">Onderwerp: Status van je terugbetaling</div>
+      </div>
+      <button class="copy-btn" onclick="kopieer(this, 'macro-4')">Kopieer</button>
+    </div>
+    <div class="macro-body" id="macro-4" contenteditable="true" spellcheck="false">We begrijpen dat wachten op je geld vervelend is, en we willen je precies vertellen waar het op dit moment staat.
+
+Terugbetalingen verwerken we zodra de retourzending fysiek is aangekomen en gecontroleerd in ons magazijn — dat duurt doorgaans <span class="placeholder">[X]</span> werkdagen na aankomst. Zodra dat is afgerond, ontvang je automatisch een bevestiging en staat het bedrag binnen enkele werkdagen weer op je rekening. Zodra ik het kan zien in ons systeem, laat ik je de exacte status weten.</div>
+  </div>
+
+  <!-- MACRO 5 -->
+  <div class="macro-kaart">
+    <div class="macro-header">
+      <div>
+        <span class="macro-tag">Annulering</span>
+        <div class="macro-titel">Late annulering</div>
+        <div class="macro-onderwerp">Onderwerp: Over het annuleren van je bestelling</div>
+      </div>
+      <button class="copy-btn" onclick="kopieer(this, 'macro-5')">Kopieer</button>
+    </div>
+    <div class="macro-body" id="macro-5" contenteditable="true" spellcheck="false">Bedankt dat je het laat weten. Of we je bestelling nog kunnen annuleren hangt af van hoe ver de verwerking al is.
+
+Is de bestelling nog niet verzonden, dan annuleren we 'm kosteloos en storten we het bedrag terug. Is de zending al onderweg, dan kunnen we 'm niet meer onderweg tegenhouden — in dat geval kun je het pakket weigeren bij aflevering, of gewoon retourneren zodra het is aangekomen, volgens ons gebruikelijke retourproces.</div>
+  </div>
+
+  <p class="footer-note">✦ Vervang gemarkeerde velden zoals [retourlink] en [X] vóór verzending. Strikt retourbeleid: terugbetaling of vervanging pas na fysieke controle in het magazijn — nooit vooraf toezeggen.</p>
+</div>
+
+<script>
+function kopieer(btn, id) {
+  const el = document.getElementById(id);
+  const tekst = el.innerText;
+  navigator.clipboard.writeText(tekst).then(() => {
+    const origineel = btn.textContent;
+    btn.textContent = '✓ Gekopieerd';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = origineel; btn.classList.remove('copied'); }, 1800);
+  }).catch(() => {
+    btn.textContent = 'Selecteer handmatig';
+    setTimeout(() => { btn.textContent = 'Kopieer'; }, 1800);
+  });
+}
+</script>
+
+</body>
+</html>
