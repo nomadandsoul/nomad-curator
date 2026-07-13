@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Nomad &amp; Soul — Verwachte Uitgaven &amp; Prognose</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3D342E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nomad &amp; Soul">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root { --tc:#BC7A5C; --esp:#3D342E; --iv:#F5EFEB; --zand:#E4DACF; --dusty:#7A6552; }
+*{box-sizing:border-box;}
+body{
+  margin:0;font-family:'Montserrat',sans-serif;color:var(--esp);
+  background-image:url('sfeer-achtergrond.jpg');background-size:cover;
+  background-position:center top;background-attachment:fixed;background-color:#F0EAE5;
+  position:relative;min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;background:rgba(245,239,235,0.87);z-index:0;pointer-events:none;
+}
+.page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+/* ── HEADER ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.terug{
+  display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--dusty);text-decoration:none;padding:9px 16px;
+  border:1px solid rgba(188,122,92,.3);border-radius:6px;background:rgba(255,255,255,.6);transition:.2s;
+}
+.terug:hover{background:var(--tc);color:var(--iv);border-color:var(--tc);}
+.datumchip{
+  font-size:11px;font-weight:600;letter-spacing:1px;color:var(--dusty);
+  background:rgba(255,255,255,.7);border:1px solid rgba(188,122,92,.25);
+  border-radius:20px;padding:8px 16px;
+}
+.datumchip strong{color:var(--tc);}
+
+h1{font-family:'Playfair Display',serif;font-weight:400;font-size:34px;margin:18px 0 6px;line-height:1.2;}
+.sub{font-size:13px;color:var(--dusty);line-height:1.7;margin:0 0 30px;max-width:660px;}
+
+/* ── KPI RIJ ── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px;}
+.kpi{
+  background:rgba(255,255,255,.82);border:1px solid rgba(228,218,207,.9);
+  border-radius:14px;padding:20px 22px;
+}
+.kpi.accent{background:var(--esp);border-color:var(--esp);}
+.kpi.accent .kpi-label{color:rgba(245,239,235,.55);}
+.kpi.accent .kpi-val{color:var(--iv);}
+.kpi.accent .kpi-note{color:rgba(245,239,235,.5);}
+.kpi-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tc);margin-bottom:8px;}
+.kpi-val{font-family:'Playfair Display',serif;font-size:27px;line-height:1;margin-bottom:6px;}
+.kpi-note{font-size:11px;color:var(--dusty);line-height:1.5;}
+
+/* ── SECTIES ── */
+.blok{
+  background:rgba(255,255,255,.82);border:1px solid rgba(228,218,207,.9);
+  border-radius:16px;padding:26px 26px 28px;margin-bottom:22px;
+}
+.blok h2{
+  font-family:'Playfair Display',serif;font-weight:400;font-size:21px;margin:0 0 4px;
+}
+.blok .hint{font-size:12px;color:var(--dusty);margin:0 0 20px;line-height:1.6;}
+
+/* ── TABEL ── */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  text-align:left;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--tc);padding:0 10px 10px;border-bottom:1px solid rgba(188,122,92,.25);
+}
+th.r,td.r{text-align:right;}
+td{padding:11px 10px;border-bottom:1px solid rgba(228,218,207,.55);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr.uit td{opacity:.38;}
+.naam{font-weight:600;}
+.meta{font-size:10px;color:var(--dusty);margin-top:2px;line-height:1.4;}
+td.bedrag{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;}
+.totaalrij td{
+  border-top:2px solid var(--esp);border-bottom:none;padding-top:14px;
+  font-weight:700;font-size:14px;
+}
+
+/* status pills */
+.pill{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.pill-actief{background:#DFEFE3;color:#2C6E42;}
+.pill-straks{background:#FBEBD9;color:#9A5B22;}
+.pill-nvt{background:var(--zand);color:var(--dusty);}
+.pill-open{background:#FCE4E4;color:#9B3535;}
+
+/* inputs */
+input[type=number],input[type=date]{
+  font-family:'Montserrat',sans-serif;font-size:13px;color:var(--esp);
+  border:1px solid rgba(188,122,92,.35);border-radius:6px;padding:7px 10px;
+  background:#fff;width:100%;max-width:130px;
+}
+input:focus{outline:none;border-color:var(--tc);box-shadow:0 0 0 3px rgba(188,122,92,.12);}
+input::placeholder{color:#B9AEA4;font-size:12px;}
+.inputrij{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;}
+.veld label{display:block;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--tc);margin-bottom:6px;}
+.veld input{max-width:100%;}
+.veld .uitleg{font-size:10px;color:var(--dusty);margin-top:5px;line-height:1.5;}
+
+/* staffels */
+.staffel{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;
+  padding:9px 0;border-bottom:1px solid rgba(228,218,207,.55);}
+.staffel:last-child{border-bottom:none;}
+.staffel span{font-size:12px;}
+.staffel small{display:block;font-size:10px;color:var(--dusty);}
+.staffel.actief{background:rgba(188,122,92,.07);margin:0 -10px;padding:9px 10px;border-radius:6px;}
+.staffel.actief span{font-weight:700;color:var(--tc);}
+
+/* tijdlijn */
+.tl{display:flex;gap:0;margin-top:6px;border-radius:10px;overflow:hidden;}
+.tl-seg{flex:1;padding:16px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.25);}
+.tl-seg:last-child{border-right:none;}
+.tl-seg.s1{background:#E8DFD6;}
+.tl-seg.s2{background:#D9C9B8;}
+.tl-seg.s3{background:var(--esp);color:var(--iv);}
+.tl-seg.nu{box-shadow:inset 0 -4px 0 var(--tc);}
+.tl-per{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-bottom:6px;}
+.tl-bedrag{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:4px;}
+.tl-note{font-size:10px;opacity:.7;line-height:1.4;}
+.tl-nu-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--tc);margin-top:8px;}
+
+/* variabel */
+.varkaart{background:rgba(245,239,235,.7);border:1px solid rgba(228,218,207,.9);
+  border-radius:12px;padding:18px 20px;margin-bottom:12px;}
+.varkaart:last-child{margin-bottom:0;}
+.varkop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+.varnaam{font-weight:600;font-size:14px;}
+.varbedrag{font-family:'Playfair Display',serif;font-size:19px;color:var(--tc);white-space:nowrap;}
+.varform{font-size:11px;color:var(--dusty);font-family:ui-monospace,monospace;
+  background:rgba(255,255,255,.6);padding:6px 9px;border-radius:5px;margin-top:8px;display:inline-block;}
+
+.waarschuwing{
+  background:#FCF3E8;border-left:3px solid var(--tc);border-radius:0 8px 8px 0;
+  padding:13px 16px;font-size:12px;line-height:1.65;color:#7A5A38;margin-top:16px;
+}
+.waarschuwing strong{color:var(--esp);}
+
+.reset{
+  background:none;border:1px solid rgba(188,122,92,.3);color:var(--dusty);
+  font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;
+  text-transform:uppercase;padding:8px 14px;border-radius:6px;cursor:pointer;transition:.2s;
+}
+.reset:hover{background:var(--tc);color:var(--iv);border-color:var(--tc);}
+
+.opslaan-melding{
+  font-size:11px;color:#2C6E42;font-weight:600;opacity:0;transition:opacity .3s;
+}
+.opslaan-melding.zichtbaar{opacity:1;}
+
+@media(max-width:720px){
+  h1{font-size:26px;}
+  .tl{flex-direction:column;}
+  .tl-seg{border-right:none;border-bottom:1px solid rgba(255,255,255,.25);}
+  table{font-size:12px;}
+  td,th{padding-left:6px;padding-right:6px;}
+  .verberg-mob{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <a href="index.html" class="terug">&larr; Dashboard</a>
+    <div class="datumchip">Vandaag: <strong id="chipDatum">—</strong></div>
+  </div>
+
+  <h1>Verwachte Uitgaven &amp; Prognose</h1>
+  <p class="sub">
+    Alle kosten van Nomad &amp; Soul, automatisch bijgewerkt op de datum van vandaag.
+    Vaste lasten springen op contractuele momenten; variabele kosten schalen mee met omzet.
+    Wijzigingen worden lokaal bewaard.
+  </p>
+
+  <!-- ══════ KPI'S ══════ -->
+  <div class="kpis">
+    <div class="kpi accent">
+      <div class="kpi-label">Vaste lasten nu</div>
+      <div class="kpi-val" id="kpiVast">—</div>
+      <div class="kpi-note" id="kpiVastNote">per maand</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Variabele kosten</div>
+      <div class="kpi-val" id="kpiVar">—</div>
+      <div class="kpi-note">op basis van je omzetaanname</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Totaal deze maand</div>
+      <div class="kpi-val" id="kpiTotaal">—</div>
+      <div class="kpi-note">vast + variabel</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Volgende stijging</div>
+      <div class="kpi-val" id="kpiNext">—</div>
+      <div class="kpi-note" id="kpiNextNote">—</div>
+    </div>
+  </div>
+
+  <!-- ══════ TIJDLIJN ══════ -->
+  <div class="blok">
+    <h2>Kostenniveaus in de tijd</h2>
+    <p class="hint">De twee contractuele triggers vallen niet samen — daardoor ontstaan drie niveaus.</p>
+    <div class="tl" id="tijdlijn"></div>
+  </div>
+
+  <!-- ══════ AANNAMES ══════ -->
+  <div class="blok">
+    <h2>Aannames</h2>
+    <p class="hint">Deze waarden sturen alle berekeningen. Pas ze aan; ze worden direct doorgerekend.</p>
+    <div class="inputrij">
+      <div class="veld">
+        <label>Verwachte omzet / maand</label>
+        <input type="number" id="inOmzet" min="0" step="100">
+        <div class="uitleg">In euro</div>
+      </div>
+      <div class="veld">
+        <label>Aantal orders / maand</label>
+        <input type="number" id="inOrders" min="0" step="1">
+        <div class="uitleg">Voor de vaste fee per transactie</div>
+      </div>
+      <div class="veld">
+        <label>Shopify Payments %</label>
+        <input type="number" id="inTarief" min="0" max="10" step="0.1">
+        <div class="uitleg">Tussen 1,5 en 2,2</div>
+      </div>
+      <div class="veld">
+        <label>Vaste fee / order</label>
+        <input type="number" id="inFee" min="0" step="0.01">
+        <div class="uitleg">In euro</div>
+      </div>
+      <div class="veld">
+        <label>Retourpercentage</label>
+        <input type="number" id="inRetour" min="0" max="100" step="0.5">
+        <div class="uitleg">% van alle orders</div>
+      </div>
+      <div class="veld">
+        <label>Aandeel defect</label>
+        <input type="number" id="inDefect" min="0" max="100" step="1">
+        <div class="uitleg">% van retouren dat jullie betalen</div>
+      </div>
+      <div class="veld">
+        <label>Retourkosten / stuk</label>
+        <input type="number" id="inRetourKost" min="0" step="0.5">
+        <div class="uitleg">In euro</div>
+      </div>
+      <div class="veld">
+        <label>Klaviyo-profielen</label>
+        <input type="number" id="inProfielen" min="0" step="50">
+        <div class="uitleg">Bepaalt de staffel</div>
+      </div>
+      <div class="veld">
+        <label>USD → EUR koers</label>
+        <input type="number" id="inKoers" min="0" max="3" step="0.01">
+        <div class="uitleg">Voor Higgsfield &amp; helpdesk</div>
+      </div>
+      <div class="veld">
+        <label>ING startdatum</label>
+        <input type="date" id="inIng">
+        <div class="uitleg">6 maanden gratis vanaf hier</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ VASTE LASTEN ══════ -->
+  <div class="blok">
+    <h2>Vaste lasten</h2>
+    <p class="hint">Bedragen schakelen automatisch op basis van de datum van vandaag.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Post</th>
+          <th class="verberg-mob">Status</th>
+          <th class="r">Nu</th>
+          <th class="r verberg-mob">Later</th>
+        </tr>
+      </thead>
+      <tbody id="vastBody"></tbody>
+      <tfoot>
+        <tr class="totaalrij">
+          <td>Totaal vaste lasten</td>
+          <td class="verberg-mob"></td>
+          <td class="r bedrag" id="vastTotaal">—</td>
+          <td class="r bedrag verberg-mob" id="vastTotaalLater">—</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="waarschuwing" id="boekhouderWaarschuwing" style="display:none;">
+      <strong>Externe boekhouder:</strong> nog geen bedrag ingevuld. Zolang dit leeg is, ontbreekt deze post in het totaal en is de prognose incompleet.
+    </div>
+  </div>
+
+  <!-- ══════ KLAVIYO STAFFELS ══════ -->
+  <div class="blok">
+    <h2>Klaviyo-staffels</h2>
+    <p class="hint">
+      Klaviyo prijst per profiel, niet per omzet — elke inschrijver kost geld, ook als hij nooit koopt.
+      Pas de tarieven aan als Klaviyo ze wijzigt.
+    </p>
+    <div id="staffelLijst"></div>
+    <div class="waarschuwing">
+      <strong>Optimalisatie:</strong> ruim inactieve profielen periodiek op met een sunset-flow.
+      Een contact dat 12 maanden niets opende kost je geld zonder waarde te leveren.
+    </div>
+  </div>
+
+  <!-- ══════ VARIABELE KOSTEN ══════ -->
+  <div class="blok">
+    <h2>Variabele kosten</h2>
+    <p class="hint">
+      Deze schalen mee met je omzet. Bij groei worden ze groter dan al je vaste tools samen.
+    </p>
+    <div id="varLijst"></div>
+    <div class="waarschuwing" id="varInzicht"></div>
+  </div>
+
+  <!-- ══════ JAARLIJKS ══════ -->
+  <div class="blok">
+    <h2>Jaarlijkse posten</h2>
+    <p class="hint">Omgeslagen naar een maandreservering, zodat ze niet als schok in één maand vallen.</p>
+    <table>
+      <thead>
+        <tr><th>Post</th><th class="r">Per jaar</th><th class="r">Reservering / mnd</th></tr>
+      </thead>
+      <tbody id="jaarBody"></tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;margin-top:6px;">
+    <button class="reset" id="btnReset">Herstel standaardwaarden</button>
+    <span class="opslaan-melding" id="opgeslagen">Opgeslagen</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ═══════════════════════════════════════════════
+  //  CONFIGURATIE — geen datum hardcoded behalve
+  //  de contractuele Shopify-trigger
+  // ═══════════════════════════════════════════════
+
+  var SHOPIFY_TRIGGER = new Date(2026, 8, 1);   // 1 sep 2026 — contractueel
+  var ING_GRATIS_MND  = 6;
+
+  var STANDAARD = {
+    omzet:       10000,
+    orders:      120,
+    tarief:      1.8,
+    fee:         0.25,
+    retour:      8,
+    defect:      15,
+    retourKost:  6.50,
+    profielen:   250,
+    koers:       0.92,
+    ingStart:    "2026-07-14",
+    boekhouder:  null,
+    staffels: [
+      { max: 250,   usd: 0   },
+      { max: 500,   usd: 20  },
+      { max: 1000,  usd: 30  },
+      { max: 1500,  usd: 45  },
+      { max: 2500,  usd: 60  },
+      { max: 5000,  usd: 100 }
+    ]
+  };
+
+  // Vaste posten. prijsNu/prijsLater in EUR tenzij valuta USD.
+  var VAST = [
+    { id:"claude",   naam:"Claude Pro",         nu:18.00, later:18.00, val:"EUR", trig:null,      note:"AI-assistent" },
+    { id:"shopify",  naam:"Shopify",            nu:1.00,  later:28.00, val:"EUR", trig:"shopify", note:"Kortingsperiode t/m aug 2026" },
+    { id:"droppery", naam:"Droppery",           nu:29.00, later:59.00, val:"EUR", trig:"volume",  note:"Basic → Optimal bij groei" },
+    { id:"mbird",    naam:"Moneybird",          nu:15.00, later:28.00, val:"EUR", trig:"volume",  note:"Starter → Groei bij groei" },
+    { id:"ing",      naam:"ING zakelijk",       nu:0.00,  later:9.90,  val:"EUR", trig:"ing",     note:"6 maanden gratis" },
+    { id:"gws",      naam:"Google Workspace",   nu:6.90,  later:6.90,  val:"EUR", trig:null,      note:"Zakelijke e-mail" },
+    { id:"klaviyo",  naam:"Klaviyo",            nu:null,  later:null,  val:"EUR", trig:"staffel", note:"Schaalt met profielen" },
+    { id:"canva",    naam:"Canva",              nu:0.00,  later:11.99, val:"EUR", trig:"keuze",   note:"Free → Pro, later" },
+    { id:"helpdesk", naam:"Helpdesk-software",  nu:20.00, later:20.00, val:"USD", trig:null,      note:"$20/mnd" },
+    { id:"higgs",    naam:"Higgsfield Plus",    nu:29.00, later:29.00, val:"USD", trig:null,      note:"$29/mnd — video-engine" },
+    { id:"make",     naam:"Make.com Starter",   nu:9.00,  later:9.00,  val:"EUR", trig:null,      note:"Automatisering" },
+    { id:"github",   naam:"GitHub Pages",       nu:0.00,  later:0.00,  val:"EUR", trig:null,      note:"Gratis (publieke repo)" },
+    { id:"boekh",    naam:"Externe boekhouder", nu:null,  later:null,  val:"EUR", trig:"invoer",  note:"Jaarrekening — bedrag nog onbekend" }
+  ];
+
+  var JAARLIJKS = [
+    { naam:"Domein nomadandsoul.nl", perJaar:15.08 },
+    { naam:"Domein nomadandsoul.be", perJaar:12.33 }
+  ];
+
+  // ═══════════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════════
+
+  var KEY = "nomad_kostenprognose_v1";
+  var s = laadState();
+
+  function laadState(){
+    try {
+      var raw = localStorage.getItem(KEY);
+      if(raw){
+        var p = JSON.parse(raw);
+        var basis = JSON.parse(JSON.stringify(STANDAARD));
+        for(var k in p){ if(Object.prototype.hasOwnProperty.call(p,k)) basis[k]=p[k]; }
+        return basis;
+      }
+    } catch(e){ /* corrupte state → val terug op standaard */ }
+    return JSON.parse(JSON.stringify(STANDAARD));
+  }
+
+  var bewaarTimer=null;
+  function bewaar(){
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){}
+    var m=document.getElementById("opgeslagen");
+    m.classList.add("zichtbaar");
+    clearTimeout(bewaarTimer);
+    bewaarTimer=setTimeout(function(){ m.classList.remove("zichtbaar"); },1400);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  HELPERS
+  // ═══════════════════════════════════════════════
+
+  function eur(n){
+    if(n===null||n===undefined||isNaN(n)) return "—";
+    return "€" + n.toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function eur0(n){
+    if(n===null||n===undefined||isNaN(n)) return "—";
+    return "€" + Math.round(n).toLocaleString("nl-NL");
+  }
+  function num(v,fallback){
+    var n = parseFloat(v);
+    return isNaN(n) ? fallback : n;
+  }
+
+  // Dynamische datum — elke load opnieuw, nooit vastgezet
+  function vandaag(){
+    var d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function plusMaanden(d,n){
+    var r = new Date(d.getTime());
+    r.setMonth(r.getMonth()+n);
+    return r;
+  }
+  function datumNL(d){
+    return d.toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"});
+  }
+  function maandKort(d){
+    return d.toLocaleDateString("nl-NL",{month:"short",year:"numeric"});
+  }
+
+  function ingTrigger(){
+    var start = new Date(s.ingStart);
+    if(isNaN(start.getTime())) start = new Date(STANDAARD.ingStart);
+    return plusMaanden(start, ING_GRATIS_MND);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  BEREKENING
+  // ═══════════════════════════════════════════════
+
+  function klaviyoPrijs(profielen){
+    var st = s.staffels;
+    for(var i=0;i<st.length;i++){
+      if(profielen <= st[i].max) return st[i].usd * s.koers;
+    }
+    // boven de hoogste staffel: neem de laatste
+    return st[st.length-1].usd * s.koers;
+  }
+
+  function actieveStaffelIndex(profielen){
+    var st = s.staffels;
+    for(var i=0;i<st.length;i++){
+      if(profielen <= st[i].max) return i;
+    }
+    return st.length-1;
+  }
+
+  // Prijs van één post op een gegeven datum
+  function prijsOp(post, d, faseVolume){
+    if(post.id === "klaviyo")  return klaviyoPrijs(s.profielen);
+    if(post.id === "boekh")    return (s.boekhouder===null||s.boekhouder===undefined) ? null : s.boekhouder/12;
+
+    var basis;
+    if(post.trig === "shopify")      basis = (d >= SHOPIFY_TRIGGER) ? post.later : post.nu;
+    else if(post.trig === "ing")     basis = (d >= ingTrigger())    ? post.later : post.nu;
+    else if(post.trig === "volume")  basis = faseVolume ? post.later : post.nu;
+    else if(post.trig === "keuze")   basis = post.nu;   // Canva blijft Free tot jij wisselt
+    else                             basis = post.nu;
+
+    if(post.val === "USD") basis = basis * s.koers;
+    return basis;
+  }
+
+  function totaalVastOp(d, faseVolume){
+    var t = 0;
+    for(var i=0;i<VAST.length;i++){
+      var p = prijsOp(VAST[i], d, faseVolume);
+      if(p !== null) t += p;
+    }
+    // jaarlijkse reservering meetellen
+    t += jaarReservering();
+    return t;
+  }
+
+  function jaarReservering(){
+    var t=0;
+    for(var i=0;i<JAARLIJKS.length;i++) t += JAARLIJKS[i].perJaar/12;
+    return t;
+  }
+
+  function variabeleKosten(){
+    var payments = (s.omzet * (s.tarief/100)) + (s.orders * s.fee);
+    var retouren = s.orders * (s.retour/100) * (s.defect/100) * s.retourKost;
+    return { payments: payments, retouren: retouren, totaal: payments + retouren };
+  }
+
+  // ═══════════════════════════════════════════════
+  //  RENDER
+  // ═══════════════════════════════════════════════
+
+  function render(){
+    var nu   = vandaag();
+    var vast = totaalVastOp(nu, false);
+    var vastLater = totaalVastOp(plusMaanden(nu,24), true);
+    var vk   = variabeleKosten();
+
+    document.getElementById("chipDatum").textContent = datumNL(nu);
+
+    // ── KPI's
+    document.getElementById("kpiVast").textContent   = eur0(vast);
+    document.getElementById("kpiVar").textContent    = eur0(vk.totaal);
+    document.getElementById("kpiTotaal").textContent = eur0(vast + vk.totaal);
+
+    var boekhOntbreekt = (s.boekhouder===null||s.boekhouder===undefined);
+    document.getElementById("kpiVastNote").textContent =
+      boekhOntbreekt ? "per maand · excl. boekhouder" : "per maand · incl. alles";
+    document.getElementById("boekhouderWaarschuwing").style.display =
+      boekhOntbreekt ? "block" : "none";
+
+    // ── Volgende stijging
+    var stijgingen = [];
+    if(nu < SHOPIFY_TRIGGER) stijgingen.push({d:SHOPIFY_TRIGGER, wat:"Shopify → €28"});
+    if(nu < ingTrigger())    stijgingen.push({d:ingTrigger(),    wat:"ING → €9,90"});
+    stijgingen.sort(function(a,b){ return a.d - b.d; });
+
+    if(stijgingen.length){
+      var eerst = stijgingen[0];
+      var dagen = Math.ceil((eerst.d - nu) / 86400000);
+      document.getElementById("kpiNext").textContent = dagen + " dgn";
+      document.getElementById("kpiNextNote").textContent = eerst.wat + " · " + datumNL(eerst.d);
+    } else {
+      document.getElementById("kpiNext").textContent = "—";
+      document.getElementById("kpiNextNote").textContent = "Alle triggers gepasseerd";
+    }
+
+    // ── Tijdlijn: drie niveaus
+    var ingT = ingTrigger();
+    var punten = [SHOPIFY_TRIGGER, ingT].sort(function(a,b){ return a-b; });
+    var segs = [
+      { van: null,      tot: punten[0], label: "tot " + maandKort(punten[0]) },
+      { van: punten[0], tot: punten[1], label: maandKort(punten[0]) + " → " + maandKort(punten[1]) },
+      { van: punten[1], tot: null,      label: "vanaf " + maandKort(punten[1]) }
+    ];
+
+    var tlHtml = "";
+    for(var i=0;i<segs.length;i++){
+      var peil = segs[i].van ? plusMaanden(segs[i].van, 0) : nu;
+      if(segs[i].van) peil = new Date(segs[i].van.getTime() + 86400000);
+      var bedrag = totaalVastOp(peil, false);
+      var isNu = (!segs[i].van || nu >= segs[i].van) && (!segs[i].tot || nu < segs[i].tot);
+      tlHtml +=
+        '<div class="tl-seg s'+(i+1)+(isNu?' nu':'')+'">' +
+          '<div class="tl-per">'+segs[i].label+'</div>' +
+          '<div class="tl-bedrag">'+eur0(bedrag)+'</div>' +
+          '<div class="tl-note">vaste lasten / mnd</div>' +
+          (isNu ? '<div class="tl-nu-label">↑ nu</div>' : '') +
+        '</div>';
+    }
+    document.getElementById("tijdlijn").innerHTML = tlHtml;
+
+    // ── Vaste lasten tabel
+    var body = "";
+    for(var j=0;j<VAST.length;j++){
+      var post = VAST[j];
+      var pNu    = prijsOp(post, nu, false);
+      var pLater = prijsOp(post, plusMaanden(nu,24), true);
+
+      var pill, pillCls;
+      if(post.id === "boekh" && boekhOntbreekt){ pill="In te vullen"; pillCls="pill-open"; }
+      else if(post.trig === "shopify"){ pill = (nu>=SHOPIFY_TRIGGER)?"Vol tarief":"Korting"; pillCls=(nu>=SHOPIFY_TRIGGER)?"pill-actief":"pill-straks"; }
+      else if(post.trig === "ing"){     pill = (nu>=ingT)?"Betaald":"Gratis";       pillCls=(nu>=ingT)?"pill-actief":"pill-straks"; }
+      else if(post.trig === "volume"){  pill = "Schaalt mee";                        pillCls="pill-straks"; }
+      else if(post.trig === "keuze"){   pill = "Optioneel";                          pillCls="pill-nvt"; }
+      else if(post.trig === "staffel"){ pill = s.profielen + " profielen";           pillCls="pill-actief"; }
+      else if(pNu === 0){               pill = "Gratis";                             pillCls="pill-nvt"; }
+      else {                            pill = "Actief";                             pillCls="pill-actief"; }
+
+      var bedragCel;
+      if(post.id === "boekh" && boekhOntbreekt){
+        bedragCel = '<input type="number" id="inBoekhouder" placeholder="Nog in te vullen" min="0" step="10">';
+      } else {
+        bedragCel = eur(pNu);
+      }
+
+      body +=
+        '<tr'+(pNu===0?' class="uit"':'')+'>' +
+          '<td><div class="naam">'+post.naam+'</div><div class="meta">'+post.note+'</div></td>' +
+          '<td class="verberg-mob"><span class="pill '+pillCls+'">'+pill+'</span></td>' +
+          '<td class="r bedrag">'+bedragCel+'</td>' +
+          '<td class="r bedrag verberg-mob">'+(pLater===null?'—':eur(pLater))+'</td>' +
+        '</tr>';
+    }
+    // jaarlijkse reservering als aparte regel
+    body +=
+      '<tr>' +
+        '<td><div class="naam">Domeinreservering</div><div class="meta">.nl + .be, jaarlijks omgeslagen</div></td>' +
+        '<td class="verberg-mob"><span class="pill pill-actief">Actief</span></td>' +
+        '<td class="r bedrag">'+eur(jaarReservering())+'</td>' +
+        '<td class="r bedrag verberg-mob">'+eur(jaarReservering())+'</td>' +
+      '</tr>';
+
+    document.getElementById("vastBody").innerHTML = body;
+    document.getElementById("vastTotaal").textContent      = eur(vast);
+    document.getElementById("vastTotaalLater").textContent = eur(vastLater);
+
+    // boekhouder-input opnieuw koppelen (hij is net herbouwd)
+    var inB = document.getElementById("inBoekhouder");
+    if(inB){
+      inB.addEventListener("change", function(){
+        var v = parseFloat(this.value);
+        s.boekhouder = isNaN(v) ? null : v;
+        bewaar(); render();
+      });
+    }
+
+    // ── Klaviyo staffels
+    var actIdx = actieveStaffelIndex(s.profielen);
+    var stHtml = "";
+    for(var k=0;k<s.staffels.length;k++){
+      var st = s.staffels[k];
+      var vorige = k===0 ? 0 : s.staffels[k-1].max + 1;
+      stHtml +=
+        '<div class="staffel'+(k===actIdx?' actief':'')+'">' +
+          '<span>' + vorige.toLocaleString("nl-NL") + ' – ' + st.max.toLocaleString("nl-NL") + ' profielen' +
+            '<small>' + (st.usd===0 ? 'Gratis tier' : '$'+st.usd+' → '+eur(st.usd*s.koers)) + '</small>' +
+          '</span>' +
+          '<input type="number" class="staffelInput" data-idx="'+k+'" value="'+st.usd+'" min="0" step="5">' +
+        '</div>';
+    }
+    document.getElementById("staffelLijst").innerHTML = stHtml;
+
+    var inputs = document.querySelectorAll(".staffelInput");
+    for(var q=0;q<inputs.length;q++){
+      inputs[q].addEventListener("change", function(){
+        var idx = parseInt(this.getAttribute("data-idx"),10);
+        var v = parseFloat(this.value);
+        s.staffels[idx].usd = isNaN(v) ? 0 : v;
+        bewaar(); render();
+      });
+    }
+
+    // ── Variabele kosten
+    var vHtml =
+      '<div class="varkaart">' +
+        '<div class="varkop">' +
+          '<span class="varnaam">Shopify Payments</span>' +
+          '<span class="varbedrag">'+eur(vk.payments)+'</span>' +
+        '</div>' +
+        '<div class="meta">Transactiekosten over elke verkoop — schaalt volledig mee met omzet.</div>' +
+        '<div class="varform">(omzet × '+s.tarief+'%) + ('+s.orders+' orders × '+eur(s.fee)+')</div>' +
+      '</div>' +
+      '<div class="varkaart">' +
+        '<div class="varkop">' +
+          '<span class="varnaam">Retourkosten (defect / verkeerd geleverd)</span>' +
+          '<span class="varbedrag">'+eur(vk.retouren)+'</span>' +
+        '</div>' +
+        '<div class="meta">Alleen fouten van Nomad &amp; Soul. Klantretouren (maat/spijt) betaalt de klant zelf.</div>' +
+        '<div class="varform">'+s.orders+' orders × '+s.retour+'% retour × '+s.defect+'% defect × '+eur(s.retourKost)+'</div>' +
+      '</div>';
+    document.getElementById("varLijst").innerHTML = vHtml;
+
+    // ── Inzicht: verhouding vast vs variabel
+    var verhouding = vast > 0 ? (vk.totaal / vast) : 0;
+    var inzicht;
+    if(vk.totaal > vast){
+      inzicht = '<strong>Let op:</strong> je variabele kosten (' + eur0(vk.totaal) +
+                ') zijn nu <strong>' + verhouding.toFixed(1) + '× hoger</strong> dan al je vaste tools samen (' +
+                eur0(vast) + '). Onderhandelen over je Shopify Payments-tarief levert meer op dan het opzeggen van tools.';
+    } else {
+      inzicht = 'Bij deze omzetaanname zijn je vaste lasten nog groter dan je variabele kosten. ' +
+                'Dat kantelt zodra de omzet groeit — reken door met een hoger omzetscenario om te zien wanneer.';
+    }
+    document.getElementById("varInzicht").innerHTML = inzicht;
+
+    // ── Jaarlijkse posten
+    var jHtml = "";
+    for(var m=0;m<JAARLIJKS.length;m++){
+      jHtml +=
+        '<tr>' +
+          '<td class="naam">'+JAARLIJKS[m].naam+'</td>' +
+          '<td class="r bedrag">'+eur(JAARLIJKS[m].perJaar)+'</td>' +
+          '<td class="r bedrag">'+eur(JAARLIJKS[m].perJaar/12)+'</td>' +
+        '</tr>';
+    }
+    if(!boekhOntbreekt){
+      jHtml +=
+        '<tr>' +
+          '<td class="naam">Externe boekhouder</td>' +
+          '<td class="r bedrag">'+eur(s.boekhouder)+'</td>' +
+          '<td class="r bedrag">'+eur(s.boekhouder/12)+'</td>' +
+        '</tr>';
+    }
+    document.getElementById("jaarBody").innerHTML = jHtml;
+  }
+
+  // ═══════════════════════════════════════════════
+  //  INPUT-KOPPELING
+  // ═══════════════════════════════════════════════
+
+  var velden = [
+    ["inOmzet","omzet"], ["inOrders","orders"], ["inTarief","tarief"], ["inFee","fee"],
+    ["inRetour","retour"], ["inDefect","defect"], ["inRetourKost","retourKost"],
+    ["inProfielen","profielen"], ["inKoers","koers"]
+  ];
+
+  velden.forEach(function(v){
+    var el = document.getElementById(v[0]);
+    el.value = s[v[1]];
+    el.addEventListener("input", function(){
+      s[v[1]] = num(this.value, STANDAARD[v[1]]);
+      bewaar(); render();
+    });
+  });
+
+  var elIng = document.getElementById("inIng");
+  elIng.value = s.ingStart;
+  elIng.addEventListener("change", function(){
+    s.ingStart = this.value || STANDAARD.ingStart;
+    bewaar(); render();
+  });
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if(confirm("Alle waarden terugzetten naar de standaard? Je eigen aanpassingen gaan verloren.")){
+      try { localStorage.removeItem(KEY); } catch(e){}
+      s = JSON.parse(JSON.stringify(STANDAARD));
+      velden.forEach(function(v){ document.getElementById(v[0]).value = s[v[1]]; });
+      document.getElementById("inIng").value = s.ingStart;
+      render();
+    }
+  });
+
+  render();
+
+  // Datum blijft synchroon, ook als het tabblad open blijft over middernacht
+  setInterval(function(){
+    var chip = document.getElementById("chipDatum").textContent;
+    if(chip !== datumNL(vandaag())) render();
+  }, 60000);
+
+})();
+</script>
+</body>
+</html>
