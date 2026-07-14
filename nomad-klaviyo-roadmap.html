@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Klaviyo Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --zand: #E4DACF; --dusty: #7A6552; }
+body { font-family: 'Montserrat', sans-serif; color: #3D342E; background-image: url('sfeer-achtergrond.jpg'); background-size: cover; background-position: center top; background-attachment: fixed; background-color: #F0EAE5; position: relative; }
+body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(245, 239, 235, 0.86); z-index: 0; pointer-events: none; }
+.topbar, .container { position: relative; z-index: 1; }
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-back { display: flex; align-items: center; gap: 5px; color: #F5EFEB; opacity: 0.75; text-decoration: none; font-size: 11px; letter-spacing: 0.5px; border-right: 1px solid rgba(245,239,235,0.25); padding-right: 16px; }
+.topbar-logo { height: 20px; width: auto; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
+.topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+.container { max-width: 1240px; margin: 0 auto; padding: 32px 20px 60px; }
+.hero { background: linear-gradient(135deg, #BC7A5C, #3D342E); border-radius: 18px; margin-bottom: 32px; padding: 34px 38px; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(61,52,46,0.18); }
+.hero-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,239,235,0.75); font-weight: 700; margin-bottom: 12px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 28px; font-weight: 400; color: #F5EFEB; margin-bottom: 10px; }
+.hero p { font-size: 13px; color: rgba(245,239,235,0.82); line-height: 1.7; max-width: 640px; }
+.hero-star { position: absolute; right: 32px; top: 24px; font-size: 32px; color: rgba(245,239,235,0.2); }
+.sectie-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--dusty); font-weight: 700; margin: 36px 0 16px; border-bottom: 1px solid rgba(188,122,92,0.18); padding-bottom: 10px; }
+.prio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
+.prio-kaart { background: white; border-radius: 14px; padding: 18px; border: 2px solid transparent; }
+.prio-kaart.p0 { border-color: rgba(192,57,43,0.3); }
+.prio-kaart.p1 { border-color: rgba(188,122,92,0.35); }
+.prio-kaart.p2 { border-color: rgba(61,52,46,0.15); }
+.prio-kaart.p3 { border-color: rgba(61,52,46,0.08); }
+.prio-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+.badge-p0 { background: rgba(192,57,43,0.1); color: #C0392B; }
+.badge-p1 { background: rgba(188,122,92,0.12); color: #BC7A5C; }
+.badge-p2 { background: rgba(61,52,46,0.08); color: rgba(61,52,46,0.6); }
+.badge-p3 { background: rgba(61,52,46,0.05); color: rgba(61,52,46,0.4); }
+.prio-naam { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--esp); margin-bottom: 6px; }
+.prio-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.6; }
+.status-live { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #2D7A3A; background: rgba(45,122,58,0.1); padding: 3px 10px; border-radius: 20px; }
+.status-wip { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #BC7A5C; background: rgba(188,122,92,0.1); padding: 3px 10px; border-radius: 20px; }
+.status-open { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(61,52,46,0.5); background: rgba(61,52,46,0.06); padding: 3px 10px; border-radius: 20px; }
+.flow-sectie { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.flow-card { background: white; border-radius: 14px; padding: 22px; border: 1px solid rgba(188,122,92,0.1); }
+.flow-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.flow-card-titel { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--esp); }
+.flow-steps { list-style: none; padding: 0; }
+.flow-steps li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(188,122,92,0.07); font-size: 12px; color: rgba(61,52,46,0.75); line-height: 1.5; align-items: flex-start; }
+.flow-steps li:last-child { border-bottom: none; }
+.step-dot { width: 18px; height: 18px; border-radius: 50%; background: rgba(188,122,92,0.15); color: #BC7A5C; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-dot.groen { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.template-tabel { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+.template-tabel th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); border-bottom: 1px solid rgba(188,122,92,0.12); background: #F5EFEB; }
+.template-tabel td { padding: 10px 12px; border-bottom: 1px solid rgba(188,122,92,0.06); vertical-align: middle; }
+.template-tabel tr:last-child td { border-bottom: none; }
+.template-id { font-family: 'Courier New', monospace; font-size: 11px; background: rgba(188,122,92,0.08); padding: 2px 7px; border-radius: 4px; color: #BC7A5C; }
+.pijler-card { background: white; border-radius: 14px; padding: 24px; border: 1px solid rgba(188,122,92,0.1); margin-bottom: 14px; }
+.pijler-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.pijler-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(188,122,92,0.1); border: 1px solid rgba(188,122,92,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.pijler-naam { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--esp); }
+.pijler-sub { font-size: 12px; color: rgba(61,52,46,0.55); margin-top: 2px; }
+.pijler-body { font-size: 13px; color: rgba(61,52,46,0.75); line-height: 1.8; margin-bottom: 14px; }
+.pijler-kpi-rij { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kpi-mini { background: rgba(188,122,92,0.06); border-radius: 10px; padding: 12px 14px; }
+.kpi-mini-val { font-size: 18px; font-weight: 700; color: #BC7A5C; }
+.kpi-mini-lbl { font-size: 10px; color: rgba(61,52,46,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.hl { background: linear-gradient(135deg, #BC7A5C, #3D342E); border-radius: 14px; padding: 22px; color: #F5EFEB; margin-bottom: 14px; }
+.hl h3 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 10px; }
+.hl p { font-size: 13px; line-height: 1.8; opacity: 0.88; }
+.fase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.fase-kaart { background: white; border-radius: 12px; padding: 16px; border: 1px solid rgba(188,122,92,0.1); }
+.fase-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #BC7A5C; margin-bottom: 8px; }
+.fase-titel { font-size: 13px; font-weight: 600; color: var(--esp); margin-bottom: 8px; }
+.fase-items { list-style: none; }
+.fase-items li { font-size: 11px; color: rgba(61,52,46,0.65); padding: 3px 0; padding-left: 12px; position: relative; line-height: 1.4; }
+.fase-items li::before { content: '·'; position: absolute; left: 0; color: #BC7A5C; font-weight: 700; }
+@media (max-width: 900px) { .prio-grid { grid-template-columns: repeat(2, 1fr); } .flow-sectie { grid-template-columns: 1fr; } .pijler-kpi-rij { grid-template-columns: 1fr 1fr; } .fase-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .prio-grid { grid-template-columns: 1fr; } .fase-grid { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="topbar-back">← Dashboard</a>
+    <img src="https://nomadandsoul.github.io/nomad-curator/hero-images/nomad-logo-definitief.png" alt="Nomad &amp; Soul" class="topbar-logo">
+    <div class="topbar-brand">Klaviyo Optimalisatie Roadmap</div>
+  </div>
+  <div class="topbar-right">Bijgewerkt 15 juli 2026</div>
+</div>
+<div class="container">
+  <div class="hero">
+    <div class="hero-star">✦</div>
+    <div class="hero-label">Klaviyo · E-mail flows · Automatisering</div>
+    <h1>Van verlaten winkelwagen naar loyale klant</h1>
+    <p>9 templates live. EU cart abandon rate ~71,7% — elk procent extra conversie is direct omzet. Pijlers: Abandoned Cart, Browse Abandonment, Helpdesk-integratie, Pakket-tracering en aanvullende groei-flows.</p>
+  </div>
+  <div class="sectie-label">Live Klaviyo templates</div>
+  <div class="pijler-card" style="margin-bottom:16px;">
+    <table class="template-tabel">
+      <thead><tr><th>Template</th><th>ID</th><th>Onderwerp</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600;">Flow A — Orderbevestiging</td><td><span class="template-id">UTWmWb</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Flow B — Verzendstatus</td><td><span class="template-id">ShdUXL</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Flow C — Retourinstructies</td><td><span class="template-id">WUQgnF</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Abandoned Cart — Mail 1</td><td><span class="template-id">UVHMZy</span></td><td style="color:rgba(61,52,46,0.6);">Nog steeds op je gedachten? (1u)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Abandoned Cart — Mail 2</td><td><span class="template-id">QVXK9w</span></td><td style="color:rgba(61,52,46,0.6);">Anderen kozen dit ook (20u)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Abandoned Cart — Mail 3a</td><td><span class="template-id">Tk7knE</span></td><td style="color:rgba(61,52,46,0.6);">Laten we het makkelijk maken + TERUG10 (48u, ≥€75)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Abandoned Cart — Mail 3b</td><td><span class="template-id">VQLLTw</span></td><td style="color:rgba(61,52,46,0.6);">Bijna bij gratis verzending (48u, &lt;€75)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Browse Abandonment</td><td><span class="template-id">WEf6f8</span></td><td style="color:rgba(61,52,46,0.6);">Nog steeds aan het kijken? (2u)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Delayed Shipment</td><td><span class="template-id">WhtNFA</span></td><td style="color:rgba(61,52,46,0.6);">Je pakket duurt iets langer (dag 5+)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Welkomstreeks — Mail 2 (Aarde)</td><td><span class="template-id">U4Bdr7</span></td><td style="color:rgba(61,52,46,0.6);">Welkomstreeks (flow live)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td style="font-weight:600;">Welkomstreeks — Mail 3 (Vuur)</td><td><span class="template-id">UnFT3t</span></td><td style="color:rgba(61,52,46,0.6);">Welkomstreeks (flow live)</td><td><span class="status-live">✓ Live</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sectie-label">Prioriteitenmatrix</div>
+  <div class="prio-grid">
+    <div class="prio-kaart p0"><div class="prio-badge badge-p0">P0 — Gedaan</div><div class="prio-naam">Abandoned Cart flow</div><div class="prio-desc">4 templates live. Flow bouwen in Klaviyo + Shopify native emails uitschakelen.</div></div>
+    <div class="prio-kaart p0"><div class="prio-badge badge-p0">P0 — Template live</div><div class="prio-naam">Delayed Shipment</div><div class="prio-desc">Template WhtNFA live. Make.com scenario + Klaviyo flow bouwen via setup-document.</div></div>
+    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Gedaan</div><div class="prio-naam">Welkomstreeks</div><div class="prio-desc">Flow TDdBXS volledig live met 3 emails en 2-daagse delays.</div></div>
+    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Template live</div><div class="prio-naam">Browse Abandonment</div><div class="prio-desc">Template WEf6f8 live. Flow bouwen: Viewed Product trigger, 2u delay.</div></div>
+  </div>
+  <div class="prio-grid">
+    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Open</div><div class="prio-naam">Helpdesk (Make.com)</div><div class="prio-desc">Gmail → Make.com → Klaviyo event. Suppressie bij open tickets. Zie setup-document.</div></div>
+    <div class="prio-kaart p2"><div class="prio-badge badge-p2">P2 — Maand 2</div><div class="prio-naam">Post-purchase cross-sell</div><div class="prio-desc">Dag 14 na levering. Dames → Sieraden, Heren → Schoenen.</div></div>
+    <div class="prio-kaart p2"><div class="prio-badge badge-p2">P2 — Maand 2</div><div class="prio-naam">Winback-flow</div><div class="prio-desc">60/90/120 dagen inactief → oplopende incentive.</div></div>
+    <div class="prio-kaart p3"><div class="prio-badge badge-p3">P3 — Later</div><div class="prio-naam">VIP + Sunset</div><div class="prio-desc">VIP: 2+ orders, early access. Sunset: 180d inactief → uitfaseren.</div></div>
+  </div>
+  <div class="sectie-label">Gefaseerd implementatieplan</div>
+  <div class="fase-grid">
+    <div class="fase-kaart"><div class="fase-label">Fase 1 ✓ Gedaan</div><div class="fase-titel">Templates live</div><ul class="fase-items"><li>Abandoned Cart 4 templates</li><li>Browse Abandonment</li><li>Delayed Shipment</li><li>Shopify korting TERUG10</li></ul></div>
+    <div class="fase-kaart"><div class="fase-label">Fase 2 · Nu</div><div class="fase-titel">Flows bouwen</div><ul class="fase-items"><li>Abandoned Cart flow-logica</li><li>Browse Abandonment flow</li><li>Delayed Shipment Make.com + flow</li><li>Shopify native emails uitschakelen</li></ul></div>
+    <div class="fase-kaart"><div class="fase-label">Fase 3 · Maand 2</div><div class="fase-titel">Post-purchase</div><ul class="fase-items"><li>Delivered → CSAT + review</li><li>Cross-sell dag 14</li><li>Winback-flow</li><li>Helpdesk Make.com-koppeling</li></ul></div>
+    <div class="fase-kaart"><div class="fase-label">Fase 4 · Zodra volume het rechtvaardigt</div><div class="fase-titel">Schalen</div><ul class="fase-items"><li>VIP-flow (early access)</li><li>Price drop / back in stock</li><li>Sunset flow</li><li>Gorgias bij &gt;75 tickets/mnd</li></ul></div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:rgba(61,52,46,0.35);letter-spacing:1px;padding:28px 0 12px;">Nomad &amp; Soul · Klaviyo Roadmap · Bijgewerkt 15 juli 2026</div>
+</div>
+</body>
+</html>
