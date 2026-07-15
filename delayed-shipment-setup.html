@@ -7,8 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Montserrat', sans-serif; background: #F5EFEB; color: #3D342E; padding: 32px 20px 60px; }
-.wrap { max-width: 860px; margin: 0 auto; }
+body { font-family: 'Montserrat', sans-serif; background: #F5EFEB; color: #3D342E; margin: 0; }
+
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-back { display: flex; align-items: center; gap: 5px; color: #F5EFEB; opacity: 0.75; text-decoration: none; font-size: 11px; letter-spacing: 0.5px; border-right: 1px solid rgba(245,239,235,0.25); padding-right: 16px; }
+.topbar-logo { height: 20px; width: auto; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
+.topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
 
 h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 6px; }
 .sub { font-size: 13px; color: rgba(61,52,46,0.55); margin-bottom: 32px; }
@@ -41,6 +49,16 @@ code { background: rgba(188,122,92,0.1); padding: 2px 7px; border-radius: 4px; f
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="topbar-back">← Dashboard</a>
+    <img src="https://nomadandsoul.github.io/nomad-curator/hero-images/nomad-logo-clean.png" alt="Nomad &amp; Soul" class="topbar-logo">
+    <div class="topbar-brand">Delayed Shipment Setup</div>
+  </div>
+  <div class="topbar-right">Make.com · Klaviyo · Shopify</div>
+</div>
+
 <div class="wrap">
 
   <div style="background:linear-gradient(135deg,#BC7A5C,#3D342E);border-radius:16px;padding:28px 32px;margin-bottom:28px;color:#F5EFEB;">
