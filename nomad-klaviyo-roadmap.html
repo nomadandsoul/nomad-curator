@@ -8,28 +8,53 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --zand: #E4DACF; --dusty: #7A6552; }
-body { font-family: 'Montserrat', sans-serif; color: #3D342E; background-image: url('sfeer-achtergrond.jpg'); background-size: cover; background-position: center top; background-attachment: fixed; background-color: #F0EAE5; position: relative; }
-body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(245, 239, 235, 0.86); z-index: 0; pointer-events: none; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F0EAE5;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(245, 239, 235, 0.86);
+  z-index: 0;
+  pointer-events: none;
+}
 .topbar, .container { position: relative; z-index: 1; }
+
 .topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
 .topbar-left { display: flex; align-items: center; gap: 16px; }
 .topbar-back { display: flex; align-items: center; gap: 5px; color: #F5EFEB; opacity: 0.75; text-decoration: none; font-size: 11px; letter-spacing: 0.5px; border-right: 1px solid rgba(245,239,235,0.25); padding-right: 16px; }
 .topbar-logo { height: 20px; width: auto; }
 .topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
 .topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+
 .container { max-width: 1240px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* HERO */
 .hero { background: linear-gradient(135deg, #BC7A5C, #3D342E); border-radius: 18px; margin-bottom: 32px; padding: 34px 38px; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(61,52,46,0.18); }
 .hero-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,239,235,0.75); font-weight: 700; margin-bottom: 12px; }
 .hero h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 28px; font-weight: 400; color: #F5EFEB; margin-bottom: 10px; }
 .hero p { font-size: 13px; color: rgba(245,239,235,0.82); line-height: 1.7; max-width: 640px; }
 .hero-star { position: absolute; right: 32px; top: 24px; font-size: 32px; color: rgba(245,239,235,0.2); }
+
+/* SECTIE LABEL */
 .sectie-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--dusty); font-weight: 700; margin: 36px 0 16px; border-bottom: 1px solid rgba(188,122,92,0.18); padding-bottom: 10px; }
+
+/* PRIORITEIT MATRIX */
 .prio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
-.prio-kaart { background: white; border-radius: 14px; padding: 18px; border: 2px solid transparent; }
+.prio-kaart { background: white; border-radius: 14px; padding: 18px; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; }
 .prio-kaart.p0 { border-color: rgba(192,57,43,0.3); }
 .prio-kaart.p1 { border-color: rgba(188,122,92,0.35); }
 .prio-kaart.p2 { border-color: rgba(61,52,46,0.15); }
 .prio-kaart.p3 { border-color: rgba(61,52,46,0.08); }
+.prio-kaart:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(61,52,46,0.1); }
 .prio-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
 .badge-p0 { background: rgba(192,57,43,0.1); color: #C0392B; }
 .badge-p1 { background: rgba(188,122,92,0.12); color: #BC7A5C; }
@@ -37,9 +62,13 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 .badge-p3 { background: rgba(61,52,46,0.05); color: rgba(61,52,46,0.4); }
 .prio-naam { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--esp); margin-bottom: 6px; }
 .prio-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.6; }
+
+/* STATUS BADGES */
 .status-live { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #2D7A3A; background: rgba(45,122,58,0.1); padding: 3px 10px; border-radius: 20px; }
 .status-wip { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #BC7A5C; background: rgba(188,122,92,0.1); padding: 3px 10px; border-radius: 20px; }
 .status-open { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(61,52,46,0.5); background: rgba(61,52,46,0.06); padding: 3px 10px; border-radius: 20px; }
+
+/* FLOW CARDS */
 .flow-sectie { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .flow-card { background: white; border-radius: 14px; padding: 22px; border: 1px solid rgba(188,122,92,0.1); }
 .flow-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
@@ -49,11 +78,15 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 .flow-steps li:last-child { border-bottom: none; }
 .step-dot { width: 18px; height: 18px; border-radius: 50%; background: rgba(188,122,92,0.15); color: #BC7A5C; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
 .step-dot.groen { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+
+/* TEMPLATE TABEL */
 .template-tabel { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
-.template-tabel th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); border-bottom: 1px solid rgba(188,122,92,0.12); background: #F5EFEB; }
+.template-tabel th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.5); border-bottom: 1px solid rgba(188,122,92,0.12); background: #F5EFEB; white-space: nowrap; }
 .template-tabel td { padding: 10px 12px; border-bottom: 1px solid rgba(188,122,92,0.06); vertical-align: middle; }
 .template-tabel tr:last-child td { border-bottom: none; }
 .template-id { font-family: 'Courier New', monospace; font-size: 11px; background: rgba(188,122,92,0.08); padding: 2px 7px; border-radius: 4px; color: #BC7A5C; }
+
+/* PIJLER CARDS — volledig uitgewerkt */
 .pijler-card { background: white; border-radius: 14px; padding: 24px; border: 1px solid rgba(188,122,92,0.1); margin-bottom: 14px; }
 .pijler-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
 .pijler-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(188,122,92,0.1); border: 1px solid rgba(188,122,92,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
@@ -64,9 +97,13 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 .kpi-mini { background: rgba(188,122,92,0.06); border-radius: 10px; padding: 12px 14px; }
 .kpi-mini-val { font-size: 18px; font-weight: 700; color: #BC7A5C; }
 .kpi-mini-lbl { font-size: 10px; color: rgba(61,52,46,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* HIGHLIGHT */
 .hl { background: linear-gradient(135deg, #BC7A5C, #3D342E); border-radius: 14px; padding: 22px; color: #F5EFEB; margin-bottom: 14px; }
 .hl h3 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 10px; }
 .hl p { font-size: 13px; line-height: 1.8; opacity: 0.88; }
+
+/* FASE TIJDLIJN */
 .fase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
 .fase-kaart { background: white; border-radius: 12px; padding: 16px; border: 1px solid rgba(188,122,92,0.1); }
 .fase-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #BC7A5C; margin-bottom: 8px; }
@@ -74,66 +111,388 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 .fase-items { list-style: none; }
 .fase-items li { font-size: 11px; color: rgba(61,52,46,0.65); padding: 3px 0; padding-left: 12px; position: relative; line-height: 1.4; }
 .fase-items li::before { content: '·'; position: absolute; left: 0; color: #BC7A5C; font-weight: 700; }
-@media (max-width: 900px) { .prio-grid { grid-template-columns: repeat(2, 1fr); } .flow-sectie { grid-template-columns: 1fr; } .pijler-kpi-rij { grid-template-columns: 1fr 1fr; } .fase-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .prio-grid { grid-template-columns: 1fr; } .fase-grid { grid-template-columns: 1fr; } .container { padding: 16px; } }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .prio-grid { grid-template-columns: repeat(2, 1fr); }
+  .flow-sectie { grid-template-columns: 1fr; }
+  .pijler-kpi-rij { grid-template-columns: 1fr 1fr; }
+  .fase-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .prio-grid { grid-template-columns: 1fr; }
+  .fase-grid { grid-template-columns: 1fr; }
+  .container { padding: 16px; }
+}
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="topbar-left">
     <a href="index.html" class="topbar-back">← Dashboard</a>
     <img src="https://nomadandsoul.github.io/nomad-curator/hero-images/nomad-logo-definitief.png" alt="Nomad &amp; Soul" class="topbar-logo">
     <div class="topbar-brand">Klaviyo Optimalisatie Roadmap</div>
   </div>
-  <div class="topbar-right">Bijgewerkt 15 juli 2026</div>
+  <div class="topbar-right">E-mail automatisering 2026</div>
 </div>
+
 <div class="container">
+
+  <!-- HERO -->
   <div class="hero">
     <div class="hero-star">✦</div>
     <div class="hero-label">Klaviyo · E-mail flows · Automatisering</div>
     <h1>Van verlaten winkelwagen naar loyale klant</h1>
-    <p>9 templates live. EU cart abandon rate ~71,7% — elk procent extra conversie is direct omzet. Pijlers: Abandoned Cart, Browse Abandonment, Helpdesk-integratie, Pakket-tracering en aanvullende groei-flows.</p>
+    <p>Volledig uitgewerkte roadmap voor alle Klaviyo-flows. EU cart abandon rate: ~71,7% — elk percentage extra conversie is direct omzet. Pijlers: Abandoned Cart, Helpdesk-integratie, Pakket-tracering en aanvullende groei-flows.</p>
   </div>
+
+  <!-- STATUS OVERZICHT TEMPLATES -->
   <div class="sectie-label">Live Klaviyo templates</div>
   <div class="pijler-card" style="margin-bottom:16px;">
     <table class="template-tabel">
-      <thead><tr><th>Template</th><th>ID</th><th>Onderwerp</th><th>Status</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Template</th>
+          <th>ID</th>
+          <th>Onderwerp</th>
+          <th>Status</th>
+        </tr>
+      </thead>
       <tbody>
-        <tr><td style="font-weight:600;">Flow A — Orderbevestiging</td><td><span class="template-id">UTWmWb</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Flow B — Verzendstatus</td><td><span class="template-id">ShdUXL</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Flow C — Retourinstructies</td><td><span class="template-id">WUQgnF</span></td><td style="color:rgba(61,52,46,0.6);">Transactioneel</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Abandoned Cart — Mail 1</td><td><span class="template-id">UVHMZy</span></td><td style="color:rgba(61,52,46,0.6);">Nog steeds op je gedachten? (1u)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Abandoned Cart — Mail 2</td><td><span class="template-id">QVXK9w</span></td><td style="color:rgba(61,52,46,0.6);">Anderen kozen dit ook (20u)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Abandoned Cart — Mail 3a</td><td><span class="template-id">Tk7knE</span></td><td style="color:rgba(61,52,46,0.6);">Laten we het makkelijk maken + TERUG10 (48u, ≥€75)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Abandoned Cart — Mail 3b</td><td><span class="template-id">VQLLTw</span></td><td style="color:rgba(61,52,46,0.6);">Bijna bij gratis verzending (48u, &lt;€75)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Browse Abandonment</td><td><span class="template-id">WEf6f8</span></td><td style="color:rgba(61,52,46,0.6);">Nog steeds aan het kijken? (2u)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Delayed Shipment</td><td><span class="template-id">WhtNFA</span></td><td style="color:rgba(61,52,46,0.6);">Je pakket duurt iets langer (dag 5+)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Welkomstreeks — Mail 2 (Aarde)</td><td><span class="template-id">U4Bdr7</span></td><td style="color:rgba(61,52,46,0.6);">Welkomstreeks (flow live)</td><td><span class="status-live">✓ Live</span></td></tr>
-        <tr><td style="font-weight:600;">Welkomstreeks — Mail 3 (Vuur)</td><td><span class="template-id">UnFT3t</span></td><td style="color:rgba(61,52,46,0.6);">Welkomstreeks (flow live)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr>
+          <td style="font-weight:600;">Flow A — Orderbevestiging</td>
+          <td><span class="template-id">UTWmWb</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Transactioneel</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Flow B — Verzendstatus</td>
+          <td><span class="template-id">ShdUXL</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Transactioneel</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Flow C — Retourinstructies</td>
+          <td><span class="template-id">WUQgnF</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Transactioneel</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Abandoned Cart — Mail 1</td>
+          <td><span class="template-id">UVHMZy</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Nog steeds op je gedachten? (1u)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Abandoned Cart — Mail 2</td>
+          <td><span class="template-id">QVXK9w</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Anderen kozen dit ook (20u)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Abandoned Cart — Mail 3a</td>
+          <td><span class="template-id">Tk7knE</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Laten we het makkelijk maken + TERUG10 (48u, ≥€75)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Abandoned Cart — Mail 3b</td>
+          <td><span class="template-id">VQLLTw</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Bijna bij gratis verzending (48u, &lt;€75)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Welkomstreeks — Mail 2 (Aarde)</td>
+          <td><span class="template-id">U4Bdr7</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks</td>
+          <td><span class="status-wip">Bouw flow</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Welkomstreeks — Mail 3 (Vuur)</td>
+          <td><span class="template-id">UnFT3t</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks</td>
+          <td><span class="status-wip">Bouw flow</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
+
+  <!-- PRIORITEITENMATRIX -->
   <div class="sectie-label">Prioriteitenmatrix</div>
   <div class="prio-grid">
-    <div class="prio-kaart p0"><div class="prio-badge badge-p0">P0 — Gedaan</div><div class="prio-naam">Abandoned Cart flow</div><div class="prio-desc">4 templates live. Flow bouwen in Klaviyo + Shopify native emails uitschakelen.</div></div>
-    <div class="prio-kaart p0"><div class="prio-badge badge-p0">P0 — Template live</div><div class="prio-naam">Delayed Shipment</div><div class="prio-desc">Template WhtNFA live. Make.com scenario + Klaviyo flow bouwen via setup-document.</div></div>
-    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Gedaan</div><div class="prio-naam">Welkomstreeks</div><div class="prio-desc">Flow TDdBXS volledig live met 3 emails en 2-daagse delays.</div></div>
-    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Template live</div><div class="prio-naam">Browse Abandonment</div><div class="prio-desc">Template WEf6f8 live. Flow bouwen: Viewed Product trigger, 2u delay.</div></div>
+    <div class="prio-kaart p0">
+      <div class="prio-badge badge-p0">P0 — Nu</div>
+      <div class="prio-naam">Abandoned Cart flow</div>
+      <div class="prio-desc">4 templates live. Flow-logica bouwen in Klaviyo: trigger, delays, waarde-split op €75. Shopify native cart emails uitschakelen.</div>
+    </div>
+    <div class="prio-kaart p0">
+      <div class="prio-badge badge-p0">P0 — Nu</div>
+      <div class="prio-naam">Delayed Shipment</div>
+      <div class="prio-desc">Uitbreiding op Flow B. Na 5 dagen (NL/BE) of 8 dagen (verafgelegen) zonder tracking-update: proactieve mail. Voorkomt het grootste deel van de helpdesk-druk.</div>
+    </div>
+    <div class="prio-kaart p1">
+      <div class="prio-badge badge-p1">P1 — Week 3–4</div>
+      <div class="prio-naam">Welkomstreeks live</div>
+      <div class="prio-desc">Templates bestaan al (U4Bdr7, UnFT3t). Alleen flow-logica ontbreekt. Snelste winst van de hele roadmap.</div>
+    </div>
+    <div class="prio-kaart p1">
+      <div class="prio-badge badge-p1">P1 — Week 3–4</div>
+      <div class="prio-naam">Browse Abandonment</div>
+      <div class="prio-desc">Productview zonder cart binnen 2 uur → 1 herinnerings-mail. Klaviyo tracking al actief. Laag effort, hoge relevantie.</div>
+    </div>
   </div>
   <div class="prio-grid">
-    <div class="prio-kaart p1"><div class="prio-badge badge-p1">P1 — Open</div><div class="prio-naam">Helpdesk (Make.com)</div><div class="prio-desc">Gmail → Make.com → Klaviyo event. Suppressie bij open tickets. Zie setup-document.</div></div>
-    <div class="prio-kaart p2"><div class="prio-badge badge-p2">P2 — Maand 2</div><div class="prio-naam">Post-purchase cross-sell</div><div class="prio-desc">Dag 14 na levering. Dames → Sieraden, Heren → Schoenen.</div></div>
-    <div class="prio-kaart p2"><div class="prio-badge badge-p2">P2 — Maand 2</div><div class="prio-naam">Winback-flow</div><div class="prio-desc">60/90/120 dagen inactief → oplopende incentive.</div></div>
-    <div class="prio-kaart p3"><div class="prio-badge badge-p3">P3 — Later</div><div class="prio-naam">VIP + Sunset</div><div class="prio-desc">VIP: 2+ orders, early access. Sunset: 180d inactief → uitfaseren.</div></div>
+    <div class="prio-kaart p1">
+      <div class="prio-badge badge-p1">P1 — Maand 1</div>
+      <div class="prio-naam">Helpdesk (Make.com)</div>
+      <div class="prio-desc">Gmail-trigger → Make.com → Klaviyo event. Suppressie van marketing bij open tickets. Geen extra tool nodig tot 50+ tickets/mnd.</div>
+    </div>
+    <div class="prio-kaart p2">
+      <div class="prio-badge badge-p2">P2 — Maand 2</div>
+      <div class="prio-naam">Post-purchase cross-sell</div>
+      <div class="prio-desc">Dag 14 na levering. Dames → Sieraden/Accessoires, Heren → Schoenen. Vereist voldoende orderdata.</div>
+    </div>
+    <div class="prio-kaart p2">
+      <div class="prio-badge badge-p2">P2 — Maand 2</div>
+      <div class="prio-naam">Winback-flow</div>
+      <div class="prio-desc">60/90/120 dagen geen aankoop. Oplopende incentive: eerst sfeer, dan collectie-nieuws, dan prikkel.</div>
+    </div>
+    <div class="prio-kaart p3">
+      <div class="prio-badge badge-p3">P3 — Later</div>
+      <div class="prio-naam">VIP + Sunset</div>
+      <div class="prio-desc">VIP: 2+ orders of LTV &gt;€200 → early access. Sunset: 180 dagen inactief → uitfaseren vóór deliverability-schade.</div>
+    </div>
   </div>
+
+  <!-- PIJLER 1 — ABANDONED CART -->
+  <div class="sectie-label">Pijler 1 — Abandoned Cart flow bouwen</div>
+
+  <div class="hl">
+    <h3>Flow-logica: hoe in Klaviyo in te stellen</h3>
+    <p>Trigger: <strong>Checkout Started</strong> · Flow-filter: exclude "Placed Order" in laatste 10 minuten · Smart Sending: <strong>UIT</strong> · Shopify native abandoned emails: <strong>uitschakelen</strong> (Settings → Notifications → Abandoned checkouts).</p>
+  </div>
+
+  <div class="flow-sectie">
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Flow-structuur</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);margin-top:3px;">Timing en splits</div>
+        </div>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot groen">▶</div><div><strong>Trigger:</strong> Checkout Started — exclude Placed Order afgelopen 10 min</div></li>
+        <li><div class="step-dot">1</div><div><strong>1 uur delay</strong> → Mail 1 (UVHMZy) — zachte herinnering, geen druk</div></li>
+        <li><div class="step-dot">2</div><div><strong>+19 uur delay</strong> (20u na trigger) → Mail 2 (QVXK9w) — sociale bevestiging + trust</div></li>
+        <li><div class="step-dot">3</div><div><strong>+28 uur delay</strong> (48u na trigger) → Conditional split op <code>$value ≥ 75</code></div></li>
+        <li><div class="step-dot">✓</div><div><strong>JA (≥€75)</strong> → Mail 3a (Tk7knE) — kortingscode TERUG10 in checkout URL</div></li>
+        <li><div class="step-dot">✗</div><div><strong>NEE (&lt;€75)</strong> → Mail 3b (VQLLTw) — gratis verzending nudge, geen korting</div></li>
+      </ul>
+    </div>
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Kortingscode TERUG10</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);margin-top:3px;">Live in Shopify</div>
+        </div>
+        <span class="status-live">✓ Live</span>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot groen">✓</div><div>10% korting, min. besteding €75</div></li>
+        <li><div class="step-dot groen">✓</div><div>Alle klanten, alle producten</div></li>
+        <li><div class="step-dot" style="background:rgba(192,57,43,0.1);color:#C0392B;">!</div><div><strong>Actiepunt:</strong> Einddatum instellen in Shopify Discounts om misbruik te voorkomen</div></li>
+        <li><div class="step-dot">→</div><div>In mail 3a: <code>{{ event.CheckoutURL }}?discount=TERUG10</code></div></li>
+        <li><div class="step-dot">→</div><div>Verificatie na eerste test-trigger: open template in flow → Preview → klik op event-variabelen</div></li>
+      </ul>
+      <div style="margin-top:14px;padding:12px;background:rgba(188,122,92,0.06);border-radius:10px;font-size:11px;color:rgba(61,52,46,0.65);line-height:1.6;">
+        <strong>Event-tags verificatie vereist:</strong> event.Items, item.ImageURL, item.ProductName, item.ItemPrice, event.CheckoutURL — exacte naamgeving kan per account verschillen. Controleer via Klaviyo preview-modal.
+      </div>
+    </div>
+  </div>
+
+  <div class="pijler-card">
+    <div class="pijler-kpi-rij">
+      <div class="kpi-mini"><div class="kpi-mini-val">71,7%</div><div class="kpi-mini-lbl">EU cart abandon rate</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val">45–55%</div><div class="kpi-mini-lbl">Verwachte open rate mail 1</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val">8–15%</div><div class="kpi-mini-lbl">Flow-conversie (doel)</div></div>
+    </div>
+  </div>
+
+  <!-- PIJLER 2 — HELPDESK -->
+  <div class="sectie-label">Pijler 2 — Helpdesk-integratie</div>
+  <div class="pijler-card">
+    <div class="pijler-header">
+      <div class="pijler-icon">🔧</div>
+      <div>
+        <div class="pijler-naam">Make.com-route (€0 extra)</div>
+        <div class="pijler-sub">Stap over naar Gorgias bij &gt;50–75 tickets/maand</div>
+      </div>
+    </div>
+    <div class="pijler-body">
+      Gmail-trigger (info@nomadandsoul.nl) → Make.com scenario → push naar Klaviyo als custom event. Dit geeft suppressie van marketing bij open tickets, CSAT-logica en pre-sale opvolging — zonder extra abonnement.
+    </div>
+    <div class="flow-sectie" style="margin-bottom:0;">
+      <div>
+        <ul class="flow-steps">
+          <li><div class="step-dot">1</div><div>Inkomende mail → Make.com: parse afzender + onderwerp + ordernummer</div></li>
+          <li><div class="step-dot">2</div><div>Push event: <code>Support Ticket Opened</code> naar Klaviyo met properties subject, category, order_number</div></li>
+          <li><div class="step-dot">3</div><div>Bij afsluiting: <code>Support Ticket Closed</code></div></li>
+        </ul>
+      </div>
+      <div>
+        <ul class="flow-steps">
+          <li><div class="step-dot">→</div><div><strong>Suppressie:</strong> exclude marketing-mails bij open ticket afgelopen 48u</div></li>
+          <li><div class="step-dot">→</div><div><strong>CSAT:</strong> review-mail 3 dagen na levering; score ≤3 → ticket i.p.v. review</div></li>
+          <li><div class="step-dot">→</div><div><strong>Gorgias:</strong> overweeg bij structureel &gt;75 tickets/mnd</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIJLER 3 — PAKKET-TRACERING -->
+  <div class="sectie-label">Pijler 3 — Pakket-tracering (post-purchase)</div>
+  <div class="pijler-card">
+    <div class="pijler-header">
+      <div class="pijler-icon">📦</div>
+      <div>
+        <div class="pijler-naam">Uitbreiding Flow B + Delayed Shipment</div>
+        <div class="pijler-sub">Shopify fulfillment-webhook → Make.com → Klaviyo</div>
+      </div>
+    </div>
+    <div class="pijler-body">
+      Bij dropshipping is "waar is mijn pakket?" de grootste bron van tickets. Eén proactieve vertraging-mail voorkomt gemiddeld 1 supportvraag per bestelling. Technisch: fulfillment-webhook → Make.com checkt tracking → push event naar Klaviyo.
+    </div>
+    <table class="template-tabel" style="margin-bottom:0;">
+      <thead>
+        <tr><th>Stap</th><th>Trigger</th><th>Timing</th><th>Actie</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Besteld</td><td>Placed Order</td><td>Direct</td><td>Flow A (UTWmWb)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td>Verzonden</td><td>Order Fulfilled</td><td>Direct</td><td>Flow B (ShdUXL)</td><td><span class="status-live">✓ Live</span></td></tr>
+        <tr><td><strong>Vertraagd</strong></td><td>Geen update na X dagen</td><td>5d NL/BE · 8d veraf</td><td>Proactieve vertraging-mail</td><td><span class="status-open">Open</span></td></tr>
+        <tr><td>Onderweg</td><td>Out for delivery</td><td>Real-time</td><td>Kort verwachtingsvol bericht</td><td><span class="status-open">Open</span></td></tr>
+        <tr><td>Bezorgd</td><td>Delivered</td><td>+3 dagen</td><td>CSAT / review-verzoek</td><td><span class="status-open">Open</span></td></tr>
+        <tr><td>Cross-sell</td><td>Delivered</td><td>+14 dagen</td><td>Categorie-gebaseerde suggestie</td><td><span class="status-open">Open</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PIJLER 4 — AANVULLENDE FLOWS -->
+  <div class="sectie-label">Pijler 4 — Aanvullende winstpakker-flows</div>
+  <div class="flow-sectie">
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Browse Abandonment</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);">P1 · Laag effort</div>
+        </div>
+        <span class="status-open">Open</span>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot">→</div><div>Trigger: productview zonder cart-toevoeging</div></li>
+        <li><div class="step-dot">→</div><div>Timing: 1 mail, 2 uur na laatste view</div></li>
+        <li><div class="step-dot">→</div><div>Exclude: wie al gekocht heeft in dezelfde sessie</div></li>
+        <li><div class="step-dot">→</div><div>Klaviyo tracking al actief — flow direct te bouwen</div></li>
+      </ul>
+    </div>
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Welkomstreeks afronden</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);">P1 · Snelste winst</div>
+        </div>
+        <span class="status-wip">Bouw flow</span>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot groen">✓</div><div>Mail 2 Aarde (U4Bdr7) — template live</div></li>
+        <li><div class="step-dot groen">✓</div><div>Mail 3 Vuur (UnFT3t) — template live</div></li>
+        <li><div class="step-dot" style="background:rgba(192,57,43,0.1);color:#C0392B;">!</div><div>Ontbreekt: flow-logica (trigger = Subscribed to List, delays)</div></li>
+        <li><div class="step-dot">→</div><div>Content staat klaar — alleen flow bouwen is werk</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="flow-sectie">
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Post-purchase cross-sell</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);">P2 · Maand 2</div>
+        </div>
+        <span class="status-open">Open</span>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot">→</div><div>Trigger: Placed Order · Timing: dag 14 na levering</div></li>
+        <li><div class="step-dot">→</div><div>Dames → Sieraden/Accessoires suggestie</div></li>
+        <li><div class="step-dot">→</div><div>Heren → Schoenen suggestie</div></li>
+        <li><div class="step-dot">→</div><div>Kids → volgende maat-suggestie</div></li>
+      </ul>
+    </div>
+    <div class="flow-card">
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-titel">Winback + VIP + Sunset</div>
+          <div style="font-size:11px;color:rgba(61,52,46,0.5);">P2–P3 · Later</div>
+        </div>
+        <span class="status-open">Open</span>
+      </div>
+      <ul class="flow-steps">
+        <li><div class="step-dot">→</div><div><strong>Winback:</strong> 60/90/120 dagen inactief → oplopende incentive</div></li>
+        <li><div class="step-dot">→</div><div><strong>VIP:</strong> 2+ orders of LTV &gt;€200 → early access nieuwe collecties</div></li>
+        <li><div class="step-dot">→</div><div><strong>Sunset:</strong> 180 dagen geen open/click → uitfaseren</div></li>
+        <li><div class="step-dot">→</div><div>Pas zinvol zodra er voldoende klantdata is</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GEFASEERD PLAN -->
   <div class="sectie-label">Gefaseerd implementatieplan</div>
   <div class="fase-grid">
-    <div class="fase-kaart"><div class="fase-label">Fase 1 ✓ Gedaan</div><div class="fase-titel">Templates live</div><ul class="fase-items"><li>Abandoned Cart 4 templates</li><li>Browse Abandonment</li><li>Delayed Shipment</li><li>Shopify korting TERUG10</li></ul></div>
-    <div class="fase-kaart"><div class="fase-label">Fase 2 · Nu</div><div class="fase-titel">Flows bouwen</div><ul class="fase-items"><li>Abandoned Cart flow-logica</li><li>Browse Abandonment flow</li><li>Delayed Shipment Make.com + flow</li><li>Shopify native emails uitschakelen</li></ul></div>
-    <div class="fase-kaart"><div class="fase-label">Fase 3 · Maand 2</div><div class="fase-titel">Post-purchase</div><ul class="fase-items"><li>Delivered → CSAT + review</li><li>Cross-sell dag 14</li><li>Winback-flow</li><li>Helpdesk Make.com-koppeling</li></ul></div>
-    <div class="fase-kaart"><div class="fase-label">Fase 4 · Zodra volume het rechtvaardigt</div><div class="fase-titel">Schalen</div><ul class="fase-items"><li>VIP-flow (early access)</li><li>Price drop / back in stock</li><li>Sunset flow</li><li>Gorgias bij &gt;75 tickets/mnd</li></ul></div>
+    <div class="fase-kaart">
+      <div class="fase-label">Fase 1 · Nu</div>
+      <div class="fase-titel">Flow bouwen</div>
+      <ul class="fase-items">
+        <li>Abandoned Cart flow-logica in Klaviyo</li>
+        <li>Shopify native cart emails uitschakelen</li>
+        <li>TERUG10 einddatum instellen</li>
+        <li>Test-trigger uitvoeren + tags verifiëren</li>
+      </ul>
+    </div>
+    <div class="fase-kaart">
+      <div class="fase-label">Fase 2 · Week 3–4</div>
+      <div class="fase-titel">Quick wins</div>
+      <ul class="fase-items">
+        <li>Welkomstreeks flow-logica live</li>
+        <li>Browse Abandonment flow</li>
+        <li>Make.com helpdesk-koppeling</li>
+      </ul>
+    </div>
+    <div class="fase-kaart">
+      <div class="fase-label">Fase 3 · Maand 2</div>
+      <div class="fase-titel">Post-purchase</div>
+      <ul class="fase-items">
+        <li>Delayed Shipment Make.com scenario</li>
+        <li>Delivered → CSAT + review</li>
+        <li>Cross-sell dag 14</li>
+        <li>Winback-flow</li>
+      </ul>
+    </div>
+    <div class="fase-kaart">
+      <div class="fase-label">Fase 4 · Zodra volume het rechtvaardigt</div>
+      <div class="fase-titel">Schalen</div>
+      <ul class="fase-items">
+        <li>VIP-flow (early access)</li>
+        <li>Price drop / back in stock</li>
+        <li>Sunset flow</li>
+        <li>Gorgias bij &gt;75 tickets/mnd</li>
+      </ul>
+    </div>
   </div>
-  <div style="text-align:center;font-size:10px;color:rgba(61,52,46,0.35);letter-spacing:1px;padding:28px 0 12px;">Nomad &amp; Soul · Klaviyo Roadmap · Bijgewerkt 15 juli 2026</div>
+
+  <div style="text-align:center;font-size:10px;color:rgba(61,52,46,0.35);letter-spacing:1px;padding:28px 0 12px;">
+    Nomad &amp; Soul · Klaviyo Roadmap · Intern dashboard
+  </div>
+
 </div>
 </body>
 </html>
