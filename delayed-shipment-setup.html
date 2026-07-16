@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delayed Shipment — Make.com Scenario Setup</title>
+<title>Delayed Shipment — Setup (Native Klaviyo)</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,17 +33,17 @@ code { background: rgba(188,122,92,0.1); padding: 2px 7px; border-radius: 4px; f
 .badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
 .badge-live { background: rgba(45,122,58,0.1); color: #2D7A3A; }
 .badge-handmatig { background: rgba(188,122,92,0.12); color: #BC7A5C; }
+.badge-fallback { background: rgba(61,52,46,0.07); color: rgba(61,52,46,0.55); }
 
 .info-box { background: rgba(188,122,92,0.06); border: 1px solid rgba(188,122,92,0.2); border-radius: 12px; padding: 16px 18px; margin: 14px 0; font-size: 12px; line-height: 1.7; color: rgba(61,52,46,0.75); }
 .info-box strong { color: #3D342E; }
+.warn-box { background: rgba(192,57,43,0.06); border: 1px solid rgba(192,57,43,0.2); border-radius: 12px; padding: 16px 18px; margin: 14px 0; font-size: 12px; line-height: 1.7; color: rgba(61,52,46,0.8); }
+.warn-box strong { color: #C0392B; }
 
 .json-block { background: #3D342E; color: #F5EFEB; border-radius: 12px; padding: 18px 20px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.7; margin: 12px 0; overflow-x: auto; white-space: pre; }
 .json-key { color: #BC7A5C; }
 .json-val { color: #E4DACF; }
 .json-str { color: #A8D8A8; }
-
-.split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 600px) { .split { grid-template-columns: 1fr; } }
 
 .module-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(61,52,46,0.06); border-radius: 8px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: rgba(61,52,46,0.7); margin-bottom: 8px; }
 </style>
@@ -56,108 +56,77 @@ code { background: rgba(188,122,92,0.1); padding: 2px 7px; border-radius: 4px; f
     <img src="https://nomadandsoul.github.io/nomad-curator/hero-images/nomad-logo-clean.png" alt="Nomad &amp; Soul" class="topbar-logo">
     <div class="topbar-brand">Delayed Shipment Setup</div>
   </div>
-  <div class="topbar-right">Make.com · Klaviyo · Shopify</div>
+  <div class="topbar-right">Klaviyo native · Make.com fallback</div>
 </div>
 
 <div class="wrap">
 
   <div style="background:linear-gradient(135deg,#BC7A5C,#3D342E);border-radius:16px;padding:28px 32px;margin-bottom:28px;color:#F5EFEB;">
-    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,239,235,0.7);margin-bottom:8px;">Make.com · Klaviyo · Shopify</div>
-    <h1 style="color:#F5EFEB;margin-bottom:8px;">Delayed Shipment Setup</h1>
-    <div style="font-size:13px;opacity:0.85;line-height:1.7;">Template <code style="background:rgba(245,239,235,0.15);color:#F5EFEB;">WhtNFA</code> is live. Dit document beschrijft het volledige Make.com scenario dat de proactieve vertraging-mail triggert — precies te doen om 10:15u.</div>
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,239,235,0.7);margin-bottom:8px;">Herzien 15 juli 2026 — Klaviyo Native</div>
+    <h1 style="color:#F5EFEB;margin-bottom:8px;">Delayed Shipment — definitieve opzet</h1>
+    <div style="font-size:13px;opacity:0.85;line-height:1.7;">Geverifieerd tegen de echte Klaviyo-metrics van dit account: <code style="background:rgba(245,239,235,0.15);color:#F5EFEB;">Delivered Shipment</code> bestaat niet (vervoerders geven geen delivery-tracking door aan Shopify). <code style="background:rgba(245,239,235,0.15);color:#F5EFEB;">Fulfilled Order</code> bestaat wél al, native. Daarom: geen Make.com nodig voor de basisversie.</div>
   </div>
 
-  <!-- ARCHITECTUUR -->
+  <!-- AANBEVOLEN: NATIVE -->
   <div class="card">
-    <div class="card-titel">Architectuur — hoe het werkt</div>
+    <div class="card-titel">Aanbevolen opzet — 100% native Klaviyo <span class="badge badge-live" style="margin-left:8px;">Geen externe tools</span></div>
     <div class="info-box">
-      <strong>Doel:</strong> Elke bestelling die langer dan 5 dagen (NL/BE) na fulfillment geen bezorgbevestiging heeft gekregen, triggert automatisch een Klaviyo-event. Klaviyo stuurt dan template <code>WhtNFA</code>.<br><br>
-      <strong>Reden:</strong> Shopify geeft alleen bezorgbevestiging voor bepaalde vervoerders. Bij dropshipping (ibizamode, Droppery) ontbreekt dit vaak. Make.com vult dit gat op met een dagelijkse check.
+      <strong>Waarom dit beter is dan Make.com:</strong> zonder een delivered-signaal kan de flow toch niet conditioneel bepalen "is het al bezorgd" — dus is een vaste 5-dagen-vertraging na fulfillment net zo effectief als een custom event, maar zonder API-key, JSON-payload of externe afhankelijkheid. Minder onderdelen, minder foutkans.
     </div>
     <div class="step">
       <div class="step-nr">1</div>
-      <div class="step-body"><strong>Shopify → Make.com:</strong> Elke dag om 09:00 checkt Make.com alle orders die meer dan 5 dagen geleden fulfilled zijn zonder <code>Delivered Shipment</code> event in Klaviyo.</div>
+      <div class="step-body"><strong>Flows → Create Flow → Create From Scratch</strong><br>Naam: <code>Delayed Shipment</code></div>
     </div>
     <div class="step">
       <div class="step-nr">2</div>
-      <div class="step-body"><strong>Make.com → Klaviyo:</strong> Voor elke gevonden bestelling stuurt Make.com een custom event <code>Shipment Delayed</code> naar Klaviyo met ordernummer, datum en tracking URL.</div>
+      <div class="step-body"><strong>Trigger: Metric → Fulfilled Order</strong><br>Native Shopify-metric, synct al automatisch — geen setup nodig.</div>
     </div>
     <div class="step">
       <div class="step-nr">3</div>
-      <div class="step-body"><strong>Klaviyo → klant:</strong> Een nieuwe flow getriggerd door <code>Shipment Delayed</code> stuurt direct template <code>WhtNFA</code>. Eenmalig per order.</div>
+      <div class="step-body">Sleep een <strong>Time Delay → 5 days</strong> onder de trigger</div>
     </div>
-  </div>
-
-  <!-- MAKE.COM SCENARIO -->
-  <div class="card">
-    <div class="card-titel">Make.com — Scenario stap voor stap</div>
-    <div style="margin-bottom:12px;font-size:12px;color:rgba(61,52,46,0.55);">Verbinding: <strong>Nomada Live (nomadandsoul.nl)</strong></div>
-
-    <div class="step">
-      <div class="step-nr">1</div>
-      <div class="step-body">
-        <div class="module-badge">⏰ Schedule</div><br>
-        <strong>Module: Schedule</strong><br>
-        Type: <strong>Every day</strong> · Tijd: <strong>09:00</strong> · Tijdzone: <strong>Europe/Amsterdam</strong>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-nr">2</div>
-      <div class="step-body">
-        <div class="module-badge">🛍️ Shopify</div><br>
-        <strong>Module: Shopify → Search Orders</strong><br>
-        Verbinding: <strong>Nomada Live (nomadandsoul.nl)</strong><br>
-        Filter: <strong>fulfillment_status = fulfilled</strong><br>
-        Filter: <strong>created_at &lt; now minus 5 days</strong><br>
-        Limit: <strong>50</strong> (pagineer indien nodig)<br>
-        <div class="info-box" style="margin-top:8px;">
-          In Make.com: gebruik de <strong>Shopify → Search Orders</strong> module. Zet als filter:<br>
-          Field: <code>fulfillment_status</code> · Operator: <code>equal to</code> · Value: <code>fulfilled</code><br>
-          En: <code>updated_at</code> · Operator: <code>less than</code> · Value: <code>{{addDays(now; -5)}}</code>
-        </div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-nr">3</div>
-      <div class="step-body">
-        <div class="module-badge">🔀 Router</div><br>
-        <strong>Module: Router</strong><br>
-        Voeg een <strong>Iterator</strong> toe om elke order afzonderlijk te verwerken. Koppel de Shopify-uitvoer aan de iterator.
-      </div>
-    </div>
-
     <div class="step">
       <div class="step-nr">4</div>
-      <div class="step-body">
-        <div class="module-badge">📡 HTTP</div><br>
-        <strong>Module: HTTP → Make a request (Klaviyo Events API)</strong><br>
-        URL: <code>https://a.klaviyo.com/api/events/</code><br>
-        Method: <strong>POST</strong><br>
-        Headers:<br>
-        &nbsp;&nbsp;<code>Authorization: Klaviyo-API-Key YOUR_PRIVATE_KEY</code><br>
-        &nbsp;&nbsp;<code>Content-Type: application/json</code><br>
-        &nbsp;&nbsp;<code>revision: 2024-02-15</code><br><br>
-        Body (JSON):
-        <div class="json-block">{
+      <div class="step-body">Sleep een <strong>Email</strong> eronder → selecteer template <strong>WhtNFA</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-nr">5</div>
+      <div class="step-body">Klik de email aan → <strong>Sending Options → Smart Sending: OFF</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-nr">6</div>
+      <div class="step-body"><strong>Review and Turn On</strong></div>
+    </div>
+    <div class="warn-box">
+      <strong>Nog te verifiëren:</strong> template <code>WhtNFA</code> gebruikt <code>{{ event.OrderNumber }}</code> en <code>{{ event.TrackingURL }}</code> — deze veldnamen zijn geschreven voor een custom event en zijn nog niet bevestigd voor het <code>Fulfilled Order</code>-formaat. Na de eerste live trigger: open de template in de flow → Preview → klik op de event-variabelen om de exacte veldnaam te bevestigen, en pas de tags aan indien nodig. De template heeft al een fallback (<code>{% if event.TrackingURL %}...{% else %}Binnenkort beschikbaar{% endif %}</code>), dus een ontbrekend veld breekt de mail niet — toont alleen minder detail.
+    </div>
+  </div>
+
+  <!-- FALLBACK: MAKE.COM -->
+  <div class="card">
+    <div class="card-titel">Fallback — Make.com + Events API <span class="badge badge-fallback" style="margin-left:8px;">Alleen nodig bij delivery-tracking</span></div>
+    <div class="info-box">
+      Bewaar dit voor het moment dat jullie een vervoerder toevoegen die wél delivery-bevestiging aan Shopify doorgeeft. Dan wordt een conditionele flow (wél/niet bezorgd) zinvol, en heb je een eigen event nodig om dat te detecteren.
+    </div>
+
+    <div class="module-badge">📡 HTTP — Klaviyo Events API (niet de verouderde Track API)</div>
+    <div class="info-box" style="margin-top:0;">
+      <strong>Let op:</strong> <code>https://a.klaviyo.com/api/track/</code> is de legacy v1/v2 API, door Klaviyo zelf uitgefaseerd per 30 juni 2024. Gebruik altijd <code>https://a.klaviyo.com/api/events/</code> met een private API key in de Authorization-header.
+    </div>
+    <div class="json-block">{
   <span class="json-key">"data"</span>: {
     <span class="json-key">"type"</span>: <span class="json-str">"event"</span>,
     <span class="json-key">"attributes"</span>: {
       <span class="json-key">"metric"</span>: {
         <span class="json-key">"data"</span>: {
           <span class="json-key">"type"</span>: <span class="json-str">"metric"</span>,
-          <span class="json-key">"attributes"</span>: {
-            <span class="json-key">"name"</span>: <span class="json-str">"Shipment Delayed"</span>
-          }
+          <span class="json-key">"attributes"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Shipment Delayed"</span> }
         }
       },
       <span class="json-key">"profile"</span>: {
         <span class="json-key">"data"</span>: {
           <span class="json-key">"type"</span>: <span class="json-str">"profile"</span>,
-          <span class="json-key">"attributes"</span>: {
-            <span class="json-key">"email"</span>: <span class="json-str">"{{iterator.email}}"</span>
-          }
+          <span class="json-key">"attributes"</span>: { <span class="json-key">"email"</span>: <span class="json-str">"{{iterator.email}}"</span> }
         }
       },
       <span class="json-key">"properties"</span>: {
@@ -169,88 +138,17 @@ code { background: rgba(188,122,92,0.1); padding: 2px 7px; border-radius: 4px; f
     }
   }
 }</div>
-        <div class="info-box" style="margin-top:8px;">
-          <strong>Private API key:</strong> in Klaviyo → Account → Settings → API Keys → Create Private Key (scopes: Events write). Nooit opslaan in Claude-geheugen — in Make.com als versleutelde variabele bewaren.
-        </div>
-      </div>
-    </div>
 
-    <div class="step">
-      <div class="step-nr">5</div>
-      <div class="step-body">
-        <div class="module-badge">⚙️ Filter</div><br>
-        <strong>Voeg een Filter toe tussen stap 2 en 4:</strong><br>
-        Conditie: <code>iterator.financial_status</code> = <code>paid</code><br>
-        En: <code>iterator.fulfillments[].tracking_company</code> is NOT empty<br>
-        <div class="info-box" style="margin-top:8px;">Dit voorkomt dat testorders of onbetaalde orders een vertraging-mail krijgen.</div>
-      </div>
+    <div class="module-badge" style="margin-top:16px;">🛍️ Make.com Shopify-modules — correcte namen</div>
+    <div class="info-box" style="margin-top:0;">
+      Make's Shopify-app heeft <strong>geen</strong> "Watch Fulfillments"-trigger. Beschikbare trigger-modules: <strong>Watch Products, Watch Orders, Watch Events, Watch Events (Advanced)</strong>. Voor dit scenario: <strong>Schedule (dagelijks 09:00)</strong> → <strong>Shopify Search Orders</strong> (<code>fulfillment_status=fulfilled</code>, <code>updated_at &lt; now-5d</code>) → Filter (<code>financial_status=paid</code>, tracking niet leeg) → Iterator → HTTP POST hierboven.
     </div>
-
-    <div class="step">
-      <div class="step-nr">6</div>
-      <div class="step-body">
-        <div class="module-badge">✓ Gereed</div><br>
-        <strong>Scenario activeren:</strong> Zet het scenario op <strong>On</strong>. Make.com draait het elke dag om 09:00 en triggert automatisch Klaviyo voor vertraagde bestellingen.
-      </div>
+    <div class="warn-box">
+      Een module die een scenario 5 dagen laat "slapen" (Sleep) bestaat niet realistisch in Make — scenario's hebben executietijd-limieten. Vandaar de Schedule+polling-opzet, niet een enkele wachttrigger.
     </div>
   </div>
 
-  <!-- KLAVIYO FLOW -->
-  <div class="card">
-    <div class="card-titel">Klaviyo — Delayed Shipment flow (om 10:15u bouwen)</div>
-
-    <div class="step">
-      <div class="step-nr">1</div>
-      <div class="step-body"><strong>Flows → Create Flow → Create From Scratch</strong><br>Naam: <code>Delayed Shipment</code></div>
-    </div>
-    <div class="step">
-      <div class="step-nr">2</div>
-      <div class="step-body"><strong>Trigger: Metric → Shipment Delayed</strong><br>Dit event verschijnt in Klaviyo zodra Make.com het eerste keer verstuurt. Daarna is het selecteerbaar.</div>
-    </div>
-    <div class="step">
-      <div class="step-nr">3</div>
-      <div class="step-body"><strong>Flow Filter:</strong> What someone has done → <strong>Received Email</strong> matching <strong>Delayed Shipment</strong> → <strong>0 times since starting this flow</strong><br>Dit voorkomt dubbele mails bij meerdere checks.</div>
-    </div>
-    <div class="step">
-      <div class="step-nr">4</div>
-      <div class="step-body">Sleep direct een <strong>Email</strong> onder de trigger → selecteer template <strong>WhtNFA</strong><br>Geen time delay — de mail gaat direct na het event.</div>
-    </div>
-    <div class="step">
-      <div class="step-nr">5</div>
-      <div class="step-body">Klik de email aan → <strong>Sending Options → Smart Sending: OFF</strong><br>Dit is een transactionele melding — Smart Sending mag deze niet blokkeren.</div>
-    </div>
-    <div class="step">
-      <div class="step-nr">6</div>
-      <div class="step-body"><strong>Review and Turn On</strong></div>
-    </div>
-  </div>
-
-  <!-- OVERZICHT ALLE LIVE TEMPLATES -->
-  <div class="card">
-    <div class="card-titel">Volledig overzicht — alle live Klaviyo templates</div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.15);">
-          <th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:rgba(61,52,46,0.45);">Template</th>
-          <th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:rgba(61,52,46,0.45);">ID</th>
-          <th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:rgba(61,52,46,0.45);">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Flow A — Orderbevestiging</td><td style="padding:9px 10px;"><code>UTWmWb</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Flow B — Verzendstatus</td><td style="padding:9px 10px;"><code>ShdUXL</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Flow C — Retourinstructies</td><td style="padding:9px 10px;"><code>WUQgnF</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Abandoned Cart — Mail 1</td><td style="padding:9px 10px;"><code>UVHMZy</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Abandoned Cart — Mail 2</td><td style="padding:9px 10px;"><code>QVXK9w</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Abandoned Cart — Mail 3a (korting)</td><td style="padding:9px 10px;"><code>Tk7knE</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Abandoned Cart — Mail 3b (gratis verzending)</td><td style="padding:9px 10px;"><code>VQLLTw</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr style="border-bottom:1px solid rgba(188,122,92,0.07);"><td style="padding:9px 10px;font-weight:600;">Browse Abandonment</td><td style="padding:9px 10px;"><code>WEf6f8</code></td><td style="padding:9px 10px;"><span class="badge badge-live">✓ Live</span></td></tr>
-        <tr><td style="padding:9px 10px;font-weight:600;">Delayed Shipment</td><td style="padding:9px 10px;"><code>WhtNFA</code></td><td style="padding:9px 10px;"><span class="badge badge-handmatig">Flow bouwen 10:15u</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div style="text-align:center;font-size:10px;color:rgba(61,52,46,0.35);letter-spacing:1px;padding-top:24px;">
+  <div style="text-align:center;font-size:10px;color:rgba(61,52,46,0.35);letter-spacing:1px;padding:24px 0 12px;">
     Nomad &amp; Soul · Delayed Shipment Setup · Intern document
   </div>
 
