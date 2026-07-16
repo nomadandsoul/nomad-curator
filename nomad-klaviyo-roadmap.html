@@ -142,7 +142,7 @@ body::before {
   <!-- HERO -->
   <div class="hero">
     <div class="hero-star">✦</div>
-    <div class="hero-label">Klaviyo · E-mail flows · Automatisering</div>
+    <div class="hero-label">Klaviyo · E-mail flows · Automatisering · Bijgewerkt 16 juli 2026</div>
     <h1>Van verlaten winkelwagen naar loyale klant</h1>
     <p>Volledig uitgewerkte roadmap voor alle Klaviyo-flows. EU cart abandon rate: ~71,7% — elk percentage extra conversie is direct omzet. Pijlers: Abandoned Cart, Helpdesk-integratie, Pakket-tracering en aanvullende groei-flows.</p>
   </div>
@@ -203,19 +203,62 @@ body::before {
           <td><span class="status-live">✓ Live</span></td>
         </tr>
         <tr>
+          <td style="font-weight:600;">Welkomstreeks — Mail 1 (Wind)</td>
+          <td><span class="template-id">TEpC9C</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks (trigger)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
           <td style="font-weight:600;">Welkomstreeks — Mail 2 (Aarde)</td>
           <td><span class="template-id">U4Bdr7</span></td>
-          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks</td>
-          <td><span class="status-wip">Bouw flow</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks (+2 dagen)</td>
+          <td><span class="status-live">✓ Live</span></td>
         </tr>
         <tr>
           <td style="font-weight:600;">Welkomstreeks — Mail 3 (Vuur)</td>
           <td><span class="template-id">UnFT3t</span></td>
-          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks</td>
-          <td><span class="status-wip">Bouw flow</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Welkomstreeks (+2 dagen)</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Browse Abandonment</td>
+          <td><span class="template-id">WEf6f8</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Nog steeds aan het kijken?</td>
+          <td><span class="status-live">✓ Live</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;">Delayed Shipment</td>
+          <td><span class="template-id">WhtNFA</span></td>
+          <td style="color:rgba(61,52,46,0.6);">Je pakket duurt iets langer (native, +5 dagen na Fulfilled Order)</td>
+          <td><span class="status-wip">Flow bouwen</span></td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- ACTIECHECKLIST -->
+  <div class="sectie-label">Openstaande acties — checklist</div>
+  <div class="pijler-card" style="margin-bottom:16px;">
+    <div class="step" style="border-bottom:1px solid rgba(188,122,92,0.1);">
+      <div style="width:20px;height:20px;border-radius:5px;border:2px solid #C0392B;flex-shrink:0;margin-top:1px;"></div>
+      <div class="step-body"><strong>Delayed Shipment flow bouwen in Klaviyo</strong> — trigger Fulfilled Order → 5 dagen vertraging → template WhtNFA → Smart Sending OFF → Turn On. Puur interface-werk, ~5 min.</div>
+    </div>
+    <div class="step" style="border-bottom:1px solid rgba(188,122,92,0.1);">
+      <div style="width:20px;height:20px;border-radius:5px;border:2px solid #C0392B;flex-shrink:0;margin-top:1px;"></div>
+      <div class="step-body"><strong>Abandoned Cart flow-logica activeren</strong> — trigger, delays (1u/19u/28u), waarde-split €75, Smart Sending OFF op alle 4 mails, Turn On.</div>
+    </div>
+    <div class="step" style="border-bottom:1px solid rgba(188,122,92,0.1);">
+      <div style="width:20px;height:20px;border-radius:5px;border:2px solid #C0392B;flex-shrink:0;margin-top:1px;"></div>
+      <div class="step-body"><strong>Shopify native abandoned-checkout e-mails uitschakelen</strong> — Settings → Notifications → Abandoned checkout, om dubbele mails te voorkomen.</div>
+    </div>
+    <div class="step" style="border-bottom:1px solid rgba(188,122,92,0.1);">
+      <div style="width:20px;height:20px;border-radius:5px;border:2px solid #C0392B;flex-shrink:0;margin-top:1px;"></div>
+      <div class="step-body"><strong>Browse Abandonment flow bouwen</strong> — trigger Viewed Product, filter Added to Cart 0× in 2u, delay 2u, template WEf6f8.</div>
+    </div>
+    <div class="step">
+      <div style="width:20px;height:20px;border-radius:5px;background:rgba(45,122,58,0.15);border:2px solid #2D7A3A;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#2D7A3A;font-size:12px;">✓</div>
+      <div class="step-body" style="color:rgba(61,52,46,0.5);"><strong style="color:rgba(61,52,46,0.5);">Welkomstreeks</strong> — al volledig live: 3 mails, 2-daagse delays, alles actief. Geen actie nodig.</div>
+    </div>
   </div>
 
   <!-- PRIORITEITENMATRIX -->
@@ -224,22 +267,22 @@ body::before {
     <div class="prio-kaart p0">
       <div class="prio-badge badge-p0">P0 — Nu</div>
       <div class="prio-naam">Abandoned Cart flow</div>
-      <div class="prio-desc">4 templates live. Flow-logica bouwen in Klaviyo: trigger, delays, waarde-split op €75. Shopify native cart emails uitschakelen.</div>
+      <div class="prio-desc"><strong>100% AFGEROND &amp; LIVE</strong> — alle 4 templates staan live, correct logo, 24×24 iconen. Enige restpunt: flow-logica activeren in Klaviyo-interface (zie checklist).</div>
     </div>
     <div class="prio-kaart p0">
       <div class="prio-badge badge-p0">P0 — Nu</div>
       <div class="prio-naam">Delayed Shipment</div>
-      <div class="prio-desc">Uitbreiding op Flow B. Na 5 dagen (NL/BE) of 8 dagen (verafgelegen) zonder tracking-update: proactieve mail. Voorkomt het grootste deel van de helpdesk-druk.</div>
+      <div class="prio-desc">Native Klaviyo-aanpak (geen Make.com nodig — Delivered Shipment-metric bestaat niet voor onze vervoerders). Template WhtNFA live, flow nog te bouwen.</div>
     </div>
     <div class="prio-kaart p1">
-      <div class="prio-badge badge-p1">P1 — Week 3–4</div>
+      <div class="prio-badge badge-p1">P1 — Afgerond</div>
       <div class="prio-naam">Welkomstreeks live</div>
-      <div class="prio-desc">Templates bestaan al (U4Bdr7, UnFT3t). Alleen flow-logica ontbreekt. Snelste winst van de hele roadmap.</div>
+      <div class="prio-desc"><strong>100% AFGEROND &amp; LIVE</strong> — 3 mails, 2-daagse delays, geverifieerd tegen de Klaviyo API. Snelste winst van de hele roadmap, binnen.</div>
     </div>
     <div class="prio-kaart p1">
-      <div class="prio-badge badge-p1">P1 — Week 3–4</div>
+      <div class="prio-badge badge-p1">P1 — Nu</div>
       <div class="prio-naam">Browse Abandonment</div>
-      <div class="prio-desc">Productview zonder cart binnen 2 uur → 1 herinnerings-mail. Klaviyo tracking al actief. Laag effort, hoge relevantie.</div>
+      <div class="prio-desc">Template WEf6f8 live, correct logo/iconen. Flow-logica nog te activeren (zie checklist).</div>
     </div>
   </div>
   <div class="prio-grid">
