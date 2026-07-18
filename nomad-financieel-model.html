@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Financieel Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --sand: #E4DACF; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  min-height: 100vh;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F5EFEB;
+  position: relative;
+}
+body::before { content: ''; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(245,239,235,0.86); z-index: 0; pointer-events: none; }
+.topbar, .container { position: relative; z-index: 1; }
+
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 18px; }
+.topbar-sub { font-size: 11px; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+.card { background: white; border-radius: 16px; padding: 24px; border: 1px solid rgba(188,122,92,0.15); box-shadow: 0 2px 8px rgba(61,52,46,0.04); }
+.card-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #3D342E; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.card-title span { font-size: 18px; }
+
+.veld { margin-bottom: 16px; }
+.veld label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(61,52,46,0.6); margin-bottom: 6px; }
+.veld input[type="range"] { width: 100%; accent-color: #BC7A5C; cursor: pointer; }
+.veld-waarde { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.veld-getal { font-size: 16px; font-weight: 600; color: #BC7A5C; }
+.veld-hint { font-size: 10px; color: rgba(61,52,46,0.45); }
+
+.veld input[type="number"] {
+  width: 100%; padding: 10px 14px; border: 1px solid rgba(188,122,92,0.25);
+  border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 14px;
+  color: #3D342E; background: #F5EFEB; outline: none;
+}
+.veld input[type="number"]:focus { border-color: #BC7A5C; background: white; }
+
+/* RESULTATEN */
+.resultaat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.resultaat-kaart { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(188,122,92,0.15); }
+.resultaat-num { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.resultaat-lbl { font-size: 10px; color: rgba(61,52,46,0.55); text-transform: uppercase; letter-spacing: 0.5px; }
+.resultaat-num.groen { color: #2D7A3A; }
+.resultaat-num.rood { color: #C0392B; }
+.resultaat-num.tc { color: #BC7A5C; }
+.resultaat-num.oranje { color: #E67E22; }
+
+/* WINST METER */
+.meter-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid rgba(188,122,92,0.15); margin-bottom: 20px; }
+.meter-label { font-size: 12px; color: rgba(61,52,46,0.6); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.meter-balk { height: 20px; background: rgba(61,52,46,0.08); border-radius: 10px; overflow: hidden; margin-bottom: 16px; position: relative; }
+.meter-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease, background 0.4s ease; }
+.meter-markering { position: absolute; top: -20px; font-size: 10px; color: rgba(61,52,46,0.5); transform: translateX(-50%); }
+.meter-markering-lijn { position: absolute; height: 100%; width: 2px; background: rgba(61,52,46,0.2); }
+
+/* BREAK-EVEN TABEL */
+.tabel { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabel th { background: #F5EFEB; padding: 10px 14px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.6); border-bottom: 1px solid rgba(188,122,92,0.15); }
+.tabel td { padding: 10px 14px; border-bottom: 1px solid rgba(188,122,92,0.08); color: #3D342E; }
+.tabel tr:last-child td { border-bottom: none; }
+.tabel tr.highlight td { background: rgba(188,122,92,0.06); font-weight: 600; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+.badge.groen { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.badge.rood { background: rgba(192,57,43,0.1); color: #C0392B; }
+.badge.oranje { background: rgba(230,126,34,0.12); color: #E67E22; }
+
+/* ADVIES */
+.advies { padding: 16px 20px; border-radius: 12px; margin-top: 20px; font-size: 13px; line-height: 1.6; }
+.advies.goed { background: rgba(45,122,58,0.08); border: 1px solid rgba(45,122,58,0.2); color: #2D7A3A; }
+.advies.matig { background: rgba(230,126,34,0.08); border: 1px solid rgba(230,126,34,0.2); color: #E67E22; }
+.advies.slecht { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.2); color: #C0392B; }
+.advies strong { display: block; margin-bottom: 4px; font-size: 14px; }
+
+/* SCENARIO KNOPPEN */
+.scenarios { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.scenario-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(188,122,92,0.3); background: white; color: #3D342E; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s; }
+.scenario-btn:hover { background: rgba(188,122,92,0.1); }
+.scenario-btn.actief { background: #BC7A5C; color: #F5EFEB; border-color: #BC7A5C; }
+
+.sectie-titel { font-family: 'Playfair Display', serif; font-size: 22px; color: #3D342E; margin-bottom: 16px; }
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .resultaat-grid { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 16px; }
+  .topbar { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <a href="index.html" style="display:flex;align-items:center;gap:5px;color:#F5EFEB;opacity:0.75;text-decoration:none;font-size:11px;letter-spacing:0.5px;border-right:1px solid rgba(245,239,235,0.25);padding-right:16px;">← Dashboard</a>
+    <div>
+      <img src="logo-ivory.png" alt="Nomad & Soul" style="height:18px;width:auto;margin-bottom:3px;">
+      <div class="topbar-sub">Financieel Model — ROAS & Winstberekening</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div style="margin-bottom:24px;">
+    <h1 class="sectie-titel">Winstcalculator per product</h1>
+    <p style="font-size:13px;color:rgba(61,52,46,0.6);">Bereken exact welke ROAS je nodig hebt om winstgevend te zijn. Pas de sliders aan per product.</p>
+  </div>
+
+  <!-- SNELLE SCENARIO'S -->
+  <div class="scenarios">
+    <button class="scenario-btn actief" onclick="laadScenario('sieraden', this)">💎 Sieraden €34,95</button>
+    <button class="scenario-btn" onclick="laadScenario('jurk', this)">👗 Maxi Jurk €89,95</button>
+    <button class="scenario-btn" onclick="laadScenario('kaftan', this)">🌿 Kaftan €74,95</button>
+    <button class="scenario-btn" onclick="laadScenario('sandaal', this)">👡 Sandaal €69,95</button>
+    <button class="scenario-btn" onclick="laadScenario('heren', this)">👕 Heren Shirt €54,95</button>
+    <button class="scenario-btn" onclick="laadScenario('bundel', this)">✨ Bundel Look €149,95</button>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- INVOER LINKS -->
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title"><span>🏷️</span> Productgegevens</div>
+
+        <div class="veld">
+          <label>Verkoopprijs (incl. BTW)</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:13px;color:rgba(61,52,46,0.5);">€</span>
+            <input type="number" id="verkoopprijs" value="89.95" step="0.05" oninput="bereken()">
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Inkoopprijs (excl. BTW)</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:13px;color:rgba(61,52,46,0.5);">€</span>
+            <input type="number" id="inkoopprijs" value="28.00" step="0.50" oninput="bereken()">
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Verzendkosten leverancier → klant</label>
+          <input type="range" id="verzend" min="0" max="15" step="0.5" value="5" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="verzend-val">€ 5,00</span>
+            <span class="veld-hint">Gemiddeld EU: €4-8</span>
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Retourpercentage</label>
+          <input type="range" id="retour" min="0" max="50" step="1" value="25" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="retour-val">25%</span>
+            <span class="veld-hint">Fashion gem.: 25-35%</span>
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Retourkosten (bij klant of bij jou)</label>
+          <input type="range" id="retourkosten" min="0" max="10" step="0.5" value="4" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="retourkosten-val">€ 4,00</span>
+            <span class="veld-hint">Per geretourneerd item</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>💸</span> Vaste kosten per order</div>
+
+        <div class="veld">
+          <label>Shopify + apps (per maand)</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:13px;color:rgba(61,52,46,0.5);">€</span>
+            <input type="number" id="shopify" value="79" step="1" oninput="bereken()">
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Orders per maand (verwacht)</label>
+          <input type="range" id="orders" min="5" max="200" step="5" value="30" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="orders-val">30 orders</span>
+            <span class="veld-hint">Begin realistisch laag</span>
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Transactiekosten betaling</label>
+          <input type="range" id="transactie" min="1" max="5" step="0.1" value="2.5" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="transactie-val">2.5%</span>
+            <span class="veld-hint">iDEAL/Mastercard gem.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOER RECHTS -->
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title"><span>📣</span> Advertenties</div>
+
+        <div class="veld">
+          <label>Maandelijks advertentiebudget</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:13px;color:rgba(61,52,46,0.5);">€</span>
+            <input type="number" id="adbudget" value="500" step="50" oninput="bereken()">
+          </div>
+        </div>
+
+        <div class="veld">
+          <label>Huidige ROAS</label>
+          <input type="range" id="roas" min="0.5" max="10" step="0.1" value="2" oninput="bereken()">
+          <div class="veld-waarde">
+            <span class="veld-getal" id="roas-val">2.0×</span>
+            <span class="veld-hint">Doel: minimaal 4×</span>
+          </div>
+        </div>
+
+        <div style="background:#F5EFEB;border-radius:10px;padding:14px;margin-top:8px;">
+          <div style="font-size:11px;color:rgba(61,52,46,0.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Wat ROAS betekent</div>
+          <div style="font-size:12px;color:rgba(61,52,46,0.7);line-height:1.7;">
+            ROAS 2 = €2 omzet per €1 advertentiebudget<br>
+            ROAS 4 = €4 omzet per €1 advertentiebudget<br>
+            ROAS 6 = €6 omzet per €1 advertentiebudget
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🎯</span> Minimale ROAS meter</div>
+        <div class="meter-label">
+          <span>Break-even ROAS</span>
+          <span id="min-roas-label">—</span>
+        </div>
+        <div class="meter-balk" style="height:28px;">
+          <div class="meter-fill" id="roas-meter" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(61,52,46,0.4);margin-bottom:16px;">
+          <span>0×</span><span>2×</span><span>4×</span><span>6×</span><span>8×</span><span>10×</span>
+        </div>
+
+        <div class="meter-label">
+          <span>Jouw huidige ROAS</span>
+          <span id="huidig-roas-label">—</span>
+        </div>
+        <div class="meter-balk" style="height:28px;">
+          <div class="meter-fill" id="huidig-meter" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(61,52,46,0.4);">
+          <span>0×</span><span>2×</span><span>4×</span><span>6×</span><span>8×</span><span>10×</span>
+        </div>
+
+        <div id="advies" class="advies slecht" style="margin-top:16px;">
+          <strong>Berekening laden...</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESULTATEN -->
+  <h2 class="sectie-titel">Resultaten per maand</h2>
+
+  <div class="resultaat-grid">
+    <div class="resultaat-kaart">
+      <div class="resultaat-num tc" id="r-omzet">€ —</div>
+      <div class="resultaat-lbl">Omzet via ads</div>
+    </div>
+    <div class="resultaat-kaart">
+      <div class="resultaat-num" id="r-orders">—</div>
+      <div class="resultaat-lbl">Orders via ads</div>
+    </div>
+    <div class="resultaat-kaart">
+      <div class="resultaat-num" id="r-brutomarge">€ —</div>
+      <div class="resultaat-lbl">Brutomarge totaal</div>
+    </div>
+    <div class="resultaat-kaart">
+      <div class="resultaat-num" id="r-netto">€ —</div>
+      <div class="resultaat-lbl">Nettoresultaat</div>
+    </div>
+  </div>
+
+  <!-- KOSTENOPBOUW -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title"><span>📊</span> Kostenopbouw per verkoop</div>
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>Post</th>
+          <th>Bedrag</th>
+          <th>% van verkoopprijs</th>
+          <th>Toelichting</th>
+        </tr>
+      </thead>
+      <tbody id="kosten-tabel"></tbody>
+    </table>
+  </div>
+
+  <!-- ROAS SCENARIO TABEL -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title"><span>📈</span> Wat als je ROAS verandert?</div>
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>ROAS</th>
+          <th>Omzet/maand</th>
+          <th>Advertentiekosten/order</th>
+          <th>Nettoresultaat/maand</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="roas-tabel"></tbody>
+    </table>
+  </div>
+
+  <!-- ORGANISCH VS PAID -->
+  <div class="card">
+    <div class="card-title"><span>🌱</span> Organisch vs Betaald — vergelijking</div>
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>Kanaal</th>
+          <th>Kosten/maand</th>
+          <th>Verwacht orders</th>
+          <th>Nettoresultaat</th>
+          <th>Advies</th>
+        </tr>
+      </thead>
+      <tbody id="kanaal-tabel"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const SCENARIOS = {
+  sieraden: { naam: 'Sieraden', vp: 34.95, ip: 9.00, verzend: 4, retour: 15, retourkosten: 2 },
+  jurk:     { naam: 'Maxi Jurk', vp: 89.95, ip: 28.00, verzend: 6, retour: 30, retourkosten: 4 },
+  kaftan:   { naam: 'Kaftan', vp: 74.95, ip: 22.00, verzend: 5, retour: 25, retourkosten: 4 },
+  sandaal:  { naam: 'Sandaal', vp: 69.95, ip: 24.00, verzend: 5, retour: 20, retourkosten: 3 },
+  heren:    { naam: 'Heren Shirt', vp: 54.95, ip: 18.00, verzend: 5, retour: 20, retourkosten: 3 },
+  bundel:   { naam: 'Bundel Look', vp: 149.95, ip: 48.00, verzend: 7, retour: 20, retourkosten: 5 },
+};
+
+function laadScenario(key, el) {
+  const s = SCENARIOS[key];
+  document.getElementById('verkoopprijs').value = s.vp;
+  document.getElementById('inkoopprijs').value = s.ip;
+  document.getElementById('verzend').value = s.verzend;
+  document.getElementById('retour').value = s.retour;
+  document.getElementById('retourkosten').value = s.retourkosten;
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('actief'));
+  el.classList.add('actief');
+  bereken();
+}
+
+function fmt(n) { return '€ ' + n.toFixed(2).replace('.', ','); }
+function fmtp(n) { return n.toFixed(1) + '%'; }
+
+function bereken() {
+  const vp = parseFloat(document.getElementById('verkoopprijs').value) || 0;
+  const ip = parseFloat(document.getElementById('inkoopprijs').value) || 0;
+  const verzend = parseFloat(document.getElementById('verzend').value) || 0;
+  const retourPct = parseFloat(document.getElementById('retour').value) || 0;
+  const retourkosten = parseFloat(document.getElementById('retourkosten').value) || 0;
+  const shopify = parseFloat(document.getElementById('shopify').value) || 0;
+  const orders = parseFloat(document.getElementById('orders').value) || 30;
+  const transactiePct = parseFloat(document.getElementById('transactie').value) || 2.5;
+  const adbudget = parseFloat(document.getElementById('adbudget').value) || 0;
+  const roas = parseFloat(document.getElementById('roas').value) || 2;
+
+  // Update labels
+  document.getElementById('verzend-val').textContent = fmt(verzend);
+  document.getElementById('retour-val').textContent = retourPct + '%';
+  document.getElementById('retourkosten-val').textContent = fmt(retourkosten);
+  document.getElementById('orders-val').textContent = orders + ' orders';
+  document.getElementById('transactie-val').textContent = transactiePct + '%';
+  document.getElementById('roas-val').textContent = roas.toFixed(1) + '×';
+
+  // Berekeningen per order
+  const vpExBTW = vp / 1.21;
+  const transactieKosten = vp * (transactiePct / 100);
+  const retourKostenPerOrder = (retourPct / 100) * retourkosten;
+  const retourWaardeverlies = (retourPct / 100) * (ip * 0.5); // 50% herverkoopwaarde verloren
+  const shopifyPerOrder = shopify / orders;
+
+  const totaleKostenPerOrder = ip + verzend + transactieKosten + retourKostenPerOrder + retourWaardeverlies + shopifyPerOrder;
+  const brutomarge = vp - ip - verzend - transactieKosten - retourKostenPerOrder - retourWaardeverlies;
+  const brutomargePct = (brutomarge / vp) * 100;
+
+  // Minimale ROAS berekening
+  // ROAS = Omzet / Advertentiekosten
+  // Netto = Brutomarge - AdvertentieKosten
+  // Break-even: Brutomarge = AdvertentieKosten per order
+  // AdvertentieKosten per order = Verkoopprijs / ROAS
+  // Break-even ROAS = Verkoopprijs / Brutomarge
+  const minROAS = vp / brutomarge;
+
+  // Maandelijkse berekeningen via ads
+  const omzetAds = adbudget * roas;
+  const ordersAds = Math.round(omzetAds / vp);
+  const adkostenPerOrder = ordersAds > 0 ? adbudget / ordersAds : 0;
+  const brutomargeTotaal = brutomarge * ordersAds;
+  const nettoresultaat = brutomargeTotaal - adbudget - shopify;
+
+  // ROAS meter
+  const minRoasPct = Math.min((minROAS / 10) * 100, 100);
+  const huidigRoasPct = Math.min((roas / 10) * 100, 100);
+  const roasMeter = document.getElementById('roas-meter');
+  const huidigMeter = document.getElementById('huidig-meter');
+
+  roasMeter.style.width = minRoasPct + '%';
+  roasMeter.style.background = '#C0392B';
+  huidigMeter.style.width = huidigRoasPct + '%';
+  huidigMeter.style.background = roas >= minROAS ? '#2D7A3A' : roas >= minROAS * 0.8 ? '#E67E22' : '#C0392B';
+
+  document.getElementById('min-roas-label').textContent = 'Minimaal ' + minROAS.toFixed(1) + '×';
+  document.getElementById('huidig-roas-label').textContent = 'Huidig ' + roas.toFixed(1) + '×';
+
+  // Advies
+  const adviesEl = document.getElementById('advies');
+  if (roas >= minROAS) {
+    adviesEl.className = 'advies goed';
+    adviesEl.innerHTML = `<strong>✅ Winstgevend bij huidige ROAS</strong>Je maakt €${(brutomarge - adkostenPerOrder).toFixed(2)} netto per verkoop. Schaal het advertentiebudget op.`;
+  } else if (roas >= minROAS * 0.75) {
+    adviesEl.className = 'advies matig';
+    adviesEl.innerHTML = `<strong>⚠️ Bijna break-even — optimaliseer eerst</strong>Je hebt ROAS ${minROAS.toFixed(1)}× nodig maar zit op ${roas.toFixed(1)}×. Verhoog eerst de gemiddelde orderwaarde of verlaag retourpercentage.`;
+  } else {
+    adviesEl.className = 'advies slecht';
+    adviesEl.innerHTML = `<strong>❌ Verliesgevend bij huidige ROAS</strong>Je verliest €${(adkostenPerOrder - brutomarge).toFixed(2)} per verkoop. Start organisch of verhoog verkoopprijs/bundels voordat je adverteert.`;
+  }
+
+  // Resultaten
+  document.getElementById('r-omzet').textContent = fmt(omzetAds);
+  document.getElementById('r-omzet').className = 'resultaat-num tc';
+  document.getElementById('r-orders').textContent = ordersAds + ' orders';
+  document.getElementById('r-brutomarge').textContent = fmt(brutomargeTotaal);
+  document.getElementById('r-brutomarge').className = 'resultaat-num ' + (brutomargeTotaal > 0 ? 'groen' : 'rood');
+  document.getElementById('r-netto').textContent = fmt(nettoresultaat);
+  document.getElementById('r-netto').className = 'resultaat-num ' + (nettoresultaat > 0 ? 'groen' : 'rood');
+
+  // Kostenopbouw tabel
+  const kosten = [
+    { post: 'Verkoopprijs (incl. BTW)', bedrag: vp, pct: 100, toelichting: 'Wat de klant betaalt' },
+    { post: 'Inkoopprijs product', bedrag: -ip, pct: -(ip/vp*100), toelichting: 'Wholesale inkoop excl. BTW' },
+    { post: 'Verzendkosten', bedrag: -verzend, pct: -(verzend/vp*100), toelichting: 'Leverancier → klant' },
+    { post: 'Transactiekosten', bedrag: -transactieKosten, pct: -(transactieKosten/vp*100), toelichting: `${transactiePct}% iDEAL/Mastercard` },
+    { post: 'Retourkosten', bedrag: -(retourKostenPerOrder + retourWaardeverlies), pct: -((retourKostenPerOrder + retourWaardeverlies)/vp*100), toelichting: `${retourPct}% retouren` },
+    { post: 'Shopify/apps per order', bedrag: -shopifyPerOrder, pct: -(shopifyPerOrder/vp*100), toelichting: `€${shopify}/mnd ÷ ${orders} orders` },
+  ];
+
+  const tbody = document.getElementById('kosten-tabel');
+  tbody.innerHTML = kosten.map(k => `
+    <tr>
+      <td>${k.post}</td>
+      <td style="font-weight:500;color:${k.bedrag >= 0 ? '#2D7A3A' : '#C0392B'}">${fmt(Math.abs(k.bedrag))}${k.bedrag < 0 ? ' ❌' : ''}</td>
+      <td>${Math.abs(k.pct).toFixed(1)}%</td>
+      <td style="color:rgba(61,52,46,0.6);font-size:12px;">${k.toelichting}</td>
+    </tr>
+  `).join('') + `<tr class="highlight">
+    <td>Brutomarge per verkoop</td>
+    <td style="color:${brutomarge > 0 ? '#2D7A3A' : '#C0392B'};font-weight:700;">${fmt(brutomarge)}</td>
+    <td style="font-weight:700;">${brutomargePct.toFixed(1)}%</td>
+    <td style="font-size:12px;color:rgba(61,52,46,0.6);">Vóór advertentiekosten</td>
+  </tr>`;
+
+  // ROAS scenario tabel
+  const roasScenarios = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+  const roasTbody = document.getElementById('roas-tabel');
+  roasTbody.innerHTML = roasScenarios.map(r => {
+    const omz = adbudget * r;
+    const ord = Math.round(omz / vp);
+    const adPerOrder = ord > 0 ? adbudget / ord : 0;
+    const netto = (brutomarge * ord) - adbudget - shopify;
+    const winstgevend = r >= minROAS;
+    const bijna = r >= minROAS * 0.75 && r < minROAS;
+    const isCurrent = Math.abs(r - roas) < 0.3;
+    return `<tr class="${isCurrent ? 'highlight' : ''}">
+      <td><strong>${r.toFixed(1)}×</strong>${isCurrent ? ' ← huidig' : ''}</td>
+      <td>${fmt(omz)}</td>
+      <td>${fmt(adPerOrder)}</td>
+      <td style="color:${netto > 0 ? '#2D7A3A' : '#C0392B'};font-weight:600;">${fmt(netto)}</td>
+      <td><span class="badge ${winstgevend ? 'groen' : bijna ? 'oranje' : 'rood'}">${winstgevend ? '✅ Winstgevend' : bijna ? '⚠️ Bijna' : '❌ Verlies'}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Kanaal vergelijking
+  const kanaalTbody = document.getElementById('kanaal-tabel');
+  const organischOrders = Math.round(orders * 0.3);
+  const organischNetto = (brutomarge * organischOrders) - shopify;
+  const emailOrders = Math.round(orders * 0.2);
+  const emailKosten = 30;
+  const emailNetto = (brutomarge * emailOrders) - emailKosten - (shopify * 0.3);
+  const paidNetto = nettoresultaat;
+
+  kanaalTbody.innerHTML = [
+    { kanaal: '🌱 Organisch (Pinterest/TikTok)', kosten: fmt(0), orders: organischOrders, netto: organischNetto, advies: 'Start hier — geen risico' },
+    { kanaal: '📧 E-mail (Klaviyo)', kosten: fmt(emailKosten), orders: emailOrders, netto: emailNetto, advies: 'Retargeting warm publiek' },
+    { kanaal: '📣 Paid Ads (Meta/Google)', kosten: fmt(adbudget), orders: ordersAds, netto: paidNetto, advies: roas >= minROAS ? 'Schaal op' : 'Wacht op ROAS ' + minROAS.toFixed(1) + '×' },
+  ].map(k => `<tr>
+    <td>${k.kanaal}</td>
+    <td>${k.kosten}/mnd</td>
+    <td>${k.orders} orders</td>
+    <td style="color:${k.netto > 0 ? '#2D7A3A' : '#C0392B'};font-weight:600;">${fmt(k.netto)}</td>
+    <td style="font-size:12px;color:rgba(61,52,46,0.6);">${k.advies}</td>
+  </tr>`).join('');
+}
+
+// Start berekening
+bereken();
+</script>
+</body>
+</html>

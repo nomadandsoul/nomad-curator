@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Nomad & Soul — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- PWA: installeerbaar als app op iPhone/Android -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3D342E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nomad & Soul">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --zand: #E4DACF; --dusty: #7A6552; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F0EAE5;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(245, 239, 235, 0.86);
+  z-index: 0;
+  pointer-events: none;
+}
+.topbar, .container { position: relative; z-index: 1; }
+
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 18px; }
+.topbar-sub { font-size: 10px; opacity: 0.55; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+.topbar-right { font-size: 10px; opacity: 0.45; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #BC7A5C, #3D342E);
+  border-radius: 18px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: stretch;
+  box-shadow: 0 12px 32px rgba(61,52,46,0.18);
+}
+.hero-tekst { padding: 34px 38px; position: relative; z-index: 1; }
+.hero-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,239,235,0.75); font-weight: 700; margin-bottom: 12px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 30px; font-weight: 400; color: #F5EFEB; margin-bottom: 12px; }
+.hero p { font-size: 13px; color: rgba(245,239,235,0.82); line-height: 1.7; max-width: 480px; }
+.hero-star { position: absolute; right: 24px; top: 24px; font-size: 26px; color: rgba(245,239,235,0.35); z-index: 1; }
+.hero-foto { position: relative; overflow: hidden; min-height: 200px; }
+.hero-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-foto::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, #3D342E 0%, rgba(61,52,46,0.35) 35%, rgba(61,52,46,0) 70%); }
+
+/* SECTIE LABEL */
+.sectie-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--dusty); font-weight: 700; margin: 40px 0 16px; border-bottom: 1px solid rgba(188,122,92,0.18); padding-bottom: 10px; }
+.sectie-label:first-of-type { margin-top: 0; }
+
+/* STATUS GRID */
+.status-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.status-item { background: white; border: 1px solid rgba(188,122,92,0.12); border-radius: 14px; padding: 18px 20px; }
+.status-item:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 20px rgba(61,52,46,0.08); transform: translateY(-2px); transition: all 0.2s ease; }
+.status-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(61,52,46,0.45); margin-bottom: 8px; font-weight: 600; }
+.status-val { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: var(--tc); }
+.status-sub { font-size: 11px; color: rgba(61,52,46,0.5); margin-top: 4px; }
+
+/* APP GRID */
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.app-kaart { background: white; border: 1px solid rgba(188,122,92,0.12); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: all 0.2s ease; }
+a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px rgba(61,52,46,0.08); transform: translateY(-2px); }
+.app-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(188,122,92,0.12); border: 1px solid rgba(188,122,92,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--tc); flex-shrink: 0; }
+.app-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app-naam { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--esp); margin-bottom: 6px; }
+.app-desc { font-size: 12px; color: rgba(61,52,46,0.6); line-height: 1.6; flex: 1; margin-bottom: 12px; }
+.app-badge { display: inline-block; align-self: flex-start; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+.badge-live { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.badge-bouw { background: rgba(188,122,92,0.14); color: var(--tc); }
+.badge-gepland { background: rgba(61,52,46,0.08); color: rgba(61,52,46,0.55); }
+.badge-ref { background: rgba(61,52,46,0.08); color: rgba(61,52,46,0.6); }
+
+/* MERK GRID */
+.merk-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+.merk-item { background: white; border: 1px solid rgba(188,122,92,0.12); border-radius: 14px; padding: 20px; }
+.merk-item h4 { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--tc); margin-bottom: 8px; font-weight: 700; }
+.merk-item p { font-size: 12px; color: rgba(61,52,46,0.65); line-height: 1.7; }
+.kleur-rij { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.kleur-dot { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(61,52,46,0.6); }
+.dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+.verboden { display: flex; flex-wrap: wrap; gap: 8px; }
+.verboden span { background: rgba(163,73,54,0.08); color: #A34936; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(163,73,54,0.18); }
+
+/* ACTIELIJST */
+.actie-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: white; border: 1px solid rgba(188,122,92,0.12); border-radius: 10px; border-left: 3px solid rgba(188,122,92,0.35); transition: opacity 0.2s ease; }
+.actie-item.prio { border-left-color: var(--tc); }
+.actie-item.gedaan { opacity: 0.5; }
+.actie-check { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; accent-color: var(--tc); cursor: pointer; }
+.actie-body { flex: 1; min-width: 0; }
+.actie-titel { font-size: 13px; font-weight: 700; color: var(--esp); outline: none; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; }
+.actie-titel:focus { background: rgba(188,122,92,0.08); }
+.actie-item.gedaan .actie-titel { text-decoration: line-through; }
+.actie-desc { font-size: 11.5px; color: rgba(61,52,46,0.55); margin-top: 3px; outline: none; border-radius: 3px; padding: 1px 3px; margin-left: -3px; }
+.actie-desc:focus { background: rgba(188,122,92,0.08); }
+.actie-del { background: none; border: none; color: rgba(61,52,46,0.25); font-size: 15px; cursor: pointer; flex-shrink: 0; padding: 2px 6px; border-radius: 4px; line-height: 1; }
+.actie-del:hover { color: #A34936; background: rgba(163,73,54,0.08); }
+.actie-add-row { display: flex; gap: 8px; margin-top: 12px; }
+.actie-add-row input { flex: 1; background: white; border: 1px solid rgba(188,122,92,0.25); border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: var(--esp); font-family: 'Montserrat', sans-serif; outline: none; }
+.actie-add-row input:focus { border-color: var(--tc); }
+.actie-add-row button { background: var(--tc); border: none; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 0 18px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+.actie-add-row button:hover { background: var(--esp); }
+
+/* STATUS SELECT — leveranciers, kanalen, pipeline */
+.status-select {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--esp);
+  background: rgba(245,239,235,0.7);
+  border: 1px solid rgba(188,122,92,0.25);
+  border-radius: 8px;
+  padding: 6px 8px;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-start;
+  max-width: 128px;
+}
+.status-select:focus { border-color: var(--tc); }
+.pipeline-select {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tc);
+  background: white;
+  border: 1px solid rgba(188,122,92,0.25);
+  border-radius: 8px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  margin-top: 4px;
+  width: 100%;
+}
+.fase-editable { outline: none; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; cursor: text; }
+.fase-editable:focus { background: rgba(188,122,92,0.08); }
+
+.dash-footer { text-align: center; font-size: 10px; color: rgba(61,52,46,0.35); letter-spacing: 1px; padding: 28px 0 12px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-foto { min-height: 140px; order: -1; }
+  .hero-foto::after { background: linear-gradient(0deg, #3D342E 0%, rgba(61,52,46,0.25) 45%, rgba(61,52,46,0) 100%); }
+  .status-grid { grid-template-columns: repeat(2,1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+  .merk-grid { grid-template-columns: 1fr; }
+  .hero-star { display: none; }
+}
+
+/* DOCUMENT MODAL — vertrouwelijke documenten worden hier ingeladen i.p.v. naar Drive te linken */
+.doc-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(61,52,46,0.55);
+  backdrop-filter: blur(3px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.doc-modal-overlay.open { display: flex; }
+.doc-modal-box {
+  background: #F5EFEB;
+  width: 100%;
+  max-width: 980px;
+  height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.doc-modal-topbar {
+  background: #3D342E;
+  color: #F5EFEB;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.doc-modal-titel { font-family: 'Playfair Display', serif; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.doc-modal-close {
+  background: rgba(245,239,235,0.12);
+  border: 1px solid rgba(245,239,235,0.25);
+  color: #F5EFEB;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+}
+.doc-modal-close:hover { background: rgba(245,239,235,0.22); }
+.doc-modal-body { flex: 1; position: relative; background: #fff; }
+.doc-modal-body iframe { width: 100%; height: 100%; border: none; }
+.doc-modal-status {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: rgba(61,52,46,0.6); text-align: center; padding: 30px;
+  background: #F5EFEB;
+}
+.doc-modal-status a { color: #BC7A5C; }
+@media (max-width: 768px) {
+  .doc-modal-overlay { padding: 0; }
+  .doc-modal-box { height: 100%; max-width: 100%; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <img src="logo-ivory.png" alt="Nomad & Soul" style="height:24px;width:auto;display:block;">
+    <div class="topbar-sub" style="margin-top:4px;">Operations Dashboard</div>
+  </div>
+  <div class="topbar-right">nomadandsoul.nl ✦ Vertrouwelijk</div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tekst">
+      <div class="hero-star">✦</div>
+      <div class="hero-label">Bedrijfsdashboard</div>
+      <h1>Dress the life you want to live.</h1>
+      <p>Boho Mediterranean lifestyle fashion — dropshipping, geen voorraad. Doelgroep: vrouwen &amp; mannen 25–60 die leven vanuit een vrij, bewust en esthetisch gevoel, plus de Little Nomads kinderlijn.</p>
+    </div>
+    <div class="hero-foto">
+      <img src="hero-images/hero-model-nieuw.jpg" alt="Nomad & Soul model">
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="sectie-label" style="display:flex;justify-content:space-between;align-items:baseline;">
+    <span>Status overzicht</span>
+    <span style="font-size:10px;font-weight:400;letter-spacing:0.5px;color:rgba(61,52,46,0.4);text-transform:none;">✦ Webshop automatisch live gecheckt · overige velden handmatig bijgewerkt op 16 juli 2026</span>
+  </div>
+  <div class="status-grid">
+    <a href="https://nomadandsoul.nl" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;transition:box-shadow 0.2s ease;">
+      <div class="status-label">Webshop ↗</div>
+      <div class="status-val" id="webshop-status-val">Live</div>
+      <div class="status-sub" id="webshop-status-sub">Publiek toegankelijk — geen wachtwoordpagina meer (live gecheckt)</div>
+    </a>
+    <a href="https://admin.shopify.com/store/i1r1nd-f0/collections" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Platform ↗</div>
+      <div class="status-val">Shopify</div>
+      <div class="status-sub">Horizon thema · 9 collecties — allemaal merk-collecties, opgeschoond</div>
+    </a>
+    <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">E-mail ↗</div>
+      <div class="status-val">Actief</div>
+      <div class="status-sub">info@nomadandsoul.nl → Gmail</div>
+    </a>
+    <a href="#leverancierslijst" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Model ↗</div>
+      <div class="status-val">Dropship</div>
+      <div class="status-sub" id="model-leverancier-sub">Nog geen actieve leverancier — Shopify Collective in aanvraag</div>
+    </a>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:8px;">✦ Klik op een kaart om direct naar de bijbehorende plek te gaan (webshop, Shopify-instellingen, Gmail, of leverancierslijst hieronder).</div>
+
+  <!-- LEVERANCIERS (bewerkbaar) -->
+  <div class="sectie-label" style="margin-top:32px;">Huidige leveranciers</div>
+  <div id="leverancierslijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="actie-add-row">
+    <input id="leverancier-input" type="text" placeholder="Nieuwe leverancier toevoegen — druk op Enter" maxlength="80">
+    <button type="button" onclick="leverancierToevoegen()">+ Toevoegen</button>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Status per leverancier bijwerken via de dropdown, of verwijder (✕) zodra jullie er niet meer mee werken. Synchroniseert automatisch tussen jouw apparaten en met Bionda.</div>
+
+  <!-- OMZET & PROGNOSE -->
+  <div class="sectie-label" style="margin-top:32px;">Omzet &amp; prognose</div>
+  <div class="status-grid">
+    <div class="status-item">
+      <div class="status-label">Huidige fase</div>
+      <div class="status-val fase-editable" id="omzet-fase-val" contenteditable="true" spellcheck="false" style="font-size:15px;">Voorbereiding</div>
+      <div class="status-sub">Klik om aan te passen</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Conservatief J1</div>
+      <div class="status-val">€58K</div>
+      <div class="status-sub">J2 €155K · J3 €335K</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Realistisch J1</div>
+      <div class="status-val">€95K</div>
+      <div class="status-sub">J2 €265K · J3 €580K</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Optimistisch J1</div>
+      <div class="status-val">€145K</div>
+      <div class="status-sub">J2 €420K · J3 €980K</div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:8px;">✦ Volledige prognose met kanaal-breakdown: <a href="nomad-omzetprognose.html" style="color:var(--tc);">open Omzetprognose-tool ↗</a>. Fase-veld synchroniseert tussen apparaten — pas aan zodra de winkel live gaat of omzet binnenkomt.</div>
+
+  <!-- KANALEN & MARKETING STATUS -->
+  <div class="sectie-label" style="margin-top:32px;">Kanalen &amp; marketing status</div>
+  <div id="kanalenlijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="actie-add-row">
+    <input id="kanaal-input" type="text" placeholder="Nieuw kanaal toevoegen — druk op Enter" maxlength="60">
+    <button type="button" onclick="kanaalToevoegen()">+ Toevoegen</button>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Kanaalprioriteit: Pinterest → TikTok → Google Shopping → Micro-influencers → Klaviyo. Status bijwerken via de dropdown zodra een kanaal live gaat.</div>
+
+  <!-- PIPELINE STATUS -->
+  <div class="sectie-label" style="margin-top:32px;">Techniek &amp; pipeline status</div>
+  <div class="status-grid" style="grid-template-columns:repeat(3,1fr);">
+    <a href="https://github.com/nomadandsoul/nomad-curator/commits/main" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Laatste GitHub push ↗</div>
+      <div class="status-val" id="pipeline-commit-val" style="font-size:15px;">Laden…</div>
+      <div class="status-sub" id="pipeline-commit-sub">nomadandsoul/nomad-curator</div>
+    </a>
+    <div class="status-item">
+      <div class="status-label">Apps Script trigger</div>
+      <select id="pipeline-trigger-select" class="pipeline-select">
+        <option>Actief · elke 5 min</option>
+        <option>Onbekend — nog te controleren</option>
+        <option>Uitgeschakeld</option>
+      </select>
+      <div class="status-sub">script.google.com → klokje → Time-driven</div>
+    </div>
+    <a href="https://nomadandsoul.github.io/nomad-curator/" target="_blank" class="status-item" style="text-decoration:none;color:inherit;display:block;">
+      <div class="status-label">Live dashboard ↗</div>
+      <div class="status-val" style="font-size:15px;">GitHub Pages</div>
+      <div class="status-sub">nomadandsoul.github.io/nomad-curator</div>
+    </a>
+  </div>
+
+  <!-- LIVE APPS -->
+  <div class="sectie-label">Apps &amp; tools — live</div>
+  <div class="grid-3">
+
+    <a href="nomad-product-curator.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg></div>
+      <div class="app-naam">Product Curator</div>
+      <div class="app-desc">Claude scoort producten op merkfit, ROAS, kwaliteit en levering. Minimale score 7/10. Eén klik goedkeuren of afwijzen.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-kostenprognose.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 5-7"/><circle cx="7" cy="15" r="1"/><circle cx="18" cy="6" r="1"/></svg></div>
+      <div class="app-naam">Verwachte Uitgaven &amp; Prognose</div>
+      <div class="app-desc">Vaste lasten, variabele kosten en Klaviyo-groeicurve. Datum-logica synchroniseert dagelijks automatisch.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-financieel-model.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M17 7a6.5 6.5 0 100 10"/><path d="M4 10h9M4 14h8"/></svg></div>
+      <div class="app-naam">Financieel Model</div>
+      <div class="app-desc">Revenue-verdeling in 5 potten. BTW 21% · Belasting 20% · Operationeel 15% · Finca 30% · Vrij 14%.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-omzetprognose.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 6-8"/><path d="M14 7h5v5"/></svg></div>
+      <div class="app-naam">Omzetprognose</div>
+      <div class="app-desc">3 scenario's: Conservatief (J1 €58K) · Realistisch (J1 €95K) · Optimistisch (J1 €145K). Winstgevend maand 2–4.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-3jaar-strategie.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4l-5 2v14l5-2 6 2 5-2V4l-5 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+      <div class="app-naam">3-Jaar Strategie</div>
+      <div class="app-desc">Groeimijlpalen, kanaalopschaling, assortimentsuitbreiding, Zalando/Bol.com, winterlijn, B2B hotels jaar 3.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-make-monitor.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></div>
+      <div class="app-naam">Make.com Monitor</div>
+      <div class="app-desc">Status-overzicht van alle Make.com automatiseringen. Shopify Collective → Klaviyo → Higgsfield → Buffer pipeline.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-data-intelligence.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 00-3 3v1a3 3 0 000 6v1a3 3 0 003 3M15 4a3 3 0 013 3v1a3 3 0 010 6v1a3 3 0 01-3 3M9 4v14M15 4v14"/></svg></div>
+      <div class="app-naam">Data Intelligence</div>
+      <div class="app-desc">Live KPI's via Shopify orders API. Claude-beslissingsadviezen voor campagnes en assortiment.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-cs-macros.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4z"/><path d="M8 9h8M8 12.5h5"/></svg></div>
+      <div class="app-naam">Klantenservice Macro's</div>
+      <div class="app-desc">Vijf kant-en-klare e-mailreacties: maatafwijking, vermist pakket, defect, terugbetaling, late annulering.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="nomad-klaviyo-roadmap.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4z"/><path d="M8 4v4M16 4v4M4 10h16"/><path d="M8 14h2M14 14h2M8 17h2M14 17h2"/></svg></div>
+      <div class="app-naam">Klaviyo Roadmap</div>
+      <div class="app-desc">9 templates live: Abandoned Cart, Browse Abandonment, Delayed Shipment, Welkomstreeks. Prioriteitenmatrix + gefaseerd plan.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+    <a href="delayed-shipment-setup.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><path d="M12 12v4M10 14h4"/></svg></div>
+      <div class="app-naam">Delayed Shipment Setup</div>
+      <div class="app-desc">Make.com scenario + Klaviyo flow voor proactieve vertraging-mails. Exacte JSON-body, API-configuratie en Klaviyo stappenplan.</div>
+      <span class="app-badge badge-live">Live</span>
+    </a>
+
+  </div>
+
+  <!-- REFERENTIE DOCUMENTEN -->
+  <div class="sectie-label">Referentie &amp; documentatie</div>
+  <div class="grid-3">
+
+    <a href="#" onclick="openDocument('projectoverzicht','Projectoverzicht'); return false;" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+      <div class="app-naam">Projectoverzicht</div>
+      <div class="app-desc">Volledig projectdocument — status, financiën, leveranciers, tech stack en actielijst in één overzicht.</div>
+      <span class="app-badge badge-ref">🔒 Vertrouwelijk</span>
+    </a>
+
+    <a href="#" onclick="openDocument('systemprompt','Claude System Prompt'); return false;" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4z"/><path d="M8 9h8M8 12.5h5"/></svg></div>
+      <div class="app-naam">Claude System Prompt</div>
+      <div class="app-desc">Volledige merkstijl- en content-prompt voor gebruik in Make.com automatiseringen. Kopieerbaar.</div>
+      <span class="app-badge badge-ref">🔒 Vertrouwelijk</span>
+    </a>
+
+    <a href="nomad-video-engine-setup.html" class="app-kaart">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M9 5v14M15 5v14M3.5 10h5.5M15 10h5.5M3.5 14h5.5M15 14h5.5"/></svg></div>
+      <div class="app-naam">Video Content Engine</div>
+      <div class="app-desc">Setupgids: Make.com + Claude + Higgsfield. 12 roterende Ibiza-scenario's. Buffer → TikTok + Instagram.</div>
+      <span class="app-badge badge-bouw">Setup gids</span>
+    </a>
+
+  </div>
+
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Projectoverzicht en System Prompt bevatten vertrouwelijke informatie. Ze openen hierboven rechtstreeks in het dashboard — de inhoud staat niet in de publieke code van deze app, maar wordt live opgehaald uit een besloten Drive-map.</div>
+
+  <!-- IN OPBOUW -->
+  <div class="sectie-label">In opbouw</div>
+  <div class="grid-3">
+
+    <div class="app-kaart" style="cursor:default;">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg></div>
+      <div class="app-naam">Klaviyo Mail Builder</div>
+      <div class="app-desc">Welkomstflow 4 mails. Mail 1 (wind) + Mail 2 (aarde) klaar in Klaviyo. Mail 3 &amp; 4 nog te bouwen.</div>
+      <span class="app-badge badge-bouw">In bouw — 2/4</span>
+    </div>
+
+    <div class="app-kaart" style="cursor:default;">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 002 1.8h8.2a2 2 0 002-1.6L21 9H6"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg></div>
+      <div class="app-naam">Shopify Collective</div>
+      <div class="app-desc">ibizamode producten zichtbaar. Uitnodiging sturen zodra KVK/BTW/bank via Bionda volledig ingesteld is.</div>
+      <span class="app-badge badge-bouw">Wacht op Bionda</span>
+    </div>
+
+  </div>
+
+  <!-- GEPLAND -->
+  <div class="sectie-label">Gepland</div>
+  <div class="grid-3">
+
+    <div class="app-kaart" style="cursor:default;">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0113.7-5.7L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 01-13.7 5.7L4 16M4 20v-4h4"/></svg></div>
+      <div class="app-naam">Abandoned Cart Flow</div>
+      <div class="app-desc">EU checkout abandon rate 71.7% — prioriteit 1 na live gaan.</div>
+      <span class="app-badge badge-gepland">Gepland</span>
+    </div>
+
+    <div class="app-kaart" style="cursor:default;">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></div>
+      <div class="app-naam">Droppery / Bazar Bizar</div>
+      <div class="app-desc">Home accessories, 40–50% marge. EU levering 1–5 dagen. Beste directe start naast Shopify Collective.</div>
+      <span class="app-badge badge-gepland">Gepland</span>
+    </div>
+
+    <div class="app-kaart" style="cursor:default;">
+      <div class="app-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></div>
+      <div class="app-naam">Zoho Mail Lite</div>
+      <div class="app-desc">€0,90/mnd professionele e-mail. Via Bionda/zakelijke rekening.</div>
+      <span class="app-badge badge-gepland">Gepland</span>
+    </div>
+
+  </div>
+
+  <!-- MERK REGELS -->
+  <div class="sectie-label">Merkidentiteit &amp; spelregels</div>
+  <div class="merk-grid">
+
+    <div class="merk-item">
+      <h4>Stem &amp; toon</h4>
+      <p>Poëtisch, warm, avontuurlijk. Nooit generiek of salesy. De taal voelt als een uitnodiging — niet als een advertentie. Nederlands, genderneutraal waar mogelijk.</p>
+    </div>
+
+    <div class="merk-item">
+      <h4>Kleuren</h4>
+      <div class="kleur-rij">
+        <div class="kleur-dot"><div class="dot" style="background:#BC7A5C;"></div>Terracotta #BC7A5C</div>
+        <div class="kleur-dot"><div class="dot" style="background:#F5EFEB;border:1px solid #E4DACF;"></div>Ivory #F5EFEB</div>
+        <div class="kleur-dot"><div class="dot" style="background:#E4DACF;"></div>Warm zand #E4DACF</div>
+        <div class="kleur-dot"><div class="dot" style="background:#3D342E;"></div>Espresso #3D342E</div>
+      </div>
+    </div>
+
+    <div class="merk-item">
+      <h4>Verboden woorden</h4>
+      <div class="verboden">
+        <span>handgemaakt</span>
+        <span>duurzaam</span>
+        <span>eco</span>
+        <span>aanbieding</span>
+        <span>uitroeptekens !</span>
+      </div>
+    </div>
+
+    <div class="merk-item">
+      <h4>/viral check criteria</h4>
+      <p>1. Hook-sterkte · 2. Herkenbaarheid · 3. Emotie · 4. Schaalbaarheid format · 5. Actie-trigger. Per criterium: sterk/gemiddeld/zwak. Geen herschrijving tenzij gevraagd.</p>
+    </div>
+
+    <div class="merk-item">
+      <h4>Kanalen (prioriteit)</h4>
+      <p>Pinterest organisch → TikTok organisch → Google Shopping gratis → Micro-influencers (product, geen cash) → Higgsfield AI video → Klaviyo e-mail → TikTok Ads → Meta Ads</p>
+    </div>
+
+    <div class="merk-item">
+      <h4>Vaste regels code</h4>
+      <p>Altijd .html leveren (nooit .liquid). Nooit aanpassen zonder opdracht. Diff-verificatie na elke wijziging. Mobile nav + announcement bar → theme.liquid only.</p>
+    </div>
+
+  </div>
+
+  <!-- ACTIELIJST -->
+  <div class="sectie-label">Directe actielijst</div>
+  <div id="actielijst" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+  <div class="actie-add-row">
+    <input id="actie-input" type="text" placeholder="Nieuwe actie toevoegen — druk op Enter" maxlength="140">
+    <button type="button" onclick="actieToevoegen()">+ Toevoegen</button>
+  </div>
+  <div style="font-size:10px;color:rgba(61,52,46,0.4);margin-top:10px;">✦ Wijzigingen (aanvinken, bewerken, toevoegen, verwijderen) synchroniseren automatisch tussen jouw apparaten en met Bionda — even wachten na een wijziging op andere apparaten totdat de pagina opnieuw geladen wordt.</div>
+
+  <div class="dash-footer">© 2026 Nomad &amp; Soul — nomadandsoul.nl ✦ Ludo De Bruyn &amp; Bionda Renate Nijhoff ✦ Vertrouwelijk</div>
+
+</div>
+
+<!-- DOCUMENT MODAL -->
+<div class="doc-modal-overlay" id="doc-modal-overlay">
+  <div class="doc-modal-box">
+    <div class="doc-modal-topbar">
+      <div class="doc-modal-titel">🔒 <span id="doc-modal-titel-tekst">Document</span></div>
+      <button type="button" class="doc-modal-close" onclick="closeDocument()">Sluiten ✕</button>
+    </div>
+    <div class="doc-modal-body">
+      <div class="doc-modal-status" id="doc-modal-status">Document laden…</div>
+      <iframe id="doc-modal-iframe" style="display:none;"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- SYNC MET GOOGLE APPS SCRIPT (zodat telefoon/pc en Ludo/Bionda synchroniseren) ---
+  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbz15RO87CRYzw1jQaa0iZk4WkHlp_esLosJKJ8S_QZsAnEtk15GqyChELTVsKSeOsCz/exec';
+  const SYNC_INDICATOR = document.createElement('div');
+  SYNC_INDICATOR.style.cssText = 'position:fixed;bottom:14px;right:14px;font-size:10px;padding:5px 10px;border-radius:20px;background:rgba(61,52,46,0.85);color:#F5EFEB;z-index:200;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
+  document.body.appendChild(SYNC_INDICATOR);
+  function syncMelding(tekst, blijvend) {
+    SYNC_INDICATOR.textContent = tekst;
+    SYNC_INDICATOR.style.opacity = '1';
+    if (!blijvend) setTimeout(() => { SYNC_INDICATOR.style.opacity = '0'; }, 2000);
+  }
+
+  async function syncGet(key) {
+    try {
+      const res = await fetch(`${SYNC_URL}?action=get&key=${key}`);
+      const data = await res.json();
+      return data.value;
+    } catch (e) {
+      console.warn('Sync ophalen mislukt voor', key, e);
+      return undefined; // undefined = kon niet bereiken, null = wel bereikt maar leeg
+    }
+  }
+
+  async function syncSet(key, value) {
+    try {
+      syncMelding('✦ Synchroniseren...', true);
+      const url = `${SYNC_URL}?action=set&key=${key}&value=${encodeURIComponent(JSON.stringify(value))}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.ok) { syncMelding('✓ Gesynchroniseerd'); } else { syncMelding('⚠ Sync-fout'); }
+    } catch (e) {
+      console.warn('Sync opslaan mislukt voor', key, e);
+      syncMelding('⚠ Geen verbinding — lokaal bewaard');
+    }
+  }
+
+  // --- VERTROUWELIJKE DOCUMENTEN IN-APP LADEN ---
+  // Haalt de HTML van projectoverzicht/systemprompt live op uit de besloten Drive-map
+  // via de Apps Script backend (getdoc-actie). De inhoud zelf staat nergens in deze
+  // publieke GitHub-code — enkel de sleutelnaam ('projectoverzicht'/'systemprompt') wordt verstuurd.
+  async function openDocument(key, titel) {
+    const overlay = document.getElementById('doc-modal-overlay');
+    const status = document.getElementById('doc-modal-status');
+    const iframe = document.getElementById('doc-modal-iframe');
+    document.getElementById('doc-modal-titel-tekst').textContent = titel;
+    status.style.display = 'flex';
+    status.textContent = 'Document laden…';
+    iframe.style.display = 'none';
+    iframe.srcdoc = '';
+    overlay.classList.add('open');
+
+    try {
+      const res = await fetch(`${SYNC_URL}?action=getdoc&id=${key}`);
+      const data = await res.json();
+      if (data.error || !data.html) {
+        status.innerHTML = 'Kon het document niet laden.<br><span style="font-size:11px;">' + (data.error || 'Onbekende fout') + '</span>';
+        return;
+      }
+      iframe.srcdoc = data.html;
+      iframe.style.display = 'block';
+      status.style.display = 'none';
+    } catch (e) {
+      status.innerHTML = 'Geen verbinding — probeer het later opnieuw.';
+    }
+  }
+
+  function closeDocument() {
+    document.getElementById('doc-modal-overlay').classList.remove('open');
+    document.getElementById('doc-modal-iframe').srcdoc = '';
+  }
+
+  document.getElementById('doc-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'doc-modal-overlay') closeDocument();
+  });
+
+  const ACTIELIJST_KEY = 'nomad-actielijst-v1';
+
+  const ACTIELIJST_DEFAULTS = [
+    { titel: 'Solidaris bellen — 02 515 02 00', desc: 'Toestemming nevenactiviteit aanvragen. Eerste prioriteit.', prio: true, gedaan: false },
+    { titel: 'Grensinfopunt — 0800 0243', desc: 'KBO bijberoep + verdragspolis CZ check.', prio: true, gedaan: false },
+    { titel: 'Google Workspace (actie Bionda)', desc: 'info@nomadandsoul.nl professioneel instellen via zakelijke rekening.', prio: false, gedaan: false },
+    { titel: 'Shopify volledig inrichten (actie Bionda)', desc: 'KVK + BTW + bankrekening → dan Shopify Collective uitnodiging naar ibizamode sturen.', prio: false, gedaan: false },
+    { titel: "Ontbrekende pagina's", desc: "Retourbeleid · AV · Privacy (GDPR) · FAQ · Verzending & Levertijd", prio: false, gedaan: false },
+    { titel: 'Winkel live + Pinterest/TikTok starten', desc: 'Wachtwoord uit · Google Shopping · organisch content beginnen.', prio: false, gedaan: false },
+  ];
+
+  function actieLaad() {
+    try {
+      const raw = localStorage.getItem(ACTIELIJST_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return ACTIELIJST_DEFAULTS.map((item, i) => ({ id: 'a' + i, ...item }));
+  }
+
+  function actieBewaar(items) {
+    try { localStorage.setItem(ACTIELIJST_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('actielijst', items);
+  }
+
+  let actieItems = actieLaad();
+
+  async function actieSyncBijWerk() {
+    const remote = await syncGet('actielijst');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      actieItems = remote;
+      try { localStorage.setItem(ACTIELIJST_KEY, JSON.stringify(actieItems)); } catch (e) {}
+      actieRender();
+    } else if (remote === null) {
+      // backend bereikt maar nog leeg (eerste keer) -> onze huidige lijst erheen sturen
+      syncSet('actielijst', actieItems);
+    }
+  }
+
+  function actieRender() {
+    const container = document.getElementById('actielijst');
+    container.innerHTML = '';
+    actieItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item' + (item.prio ? ' prio' : '') + (item.gedaan ? ' gedaan' : '');
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'actie-check';
+      check.checked = !!item.gedaan;
+      check.addEventListener('change', () => {
+        item.gedaan = check.checked;
+        actieBewaar(actieItems);
+        actieRender();
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const titel = document.createElement('div');
+      titel.className = 'actie-titel';
+      titel.contentEditable = 'true';
+      titel.spellcheck = false;
+      titel.innerText = item.titel;
+      titel.addEventListener('blur', () => {
+        item.titel = titel.innerText.trim() || item.titel;
+        actieBewaar(actieItems);
+      });
+      titel.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); titel.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        actieBewaar(actieItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(titel);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Verwijderen';
+      del.addEventListener('click', () => {
+        actieItems = actieItems.filter((i) => i.id !== item.id);
+        actieBewaar(actieItems);
+        actieRender();
+      });
+
+      row.appendChild(check);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+  }
+
+  function actieToevoegen() {
+    const input = document.getElementById('actie-input');
+    const val = input.value.trim();
+    if (!val) return;
+    actieItems.push({ id: 'a' + Date.now(), titel: val, desc: '', prio: false, gedaan: false });
+    actieBewaar(actieItems);
+    input.value = '';
+    actieRender();
+  }
+
+  document.getElementById('actie-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); actieToevoegen(); }
+  });
+
+  actieRender();
+  actieSyncBijWerk();
+
+  // --- LEVERANCIERS ---
+  const LEVERANCIER_KEY = 'nomad-leveranciers-v1';
+  const LEVERANCIER_STATUSSEN = ['Actief', 'Outreach verstuurd', 'In aanvraag', 'Wacht op setup', 'Niet gestart', 'Afgewezen'];
+  const LEVERANCIER_KLEUR = { 'Actief': '#2D7A3A', 'Outreach verstuurd': '#BC7A5C', 'In aanvraag': '#BC7A5C', 'Wacht op setup': '#7A6552', 'Niet gestart': 'rgba(61,52,46,0.25)', 'Afgewezen': '#A34936' };
+
+  const LEVERANCIER_DEFAULTS = [
+    { naam: 'Shopify Collective (ibizamode)', desc: 'Boho kleding NL — uitnodiging klaar, wacht op volledige Shopify-setup (KVK/BTW/bank via Bionda).', status: 'Wacht op setup' },
+    { naam: 'Droppery.io (Bazar Bizar + J-Line)', desc: 'Boho home accessories, 40–50% marge, EU levering 1–5 dagen. Nog niet gestart.', status: 'Niet gestart' },
+    { naam: 'Different Fashion', desc: 'Boho chic kleding, warehouse Portugal, CSV/XML feed. Nog niet gestart.', status: 'Niet gestart' },
+    { naam: 'Aurobelle Ibiza / Jaase / Turquoise by Daan', desc: 'Directe merken — outreach verstuurd, nog geen bevestiging.', status: 'Outreach verstuurd' },
+    { naam: 'Brands of Ibiza (via Bionda)', desc: 'WhatsApp-contact via Bionda — in aanvraag.', status: 'In aanvraag' },
+  ];
+
+  function leverancierMigreer(item, i) {
+    if (item.status) return item;
+    return { ...item, status: item.actief ? 'Actief' : 'In aanvraag' };
+  }
+
+  function leverancierLaad() {
+    try {
+      const raw = localStorage.getItem(LEVERANCIER_KEY);
+      if (raw) return JSON.parse(raw).map(leverancierMigreer);
+    } catch (e) {}
+    return LEVERANCIER_DEFAULTS.map((item, i) => ({ id: 'l' + i, ...item }));
+  }
+
+  function leverancierBewaar(items) {
+    try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('leveranciers', items);
+  }
+
+  let leverancierItems = leverancierLaad();
+
+  async function leverancierSyncBijWerk() {
+    const remote = await syncGet('leveranciers');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      leverancierItems = remote.map(leverancierMigreer);
+      try { localStorage.setItem(LEVERANCIER_KEY, JSON.stringify(leverancierItems)); } catch (e) {}
+      leverancierRender();
+    } else if (remote === null) {
+      syncSet('leveranciers', leverancierItems);
+    }
+  }
+
+  function modelSubBijwerken() {
+    const actief = leverancierItems.filter((l) => l.status === 'Actief');
+    const el = document.getElementById('model-leverancier-sub');
+    if (!el) return;
+    if (actief.length === 0) {
+      el.textContent = 'Nog geen actieve leverancier — ' + (leverancierItems[0] ? leverancierItems[0].naam : 'wacht op setup');
+    } else {
+      el.textContent = actief.map((l) => l.naam).join(' · ');
+    }
+  }
+
+  function leverancierRender() {
+    const container = document.getElementById('leverancierslijst');
+    container.innerHTML = '';
+    leverancierItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item';
+      row.style.borderLeftColor = LEVERANCIER_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+
+      const select = document.createElement('select');
+      select.className = 'status-select';
+      select.title = 'Status leverancier';
+      LEVERANCIER_STATUSSEN.forEach((s) => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        if (s === item.status) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', () => {
+        item.status = select.value;
+        row.style.borderLeftColor = LEVERANCIER_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+        leverancierBewaar(leverancierItems);
+        modelSubBijwerken();
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const naam = document.createElement('div');
+      naam.className = 'actie-titel';
+      naam.contentEditable = 'true';
+      naam.spellcheck = false;
+      naam.innerText = item.naam;
+      naam.addEventListener('blur', () => {
+        item.naam = naam.innerText.trim() || item.naam;
+        leverancierBewaar(leverancierItems);
+        modelSubBijwerken();
+      });
+      naam.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); naam.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        leverancierBewaar(leverancierItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(naam);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Niet meer samenwerken — verwijderen';
+      del.addEventListener('click', () => {
+        leverancierItems = leverancierItems.filter((i) => i.id !== item.id);
+        leverancierBewaar(leverancierItems);
+        leverancierRender();
+        modelSubBijwerken();
+      });
+
+      row.appendChild(select);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+    modelSubBijwerken();
+  }
+
+  function leverancierToevoegen() {
+    const input = document.getElementById('leverancier-input');
+    const val = input.value.trim();
+    if (!val) return;
+    leverancierItems.push({ id: 'l' + Date.now(), naam: val, desc: '', actief: false });
+    leverancierBewaar(leverancierItems);
+    input.value = '';
+    leverancierRender();
+  }
+
+  document.getElementById('leverancier-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); leverancierToevoegen(); }
+  });
+
+  leverancierRender();
+  leverancierSyncBijWerk();
+
+  // --- OMZET & PROGNOSE: fase-veld ---
+  const OMZET_FASE_KEY = 'nomad-omzet-fase-v1';
+
+  function omzetFaseLaad() {
+    try { const raw = localStorage.getItem(OMZET_FASE_KEY); if (raw) return raw; } catch (e) {}
+    return 'Voorbereiding';
+  }
+
+  let omzetFaseVal = omzetFaseLaad();
+  const omzetFaseEl = document.getElementById('omzet-fase-val');
+  omzetFaseEl.innerText = omzetFaseVal;
+
+  omzetFaseEl.addEventListener('blur', () => {
+    omzetFaseVal = omzetFaseEl.innerText.trim() || omzetFaseVal;
+    try { localStorage.setItem(OMZET_FASE_KEY, omzetFaseVal); } catch (e) {}
+    syncSet('omzet-fase', omzetFaseVal);
+  });
+  omzetFaseEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); omzetFaseEl.blur(); } });
+
+  async function omzetFaseSyncBijwerk() {
+    const remote = await syncGet('omzet-fase');
+    if (remote && typeof remote === 'string') {
+      omzetFaseVal = remote;
+      omzetFaseEl.innerText = remote;
+      try { localStorage.setItem(OMZET_FASE_KEY, remote); } catch (e) {}
+    } else if (remote === null) {
+      syncSet('omzet-fase', omzetFaseVal);
+    }
+  }
+  omzetFaseSyncBijwerk();
+
+  // --- KANALEN & MARKETING STATUS ---
+  const KANAAL_KEY = 'nomad-kanalen-v1';
+  const KANAAL_STATUSSEN = ['Live', 'In opbouw', 'Gepland', 'Niet gestart'];
+  const KANAAL_KLEUR = { 'Live': '#2D7A3A', 'In opbouw': '#BC7A5C', 'Gepland': '#7A6552', 'Niet gestart': 'rgba(61,52,46,0.25)' };
+
+  const KANAAL_DEFAULTS = [
+    { naam: 'Pinterest organisch', desc: 'Kanaalprioriteit 1 — nog niet gestart, wacht op live webshop.', status: 'Niet gestart' },
+    { naam: 'TikTok organisch', desc: 'Kanaalprioriteit 2 — Higgsfield/Buffer contentpijplijn klaar, nog geen posts live.', status: 'Niet gestart' },
+    { naam: 'Google Shopping', desc: 'Kanaalprioriteit 3 — wacht op live webshop en productfeed.', status: 'Niet gestart' },
+    { naam: 'Micro-influencers', desc: 'Kanaalprioriteit 4 — nog geen outreach gestart.', status: 'Niet gestart' },
+    { naam: 'Klaviyo e-mail', desc: 'Kanaalprioriteit 5 — welkomstreeks 3/3 mails klaar, abandoned cart flow in ontwikkeling.', status: 'In opbouw' },
+  ];
+
+  function kanaalLaad() {
+    try {
+      const raw = localStorage.getItem(KANAAL_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return KANAAL_DEFAULTS.map((item, i) => ({ id: 'k' + i, ...item }));
+  }
+
+  function kanaalBewaar(items) {
+    try { localStorage.setItem(KANAAL_KEY, JSON.stringify(items)); } catch (e) {}
+    syncSet('kanalen', items);
+  }
+
+  let kanaalItems = kanaalLaad();
+
+  async function kanaalSyncBijwerk() {
+    const remote = await syncGet('kanalen');
+    if (remote && Array.isArray(remote) && remote.length > 0) {
+      kanaalItems = remote;
+      try { localStorage.setItem(KANAAL_KEY, JSON.stringify(kanaalItems)); } catch (e) {}
+      kanaalRender();
+    } else if (remote === null) {
+      syncSet('kanalen', kanaalItems);
+    }
+  }
+
+  function kanaalRender() {
+    const container = document.getElementById('kanalenlijst');
+    container.innerHTML = '';
+    kanaalItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'actie-item';
+      row.style.borderLeftColor = KANAAL_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+
+      const select = document.createElement('select');
+      select.className = 'status-select';
+      select.title = 'Status kanaal';
+      KANAAL_STATUSSEN.forEach((s) => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        if (s === item.status) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', () => {
+        item.status = select.value;
+        row.style.borderLeftColor = KANAAL_KLEUR[item.status] || 'rgba(188,122,92,0.35)';
+        kanaalBewaar(kanaalItems);
+      });
+
+      const body = document.createElement('div');
+      body.className = 'actie-body';
+
+      const naam = document.createElement('div');
+      naam.className = 'actie-titel';
+      naam.contentEditable = 'true';
+      naam.spellcheck = false;
+      naam.innerText = item.naam;
+      naam.addEventListener('blur', () => {
+        item.naam = naam.innerText.trim() || item.naam;
+        kanaalBewaar(kanaalItems);
+      });
+      naam.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); naam.blur(); } });
+
+      const desc = document.createElement('div');
+      desc.className = 'actie-desc';
+      desc.contentEditable = 'true';
+      desc.spellcheck = false;
+      desc.innerText = item.desc || '';
+      desc.addEventListener('blur', () => {
+        item.desc = desc.innerText.trim();
+        kanaalBewaar(kanaalItems);
+      });
+      desc.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); desc.blur(); } });
+
+      body.appendChild(naam);
+      body.appendChild(desc);
+
+      const del = document.createElement('button');
+      del.className = 'actie-del';
+      del.type = 'button';
+      del.innerHTML = '✕';
+      del.title = 'Verwijderen';
+      del.addEventListener('click', () => {
+        kanaalItems = kanaalItems.filter((i) => i.id !== item.id);
+        kanaalBewaar(kanaalItems);
+        kanaalRender();
+      });
+
+      row.appendChild(select);
+      row.appendChild(body);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+  }
+
+  function kanaalToevoegen() {
+    const input = document.getElementById('kanaal-input');
+    const val = input.value.trim();
+    if (!val) return;
+    kanaalItems.push({ id: 'k' + Date.now(), naam: val, desc: '', status: 'Niet gestart' });
+    kanaalBewaar(kanaalItems);
+    input.value = '';
+    kanaalRender();
+  }
+
+  document.getElementById('kanaal-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); kanaalToevoegen(); }
+  });
+
+  kanaalRender();
+  kanaalSyncBijwerk();
+
+  // --- PIPELINE STATUS: live GitHub commit + Apps Script trigger ---
+  async function pipelineCommitLaden() {
+    const val = document.getElementById('pipeline-commit-val');
+    const sub = document.getElementById('pipeline-commit-sub');
+    try {
+      const res = await fetch('https://api.github.com/repos/nomadandsoul/nomad-curator/commits/main');
+      const data = await res.json();
+      const datum = new Date(data.commit.author.date);
+      const nu = new Date();
+      const uurVerschil = Math.round((nu - datum) / 3600000);
+      let tijdTekst;
+      if (uurVerschil < 1) tijdTekst = '< 1 uur geleden';
+      else if (uurVerschil < 24) tijdTekst = uurVerschil + ' uur geleden';
+      else tijdTekst = Math.round(uurVerschil / 24) + ' dagen geleden';
+      val.textContent = tijdTekst;
+      sub.textContent = (data.commit.message || 'nomadandsoul/nomad-curator').split('\n')[0].slice(0, 60);
+    } catch (e) {
+      val.textContent = 'Onbekend';
+      sub.textContent = 'Kon GitHub niet bereiken';
+    }
+  }
+  pipelineCommitLaden();
+
+  const PIPELINE_TRIGGER_KEY = 'nomad-pipeline-trigger-v1';
+
+  function pipelineTriggerLaad() {
+    try { const raw = localStorage.getItem(PIPELINE_TRIGGER_KEY); if (raw) return raw; } catch (e) {}
+    return 'Onbekend — nog te controleren';
+  }
+
+  let pipelineTriggerVal = pipelineTriggerLaad();
+  const pipelineSelect = document.getElementById('pipeline-trigger-select');
+  pipelineSelect.value = pipelineTriggerVal;
+
+  pipelineSelect.addEventListener('change', () => {
+    pipelineTriggerVal = pipelineSelect.value;
+    try { localStorage.setItem(PIPELINE_TRIGGER_KEY, pipelineTriggerVal); } catch (e) {}
+    syncSet('pipeline-trigger', pipelineTriggerVal);
+  });
+
+  async function pipelineTriggerSyncBijwerk() {
+    const remote = await syncGet('pipeline-trigger');
+    if (remote && typeof remote === 'string') {
+      pipelineTriggerVal = remote;
+      pipelineSelect.value = remote;
+      try { localStorage.setItem(PIPELINE_TRIGGER_KEY, remote); } catch (e) {}
+    } else if (remote === null) {
+      syncSet('pipeline-trigger', pipelineTriggerVal);
+    }
+  }
+  pipelineTriggerSyncBijwerk();
+
+  // --- WEBSHOP STATUS: live check via Apps Script (geen handmatige update meer nodig) ---
+  async function webshopStatusLaden() {
+    const val = document.getElementById('webshop-status-val');
+    const sub = document.getElementById('webshop-status-sub');
+    try {
+      const res = await fetch(`${SYNC_URL}?action=webshopstatus`);
+      const data = await res.json();
+      if (data.live === true) {
+        val.textContent = 'Live';
+        sub.textContent = 'Publiek toegankelijk — automatisch gecheckt zonet';
+      } else if (data.live === false) {
+        val.textContent = 'Offline';
+        sub.textContent = 'Wachtwoordpagina actief — automatisch gecheckt zonet';
+      } else {
+        val.textContent = 'Onbekend';
+        sub.textContent = 'Kon status niet automatisch bepalen';
+      }
+    } catch (e) {
+      val.textContent = 'Onbekend';
+      sub.textContent = 'Kon Apps Script niet bereiken voor live check';
+    }
+  }
+  webshopStatusLaden();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Nomad & Soul — Omzetprognose</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --sand: #E4DACF; --groen: #2D7A3A; --rood: #C0392B; --oranje: #E67E22; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F5EFEB;
+  position: relative;
+}
+body::before { content: ''; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(245,239,235,0.86); z-index: 0; pointer-events: none; }
+.topbar, .container { position: relative; z-index: 1; }
+
+.topbar { background: #3D342E; color: #F5EFEB; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 18px; }
+.topbar-sub { font-size: 11px; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+/* SCENARIO TABS */
+.scenario-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.scenario-tab { padding: 10px 20px; border-radius: 24px; border: 1px solid rgba(188,122,92,0.3); background: white; color: #3D342E; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s; }
+.scenario-tab:hover { background: rgba(188,122,92,0.1); }
+.scenario-tab.actief { background: #BC7A5C; color: white; border-color: #BC7A5C; }
+
+/* KAARTEN */
+.card { background: white; border-radius: 16px; padding: 24px; border: 1px solid rgba(188,122,92,0.12); box-shadow: 0 2px 12px rgba(61,52,46,0.04); margin-bottom: 20px; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 17px; color: #3D342E; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+/* KPI GRID */
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(188,122,92,0.12); }
+.kpi-num { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.kpi-lbl { font-size: 10px; color: rgba(61,52,46,0.55); text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-sub { font-size: 11px; color: rgba(61,52,46,0.45); margin-top: 2px; }
+.tc { color: #BC7A5C; }
+.groen { color: #2D7A3A; }
+.rood { color: #C0392B; }
+.oranje { color: #E67E22; }
+
+/* MAAND TABEL */
+.tabel { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tabel th { background: #F5EFEB; padding: 10px 12px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.6); border-bottom: 1px solid rgba(188,122,92,0.15); white-space: nowrap; }
+.tabel th:first-child { text-align: left; }
+.tabel td { padding: 10px 12px; border-bottom: 1px solid rgba(188,122,92,0.06); text-align: center; color: #3D342E; }
+.tabel td:first-child { text-align: left; font-weight: 500; }
+.tabel tr:last-child td { border-bottom: none; font-weight: 700; background: rgba(188,122,92,0.04); }
+.tabel tr.huidig td { background: rgba(188,122,92,0.06); }
+.positief { color: #2D7A3A; font-weight: 600; }
+.negatief { color: #C0392B; font-weight: 600; }
+.neutraal { color: #E67E22; font-weight: 600; }
+
+/* GROEI SLIDERS */
+.groei-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.slider-veld { margin-bottom: 14px; }
+.slider-veld label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(61,52,46,0.6); margin-bottom: 6px; }
+.slider-veld label span { color: #BC7A5C; font-size: 13px; }
+input[type="range"] { width: 100%; accent-color: #BC7A5C; cursor: pointer; }
+
+/* GROEIKANSEN */
+.kansen-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.kans-kaart { background: white; border-radius: 14px; padding: 18px; border: 1px solid rgba(188,122,92,0.12); cursor: pointer; transition: all 0.2s; position: relative; }
+.kans-kaart:hover { border-color: #BC7A5C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(188,122,92,0.12); }
+.kans-kaart.actief { border-color: #BC7A5C; border-width: 2px; background: rgba(188,122,92,0.04); }
+.kans-kaart.actief::after { content: '✓'; position: absolute; top: 12px; right: 14px; color: #BC7A5C; font-weight: 700; font-size: 16px; }
+.kans-icon { font-size: 24px; margin-bottom: 10px; }
+.kans-titel { font-weight: 600; font-size: 13px; color: #3D342E; margin-bottom: 6px; }
+.kans-omzet { font-size: 12px; color: #BC7A5C; font-weight: 600; margin-bottom: 4px; }
+.kans-desc { font-size: 11px; color: rgba(61,52,46,0.6); line-height: 1.5; }
+
+/* CHART */
+.chart-wrap { position: relative; height: 300px; }
+
+/* SEIZOEN BAR */
+.seizoen-bar { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-top: 12px; }
+.seizoen-mnd { text-align: center; }
+.seizoen-blok { border-radius: 4px; margin-bottom: 4px; transition: height 0.3s; }
+.seizoen-lbl { font-size: 9px; color: rgba(61,52,46,0.5); }
+
+/* MARKTTABEL */
+.markt-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.markt-item { background: white; border-radius: 12px; padding: 16px; border: 1px solid rgba(188,122,92,0.12); }
+.markt-num { font-size: 20px; font-weight: 700; color: #BC7A5C; }
+.markt-lbl { font-size: 11px; color: rgba(61,52,46,0.6); margin-top: 4px; }
+.markt-src { font-size: 10px; color: rgba(61,52,46,0.35); margin-top: 6px; font-style: italic; }
+
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kansen-grid { grid-template-columns: 1fr 1fr; }
+  .groei-grid { grid-template-columns: 1fr; }
+  .markt-info { grid-template-columns: 1fr; }
+  .container { padding: 16px; }
+}
+@media (max-width: 600px) {
+  .kansen-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <a href="index.html" style="display:flex;align-items:center;gap:5px;color:#F5EFEB;opacity:0.75;text-decoration:none;font-size:11px;letter-spacing:0.5px;border-right:1px solid rgba(245,239,235,0.25);padding-right:16px;">← Dashboard</a>
+    <div><img src="logo-ivory.png" alt="Nomad & Soul" style="height:18px;width:auto;margin-bottom:3px;"><div class="topbar-sub">Omzetprognose 2026 — Interactief Model</div></div>
+  </div>
+  <div style="font-size:11px;opacity:0.5;">Gebaseerd op CBS, FashionUnited & Sectorcijfers NL/BE</div>
+</div>
+
+<div class="container">
+
+  <!-- MARKTCONTEXT -->
+  <div class="card">
+    <div class="card-title">🌍 Marktcontext — Benelux Boho Fashion</div>
+    <div class="markt-info">
+      <div class="markt-item">
+        <div class="markt-num">€1.202</div>
+        <div class="markt-lbl">Gemiddeld jaarlijks fashionbudget per Nederlander</div>
+        <div class="markt-src">Bron: Statista/CBS 2025</div>
+      </div>
+      <div class="markt-item">
+        <div class="markt-num">28M</div>
+        <div class="markt-lbl">Consumenten in de Benelux — jouw primaire markt</div>
+        <div class="markt-src">Bron: Benelux Detailhandel rapport</div>
+      </div>
+      <div class="markt-item">
+        <div class="markt-num">~0.8%</div>
+        <div class="markt-lbl">Geschat marktaandeel boho/Ibiza niche van totale modeomzet</div>
+        <div class="markt-src">Niche schatting op basis van sectorcijfers</div>
+      </div>
+      <div class="markt-item">
+        <div class="markt-num">€97M</div>
+        <div class="markt-lbl">Geschatte boho niche omzet Benelux per jaar</div>
+        <div class="markt-src">0.8% × €12.1B NL mode + BE markt</div>
+      </div>
+      <div class="markt-item">
+        <div class="markt-num">59%</div>
+        <div class="markt-lbl">Nederlandse shoppers koopt via smartphone</div>
+        <div class="markt-src">Bron: GfK Shopping Tomorrow 2025</div>
+      </div>
+      <div class="markt-item">
+        <div class="markt-num">2.1%</div>
+        <div class="markt-lbl">Omzetgroei kledingwinkels NL Q4 2025</div>
+        <div class="markt-src">Bron: CBS / FashionUnited 2025</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO KEUZE -->
+  <h2 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:16px;">Kies je groeiscenario</h2>
+  <div class="scenario-tabs">
+    <button class="scenario-tab actief" onclick="setScenario('conservatief',this)">🐢 Conservatief</button>
+    <button class="scenario-tab" onclick="setScenario('realistisch',this)">📈 Realistisch</button>
+    <button class="scenario-tab" onclick="setScenario('optimistisch',this)">🚀 Optimistisch</button>
+    <button class="scenario-tab" onclick="setScenario('custom',this)">⚙️ Eigen instellingen</button>
+  </div>
+
+  <!-- GROEIKANSEN -->
+  <h2 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:16px;">Activeer groeikansen</h2>
+  <div class="kansen-grid" id="kansen-grid">
+    <div class="kans-kaart actief" onclick="toggleKans(this,'email')" data-kans="email">
+      <div class="kans-icon">📧</div>
+      <div class="kans-titel">Klaviyo E-mail Marketing</div>
+      <div class="kans-omzet">+€800/mnd bij 500 abonnees</div>
+      <div class="kans-desc">Welcome flow, abandoned cart, seasonal campaigns. Laagste kosten per conversie.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'pinterest')" data-kans="pinterest">
+      <div class="kans-icon">📌</div>
+      <div class="kans-titel">Pinterest Organisch</div>
+      <div class="kans-omzet">+€600/mnd bij 2K followers</div>
+      <div class="kans-desc">Boho fashion #1 niche op Pinterest. Pins hebben 6-12 maanden levensduur — compound groei.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'tiktok')" data-kans="tiktok">
+      <div class="kans-icon">🎵</div>
+      <div class="kans-titel">TikTok Organisch</div>
+      <div class="kans-omzet">+€1200/mnd bij viral video</div>
+      <div class="kans-desc">Outfit reveals, look of the day, Ibiza sfeer content. Hoge organische bereik voor niche merken.</div>
+    </div>
+    <div class="kans-kaart actief" onclick="toggleKans(this,'instagram')" data-kans="instagram">
+      <div class="kans-icon">📷</div>
+      <div class="kans-titel">Instagram Shopping</div>
+      <div class="kans-omzet">+€1400/mnd bij 3K volgers</div>
+      <div class="kans-desc">Gratis native Shopify-koppeling: catalogus + prijzen + voorraad syncen automatisch naar shoppable posts en tags. Checkout gaat sinds 2025 via je eigen winkel — Instagram is dus zuiver een ontdekkingskanaal dat direct naar Shopify converteert.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'facebook')" data-kans="facebook">
+      <div class="kans-icon">👍</div>
+      <div class="kans-titel">Facebook Shop &amp; Meta Ads</div>
+      <div class="kans-omzet">+€900/mnd bij retargeting</div>
+      <div class="kans-desc">Zelfde gratis Shopify-catalogus als Instagram (één koppeling, twee kanalen). Meta Pixel + Conversions API retargeten warme bezoekers automatisch — sterkste ROAS-hefboom van de social kanalen.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'bundels')" data-kans="bundels">
+      <div class="kans-icon">✨</div>
+      <div class="kans-titel">Bundels &amp; Looks</div>
+      <div class="kans-omzet">+35% gemiddelde orderwaarde</div>
+      <div class="kans-desc">Jurk + sieraden + sandaal als complete look. AOV van €90 naar €145+. Zelfde ROAS, meer marge.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'influencer')" data-kans="influencer">
+      <div class="kans-icon">👑</div>
+      <div class="kans-titel">Micro-influencers</div>
+      <div class="kans-omzet">+€900/mnd per campagne</div>
+      <div class="kans-desc">NL/BE lifestyle influencers 5K-50K volgers. Hogere engagement dan mega-influencers. Barter deals mogelijk.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'uitbreiding')" data-kans="uitbreiding">
+      <div class="kans-icon">🌍</div>
+      <div class="kans-titel">Duitsland &amp; Scandinavië</div>
+      <div class="kans-omzet">+€2400/mnd bij lancering</div>
+      <div class="kans-desc">DE = grootste fashionmarkt EU. Scandinavische vrouwen zijn top doelgroep voor boho/Ibiza stijl.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'seizoen')" data-kans="seizoen">
+      <div class="kans-icon">☀️</div>
+      <div class="kans-titel">Seizoenscampagnes</div>
+      <div class="kans-omzet">+€1500 piek in mei-aug</div>
+      <div class="kans-desc">Zomer/festival collectie in april lanceren. Vakantie-look promoties. Sale in september voor uitlopen.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'loyaliteit')" data-kans="loyaliteit">
+      <div class="kans-icon">💎</div>
+      <div class="kans-titel">Loyaliteitsprogramma</div>
+      <div class="kans-omzet">+25% repeat purchase rate</div>
+      <div class="kans-desc">Punten per aankoop, early access nieuwe collectie, verjaardagskorting. Klantretentie = laagste CAC.</div>
+    </div>
+    <div class="kans-kaart" onclick="toggleKans(this,'bol')" data-kans="bol">
+      <div class="kans-icon">🛒</div>
+      <div class="kans-titel">Bol.com Marketplace</div>
+      <div class="kans-omzet">+€1800/mnd bij goede ranking</div>
+      <div class="kans-desc">14M unieke bezoekers/mnd in NL/BE. Fashion groeit op Bol. Commissie 15% maar geen advertentiekosten.</div>
+    </div>
+  </div>
+
+  <!-- CUSTOM SLIDERS -->
+  <div class="card" id="custom-panel" style="display:none;">
+    <div class="card-title">⚙️ Eigen scenario instellen</div>
+    <div class="groei-grid">
+      <div>
+        <div class="slider-veld">
+          <label>Startorders maand 1 <span id="sl-start-val">10</span></label>
+          <input type="range" id="sl-start" min="5" max="50" value="10" oninput="updateSlider('sl-start','sl-start-val','',bereken)">
+        </div>
+        <div class="slider-veld">
+          <label>Maandelijkse groei <span id="sl-groei-val">15%</span></label>
+          <input type="range" id="sl-groei" min="5" max="50" value="15" oninput="updateSlider('sl-groei','sl-groei-val','%',bereken)">
+        </div>
+        <div class="slider-veld">
+          <label>Gemiddelde orderwaarde <span id="sl-aov-val">€89</span></label>
+          <input type="range" id="sl-aov" min="50" max="200" value="89" oninput="updateSlider('sl-aov','sl-aov-val','€',bereken,true)">
+        </div>
+      </div>
+      <div>
+        <div class="slider-veld">
+          <label>Brutomarge % <span id="sl-marge-val">40%</span></label>
+          <input type="range" id="sl-marge" min="25" max="65" value="40" oninput="updateSlider('sl-marge','sl-marge-val','%',bereken)">
+        </div>
+        <div class="slider-veld">
+          <label>Advertentiebudget/mnd <span id="sl-ad-val">€300</span></label>
+          <input type="range" id="sl-ad" min="0" max="2000" step="50" value="300" oninput="updateSlider('sl-ad','sl-ad-val','€',bereken,true)">
+        </div>
+        <div class="slider-veld">
+          <label>Retourpercentage <span id="sl-retour-val">25%</span></label>
+          <input type="range" id="sl-retour" min="5" max="45" value="25" oninput="updateSlider('sl-retour','sl-retour-val','%',bereken)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI'S -->
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-num tc" id="kpi-jaar">€—</div><div class="kpi-lbl">Jaar 1 omzet</div><div class="kpi-sub" id="kpi-jaar-sub">—</div></div>
+    <div class="kpi"><div class="kpi-num" id="kpi-winst">€—</div><div class="kpi-lbl">Jaar 1 nettoresultaat</div><div class="kpi-sub" id="kpi-winst-sub">—</div></div>
+    <div class="kpi"><div class="kpi-num tc" id="kpi-aov">€—</div><div class="kpi-lbl">Gem. orderwaarde</div><div class="kpi-sub" id="kpi-aov-sub">—</div></div>
+    <div class="kpi"><div class="kpi-num" id="kpi-orders">—</div><div class="kpi-lbl">Orders jaar 1</div><div class="kpi-sub" id="kpi-orders-sub">—</div></div>
+    <div class="kpi"><div class="kpi-num" id="kpi-break">Mnd —</div><div class="kpi-lbl">Break-even moment</div><div class="kpi-sub" id="kpi-break-sub">—</div></div>
+  </div>
+
+  <!-- GRAFIEK -->
+  <div class="card">
+    <div class="card-title">📈 Omzet & Winst per maand</div>
+    <div class="chart-wrap"><canvas id="grafiek"></canvas></div>
+  </div>
+
+  <!-- MAANDTABEL -->
+  <div class="card">
+    <div class="card-title">📋 Maandoverzicht — Gedetailleerde prognose</div>
+    <div style="overflow-x:auto;">
+      <table class="tabel">
+        <thead>
+          <tr>
+            <th>Maand</th>
+            <th>Orders</th>
+            <th>Omzet</th>
+            <th>Brutomarge</th>
+            <th>Ad kosten</th>
+            <th>Vaste kosten</th>
+            <th>Groei kanalen</th>
+            <th>Nettoresultaat</th>
+            <th>Cumulatief</th>
+          </tr>
+        </thead>
+        <tbody id="maand-tabel"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GROEISTRATEGIE TABEL -->
+  <div class="card">
+    <div class="card-title">🎯 Groeistrategie per kwartaal</div>
+    <table class="tabel">
+      <thead>
+        <tr><th>Kwartaal</th><th>Focus</th><th>Actie</th><th>Verwachte impact</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Q1 — Mnd 1-3</td>
+          <td>Fundament</td>
+          <td>Organisch starten (Pinterest + TikTok), eerste leverancier activeren, e-mail lijst opbouwen</td>
+          <td class="neutraal">Break-even fase</td>
+        </tr>
+        <tr>
+          <td>Q2 — Mnd 4-6</td>
+          <td>Bewijs</td>
+          <td>Eerste betaalde campagnes op bewezen bestsellers, bundels introduceren, micro-influencer barter deals</td>
+          <td class="positief">+40% omzet QoQ</td>
+        </tr>
+        <tr>
+          <td>Q3 — Mnd 7-9</td>
+          <td>Schalen</td>
+          <td>Advertentiebudget ophogen op winnende producten, Bol.com activeren, loyaliteitsprogramma lanceren</td>
+          <td class="positief">+60% omzet QoQ</td>
+        </tr>
+        <tr>
+          <td>Q4 — Mnd 10-12</td>
+          <td>Uitbreiding</td>
+          <td>Duitsland/België intensiveren, kerst/winter collectie, Klaviyo automations volledig actief</td>
+          <td class="positief">+35% omzet QoQ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+let grafiek = null;
+
+const MAANDEN = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const SEIZOEN = [0.7, 0.75, 0.9, 1.1, 1.3, 1.5, 1.4, 1.2, 1.0, 0.9, 1.1, 1.2];
+
+const SCENARIOS_DATA = {
+  conservatief: { startOrders: 35, groei: 8, aov: 79, marge: 38, adBudget: 200, vaste: 120, retour: 30 },
+  realistisch:  { startOrders: 42, groei: 11, aov: 89, marge: 42, adBudget: 400, vaste: 120, retour: 25 },
+  optimistisch: { startOrders: 44, groei: 14, aov: 109, marge: 47, adBudget: 800, vaste: 120, retour: 20 },
+  custom:       { startOrders: 42, groei: 11, aov: 89, marge: 42, adBudget: 400, vaste: 120, retour: 25 },
+};
+
+const KANSEN_DATA = {
+  email:       { mndExtra: 800, startMnd: 2 },
+  pinterest:   { mndExtra: 600, startMnd: 3 },
+  tiktok:      { mndExtra: 1200, startMnd: 2 },
+  instagram:   { mndExtra: 1400, startMnd: 2 },
+  facebook:    { mndExtra: 900, startMnd: 4 },
+  bundels:     { aovBonus: 35, startMnd: 1 },
+  influencer:  { mndExtra: 900, startMnd: 3 },
+  uitbreiding: { mndExtra: 2400, startMnd: 7 },
+  seizoen:     { seizoenBonus: 0.15, startMnd: 4 },
+  loyaliteit:  { retourBonus: -8, startMnd: 4 },
+  bol:         { mndExtra: 1800, startMnd: 6 },
+};
+
+let huidigScenario = 'conservatief';
+let actieveKansen = new Set(['email', 'instagram']);
+
+function fmt(n) { return '€ ' + Math.round(n).toLocaleString('nl-NL'); }
+function fmtK(n) { return n >= 1000 ? '€ ' + (n/1000).toFixed(1) + 'K' : fmt(n); }
+
+function toggleKans(el, key) {
+  if (actieveKansen.has(key)) {
+    actieveKansen.delete(key);
+    el.classList.remove('actief');
+  } else {
+    actieveKansen.add(key);
+    el.classList.add('actief');
+  }
+  bereken();
+}
+
+function setScenario(key, el) {
+  huidigScenario = key;
+  document.querySelectorAll('.scenario-tab').forEach(b => b.classList.remove('actief'));
+  el.classList.add('actief');
+  document.getElementById('custom-panel').style.display = key === 'custom' ? 'block' : 'none';
+  if (key === 'custom') {
+    const d = SCENARIOS_DATA.custom;
+    document.getElementById('sl-start').value = d.startOrders;
+    document.getElementById('sl-groei').value = d.groei;
+    document.getElementById('sl-aov').value = d.aov;
+    document.getElementById('sl-marge').value = d.marge;
+    document.getElementById('sl-ad').value = d.adBudget;
+    document.getElementById('sl-retour').value = d.retour;
+    updateAllSliders();
+  }
+  bereken();
+}
+
+function updateSlider(id, valId, prefix, callback, isPre) {
+  const v = document.getElementById(id).value;
+  document.getElementById(valId).textContent = isPre ? prefix + v : v + prefix;
+  SCENARIOS_DATA.custom = {
+    startOrders: parseInt(document.getElementById('sl-start').value),
+    groei: parseInt(document.getElementById('sl-groei').value),
+    aov: parseInt(document.getElementById('sl-aov').value),
+    marge: parseInt(document.getElementById('sl-marge').value),
+    adBudget: parseInt(document.getElementById('sl-ad').value),
+    vaste: 120,
+    retour: parseInt(document.getElementById('sl-retour').value),
+  };
+  callback();
+}
+
+function updateAllSliders() {
+  const d = SCENARIOS_DATA.custom;
+  document.getElementById('sl-start-val').textContent = d.startOrders;
+  document.getElementById('sl-groei-val').textContent = d.groei + '%';
+  document.getElementById('sl-aov-val').textContent = '€' + d.aov;
+  document.getElementById('sl-marge-val').textContent = d.marge + '%';
+  document.getElementById('sl-ad-val').textContent = '€' + d.adBudget;
+  document.getElementById('sl-retour-val').textContent = d.retour + '%';
+}
+
+function bereken() {
+  const d = SCENARIOS_DATA[huidigScenario];
+  const nu = new Date();
+  const startMaand = nu.getMonth();
+
+  // Kansen bonussen berekenen
+  let aovBonus = 0;
+  let retourBonus = 0;
+  actieveKansen.forEach(k => {
+    if (KANSEN_DATA[k].aovBonus) aovBonus += KANSEN_DATA[k].aovBonus;
+    if (KANSEN_DATA[k].retourBonus) retourBonus += KANSEN_DATA[k].retourBonus;
+  });
+
+  const effectiefAOV = d.aov * (1 + aovBonus / 100);
+  const effectiefRetour = Math.max(5, d.retour + retourBonus);
+
+  let maandData = [];
+  let orders = d.startOrders;
+  let cumulatief = 0;
+  let breakEven = null;
+
+  for (let i = 0; i < 12; i++) {
+    const maandIdx = (startMaand + i) % 12;
+    const seizoenFactor = SEIZOEN[maandIdx];
+
+    // Kansen extra omzet (deel onafhankelijk van omzet zelf)
+    let kansenExtra = 0;
+    actieveKansen.forEach(k => {
+      const kd = KANSEN_DATA[k];
+      if (kd.mndExtra && i >= kd.startMnd - 1) {
+        const aanloopFactor = Math.min(1, (i - kd.startMnd + 2) / 3);
+        kansenExtra += kd.mndExtra * aanloopFactor;
+      }
+    });
+
+    const effectiefOrders = Math.round(orders * seizoenFactor);
+    const basisOmzet = effectiefOrders * effectiefAOV;
+
+    // Seizoensbonus hangt af van omzet, dus pas hierna toepassen (piekmaanden mei-aug/dec)
+    actieveKansen.forEach(k => {
+      const kd = KANSEN_DATA[k];
+      if (kd.seizoenBonus && i >= kd.startMnd - 1 && seizoenFactor >= 1.2) {
+        kansenExtra += basisOmzet * kd.seizoenBonus;
+      }
+    });
+
+    // Kansen-omzet (extra kanalen) telt mee als omzet en loopt door dezelfde marge/kosten —
+    // dit voorkomt dat nettoresultaat hoger kan uitkomen dan de omzet zelf.
+    const omzet = basisOmzet + kansenExtra;
+    const brutoMargeEuro = omzet * (d.marge / 100);
+    const retourKosten = omzet * (effectiefRetour / 100) * 0.08;
+    const adKosten = d.adBudget;
+    const vasteKosten = d.vaste + 79; // Shopify
+    const netto = brutoMargeEuro - retourKosten - adKosten - vasteKosten;
+    cumulatief += netto;
+
+    if (!breakEven && cumulatief >= 0) breakEven = i + 1;
+
+    maandData.push({
+      maand: MAANDEN[maandIdx],
+      orders: effectiefOrders,
+      omzet,
+      brutomarge: brutoMargeEuro,
+      adKosten,
+      vasteKosten: vasteKosten + retourKosten,
+      kansenExtra,
+      netto,
+      cumulatief,
+      isCurrent: i === 0,
+    });
+
+    orders = Math.round(orders * (1 + d.groei / 100));
+  }
+
+  // KPI's bijwerken
+  const jaarOmzet = maandData.reduce((s, m) => s + m.omzet, 0);
+  const jaarWinst = maandData.reduce((s, m) => s + m.netto, 0);
+  const jaarOrders = maandData.reduce((s, m) => s + m.orders, 0);
+
+  document.getElementById('kpi-jaar').textContent = fmtK(jaarOmzet);
+  document.getElementById('kpi-jaar').className = 'kpi-num tc';
+  document.getElementById('kpi-jaar-sub').textContent = 'Alle kanalen';
+  document.getElementById('kpi-winst').textContent = fmtK(jaarWinst);
+  document.getElementById('kpi-winst').className = 'kpi-num ' + (jaarWinst > 0 ? 'groen' : 'rood');
+  document.getElementById('kpi-winst-sub').textContent = jaarWinst > 0 ? 'Winstgevend' : 'Investeringsfase';
+  document.getElementById('kpi-aov').textContent = '€ ' + Math.round(effectiefAOV);
+  document.getElementById('kpi-aov-sub').textContent = aovBonus > 0 ? '+' + aovBonus + '% via bundels' : 'Basis AOV';
+  document.getElementById('kpi-orders').textContent = jaarOrders;
+  document.getElementById('kpi-orders-sub').textContent = Math.round(jaarOrders / 12) + ' gem/mnd';
+  document.getElementById('kpi-break').textContent = breakEven ? 'Mnd ' + breakEven : 'Jaar 2+';
+  document.getElementById('kpi-break').className = 'kpi-num ' + (breakEven && breakEven <= 6 ? 'groen' : breakEven ? 'oranje' : 'rood');
+  document.getElementById('kpi-break-sub').textContent = breakEven ? 'Cumulatief positief' : 'Meer investering nodig';
+
+  // Maand tabel
+  const tbody = document.getElementById('maand-tabel');
+  tbody.innerHTML = maandData.map((m, i) => `
+    <tr class="${m.isCurrent ? 'huidig' : ''}">
+      <td>${m.maand} ${i === 0 ? '← nu' : ''}</td>
+      <td>${m.orders}</td>
+      <td>${fmt(m.omzet)}</td>
+      <td class="${m.brutomarge > 0 ? 'positief' : 'negatief'}">${fmt(m.brutomarge)}</td>
+      <td class="negatief">-${fmt(m.adKosten)}</td>
+      <td class="negatief">-${fmt(m.vasteKosten)}</td>
+      <td class="${m.kansenExtra > 0 ? 'positief' : ''}">${m.kansenExtra > 0 ? '+' + fmt(m.kansenExtra) : '—'}</td>
+      <td class="${m.netto > 0 ? 'positief' : 'negatief'}">${fmt(m.netto)}</td>
+      <td class="${m.cumulatief > 0 ? 'positief' : 'negatief'}">${fmt(m.cumulatief)}</td>
+    </tr>
+  `).join('') + `<tr>
+    <td>TOTAAL JAAR 1</td>
+    <td>${jaarOrders}</td>
+    <td class="positief">${fmt(jaarOmzet)}</td>
+    <td class="positief">${fmt(maandData.reduce((s,m)=>s+m.brutomarge,0))}</td>
+    <td class="negatief">-${fmt(maandData.reduce((s,m)=>s+m.adKosten,0))}</td>
+    <td class="negatief">-${fmt(maandData.reduce((s,m)=>s+m.vasteKosten,0))}</td>
+    <td class="positief">+${fmt(maandData.reduce((s,m)=>s+m.kansenExtra,0))}</td>
+    <td class="${jaarWinst > 0 ? 'positief' : 'negatief'}">${fmt(jaarWinst)}</td>
+    <td class="${maandData[11].cumulatief > 0 ? 'positief' : 'negatief'}">${fmt(maandData[11].cumulatief)}</td>
+  </tr>`;
+
+  // Grafiek
+  const labels = maandData.map(m => m.maand);
+  const omzetData = maandData.map(m => Math.round(m.omzet));
+  const nettoData = maandData.map(m => Math.round(m.netto));
+  const cumulData = maandData.map(m => Math.round(m.cumulatief));
+
+  if (grafiek) grafiek.destroy();
+  grafiek = new Chart(document.getElementById('grafiek'), {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Omzet',
+          data: omzetData,
+          backgroundColor: 'rgba(188,122,92,0.25)',
+          borderColor: '#BC7A5C',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Nettoresultaat',
+          data: nettoData,
+          borderColor: '#2D7A3A',
+          backgroundColor: 'rgba(45,122,58,0.08)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: nettoData.map(v => v >= 0 ? '#2D7A3A' : '#C0392B'),
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Cumulatief',
+          data: cumulData,
+          borderColor: '#3D342E',
+          borderWidth: 1.5,
+          borderDash: [6, 3],
+          pointRadius: 3,
+          tension: 0.3,
+          fill: false,
+          yAxisID: 'y',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { font: { family: 'Montserrat', size: 11 }, color: '#3D342E' } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': € ' + ctx.raw.toLocaleString('nl-NL')
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Montserrat', size: 11 }, color: 'rgba(61,52,46,0.6)' } },
+        y: {
+          grid: { color: 'rgba(61,52,46,0.06)' },
+          ticks: { font: { family: 'Montserrat', size: 11 }, color: 'rgba(61,52,46,0.6)', callback: v => '€ ' + v.toLocaleString('nl-NL') }
+        }
+      }
+    }
+  });
+}
+
+bereken();
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+name: Nomad & Soul — Cleanup empty flows
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/cleanup-flows.yml']
+
+jobs:
+  cleanup:
+    name: Verwijder lege Essential Flow shells
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete 3 empty flows via Klaviyo API
+        env:
+          KLAVIYO_PRIVATE_KEY: ${{ secrets.KLAVIYO_PRIVATE_KEY }}
+        run: |
+          for FLOW_ID in SvC7Qf Ui3ZkJ YvUNYj; do
+            echo "Verwijder flow: $FLOW_ID"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X DELETE \
+              "https://a.klaviyo.com/api/flows/${FLOW_ID}/" \
+              -H "Authorization: Klaviyo-API-Key ${KLAVIYO_PRIVATE_KEY}" \
+              -H "revision: 2024-10-15" \
+              -H "Accept: application/json")
+            
+            if [ "$HTTP_CODE" = "204" ]; then
+              echo "  ✓ Flow $FLOW_ID verwijderd (HTTP $HTTP_CODE)"
+            else
+              echo "  ✗ Fout bij flow $FLOW_ID (HTTP $HTTP_CODE)"
+            fi
+          done
+          echo ""
+          echo "Cleanup voltooid."

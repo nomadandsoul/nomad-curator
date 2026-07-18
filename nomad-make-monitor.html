@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomad & Soul — Make.com Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --tc: #BC7A5C; --esp: #3D342E; --iv: #F5EFEB; --groen: #2D7A3A; --rood: #C0392B; --oranje: #E67E22; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #3D342E;
+  min-height: 100vh;
+  background-image: url('sfeer-achtergrond.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-color: #F5EFEB;
+  position: relative;
+}
+body::before { content: ''; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(245,239,235,0.86); z-index: 0; pointer-events: none; }
+.topbar, .container { position: relative; z-index: 1; }
+
+.topbar {
+  background: #3D342E;
+  color: #F5EFEB;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-brand { font-family: 'Playfair Display', serif; font-size: 17px; }
+.topbar-sub { font-size: 10px; opacity: 0.55; letter-spacing: 1.5px; text-transform: uppercase; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: #2D7A3A; background: rgba(45,122,58,0.15);
+  padding: 4px 10px; border-radius: 20px;
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #2D7A3A; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.btn-refresh {
+  padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(245,239,235,0.2);
+  background: transparent; color: #F5EFEB; font-size: 11px; font-family: 'Montserrat', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-refresh:hover { background: rgba(245,239,235,0.1); }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+/* NAV TERUG */
+.terug { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(61,52,46,0.55); text-decoration: none; margin-bottom: 24px; transition: color 0.2s; }
+.terug:hover { color: #BC7A5C; }
+
+/* SECTIE TITELS */
+.sectie { font-family: 'Playfair Display', serif; font-size: 20px; color: #3D342E; margin-bottom: 16px; }
+
+/* KPI BALK */
+.kpi-rij { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(188,122,92,0.12); }
+.kpi-num { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+.kpi-lbl { font-size: 10px; color: rgba(61,52,46,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-trend { font-size: 11px; margin-top: 4px; }
+.tc { color: #BC7A5C; } .groen { color: #2D7A3A; } .rood { color: #C0392B; } .oranje { color: #E67E22; }
+
+/* SCENARIO KAARTEN */
+.scenarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+
+.sc-kaart { background: white; border-radius: 16px; padding: 20px; border: 1px solid rgba(188,122,92,0.12); position: relative; overflow: hidden; }
+.sc-kaart::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.sc-kaart.actief::before { background: #2D7A3A; }
+.sc-kaart.gestopt::before { background: #C0392B; }
+.sc-kaart.wacht::before { background: #E67E22; }
+
+.sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.sc-naam { font-weight: 600; font-size: 13px; color: #3D342E; line-height: 1.4; }
+.sc-icon { font-size: 20px; }
+
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; }
+.status-badge.actief { background: rgba(45,122,58,0.12); color: #2D7A3A; }
+.status-badge.gestopt { background: rgba(192,57,43,0.1); color: #C0392B; }
+.status-badge.wacht { background: rgba(230,126,34,0.1); color: #E67E22; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.sc-meta { font-size: 11px; color: rgba(61,52,46,0.55); margin-bottom: 12px; line-height: 1.7; }
+
+.sc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.sc-stat { background: #F5EFEB; border-radius: 8px; padding: 8px 10px; text-align: center; }
+.sc-stat-num { font-size: 16px; font-weight: 700; color: #3D342E; }
+.sc-stat-lbl { font-size: 9px; color: rgba(61,52,46,0.5); text-transform: uppercase; margin-top: 2px; }
+
+.voortgang-label { display: flex; justify-content: space-between; font-size: 10px; color: rgba(61,52,46,0.5); margin-bottom: 5px; }
+.voortgang-balk { height: 6px; background: rgba(61,52,46,0.08); border-radius: 3px; overflow: hidden; }
+.voortgang-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+.sc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(188,122,92,0.1); }
+.sc-volgende { font-size: 10px; color: rgba(61,52,46,0.45); }
+.btn-sc { padding: 6px 14px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: 'Montserrat', sans-serif; border: 1px solid; transition: all 0.2s; }
+.btn-sc.stop { border-color: rgba(192,57,43,0.3); color: #C0392B; background: rgba(192,57,43,0.06); }
+.btn-sc.stop:hover { background: #C0392B; color: white; }
+.btn-sc.start { border-color: rgba(45,122,58,0.3); color: #2D7A3A; background: rgba(45,122,58,0.06); }
+.btn-sc.start:hover { background: #2D7A3A; color: white; }
+.btn-sc.run { border-color: rgba(188,122,92,0.3); color: #BC7A5C; background: rgba(188,122,92,0.06); }
+.btn-sc.run:hover { background: #BC7A5C; color: white; }
+
+/* LOG */
+.log-wrap { background: white; border-radius: 16px; border: 1px solid rgba(188,122,92,0.12); overflow: hidden; margin-bottom: 24px; }
+.log-header { padding: 16px 20px; border-bottom: 1px solid rgba(188,122,92,0.1); display: flex; justify-content: space-between; align-items: center; }
+.log-titel { font-weight: 600; font-size: 13px; }
+.log-filter { display: flex; gap: 6px; }
+.log-filter-btn { padding: 4px 10px; border-radius: 12px; font-size: 10px; border: 1px solid rgba(188,122,92,0.2); background: transparent; cursor: pointer; font-family: 'Montserrat', sans-serif; color: rgba(61,52,46,0.6); transition: all 0.2s; }
+.log-filter-btn.actief { background: #BC7A5C; color: white; border-color: #BC7A5C; }
+
+.log-rij { display: flex; align-items: flex-start; gap: 14px; padding: 12px 20px; border-bottom: 1px solid rgba(188,122,92,0.06); transition: background 0.15s; }
+.log-rij:last-child { border-bottom: none; }
+.log-rij:hover { background: rgba(188,122,92,0.03); }
+.log-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.log-icon.ok { background: rgba(45,122,58,0.12); }
+.log-icon.fout { background: rgba(192,57,43,0.1); }
+.log-icon.info { background: rgba(188,122,92,0.12); }
+.log-icon.warn { background: rgba(230,126,34,0.1); }
+.log-content { flex: 1; }
+.log-tekst { font-size: 12px; color: #3D342E; line-height: 1.5; }
+.log-tekst strong { font-weight: 600; }
+.log-tijd { font-size: 10px; color: rgba(61,52,46,0.4); margin-top: 3px; }
+.log-sc { font-size: 10px; padding: 2px 7px; border-radius: 8px; background: #F5EFEB; color: rgba(61,52,46,0.55); margin-left: 6px; }
+
+/* PRODUCTEN PIPELINE */
+.pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-bottom: 24px; background: white; border-radius: 16px; border: 1px solid rgba(188,122,92,0.12); overflow: hidden; }
+.pipeline-stap { padding: 20px; border-right: 1px solid rgba(188,122,92,0.1); text-align: center; }
+.pipeline-stap:last-child { border-right: none; }
+.pipeline-num { font-size: 32px; font-weight: 700; color: #BC7A5C; margin-bottom: 4px; }
+.pipeline-lbl { font-size: 11px; color: rgba(61,52,46,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.pipeline-bar { height: 4px; border-radius: 2px; background: rgba(61,52,46,0.08); overflow: hidden; }
+.pipeline-fill { height: 100%; border-radius: 2px; }
+
+/* INSTELLINGEN */
+.instellingen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.inst-kaart { background: white; border-radius: 16px; padding: 20px; border: 1px solid rgba(188,122,92,0.12); }
+.inst-titel { font-weight: 600; font-size: 13px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.inst-rij { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(188,122,92,0.08); font-size: 12px; }
+.inst-rij:last-child { border-bottom: none; }
+.inst-lbl { color: rgba(61,52,46,0.65); }
+.inst-val { font-weight: 600; color: #3D342E; }
+.inst-val.tc { color: #BC7A5C; }
+
+/* TOGGLE */
+.toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: rgba(61,52,46,0.15); border-radius: 20px; transition: 0.3s; }
+.toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+.toggle input:checked + .toggle-slider { background: #BC7A5C; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* WEBHOOKS */
+.webhook-box { background: #3D342E; border-radius: 12px; padding: 16px 18px; font-family: 'Courier New', monospace; font-size: 11px; color: #BC7A5C; line-height: 1.8; margin-top: 12px; position: relative; }
+.webhook-copy { position: absolute; top: 10px; right: 12px; padding: 4px 10px; background: rgba(188,122,92,0.2); border: none; border-radius: 6px; color: #BC7A5C; font-size: 10px; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+.webhook-copy:hover { background: rgba(188,122,92,0.35); }
+
+@media (max-width: 900px) {
+  .kpi-rij { grid-template-columns: repeat(3, 1fr); }
+  .scenarios-grid { grid-template-columns: 1fr; }
+  .pipeline { grid-template-columns: repeat(2, 1fr); }
+  .instellingen-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-rij { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <img src="logo-ivory.png" alt="Nomad & Soul" style="height:18px;width:auto;margin-bottom:3px;">
+      <div class="topbar-sub">Make.com Automation Monitor</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
+    <div style="font-size:10px;opacity:0.5;" id="laatste-update">Laatste update: —</div>
+    <button class="btn-refresh" onclick="refresh()">↻ Ververs</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <a href="index.html" class="terug">← Terug naar dashboard</a>
+
+  <!-- KPI BALK -->
+  <div class="kpi-rij">
+    <div class="kpi"><div class="kpi-num tc" id="kpi-actief">3</div><div class="kpi-lbl">Actieve scenarios</div><div class="kpi-trend groen">✓ Alle systemen OK</div></div>
+    <div class="kpi"><div class="kpi-num groen" id="kpi-gescand">47</div><div class="kpi-lbl">Producten gescand</div><div class="kpi-trend" style="color:rgba(61,52,46,0.4)">Deze week</div></div>
+    <div class="kpi"><div class="kpi-num groen" id="kpi-goed">12</div><div class="kpi-lbl">Goedgekeurd door Claude</div><div class="kpi-trend" style="color:rgba(61,52,46,0.4)">Score >7/10</div></div>
+    <div class="kpi"><div class="kpi-num tc" id="kpi-wacht">8</div><div class="kpi-lbl">Wachten op jou</div><div class="kpi-trend oranje">⚠ Beoordeling nodig</div></div>
+    <div class="kpi"><div class="kpi-num groen" id="kpi-live">4</div><div class="kpi-lbl">Live gepubliceerd</div><div class="kpi-trend" style="color:rgba(61,52,46,0.4)">In jouw winkel</div></div>
+  </div>
+
+  <!-- PRODUCT PIPELINE -->
+  <h2 class="sectie">Product pipeline</h2>
+  <div class="pipeline">
+    <div class="pipeline-stap">
+      <div class="pipeline-num" id="p1">47</div>
+      <div class="pipeline-lbl">Shopify Collective import</div>
+      <div class="pipeline-bar"><div class="pipeline-fill" style="width:100%;background:#BC7A5C;"></div></div>
+    </div>
+    <div class="pipeline-stap">
+      <div class="pipeline-num" id="p2">12</div>
+      <div class="pipeline-lbl">Claude selectie</div>
+      <div class="pipeline-bar"><div class="pipeline-fill" style="width:26%;background:#E67E22;"></div></div>
+    </div>
+    <div class="pipeline-stap">
+      <div class="pipeline-num" id="p3">8</div>
+      <div class="pipeline-lbl">Jouw goedkeuring</div>
+      <div class="pipeline-bar"><div class="pipeline-fill" style="width:17%;background:#3D342E;"></div></div>
+    </div>
+    <div class="pipeline-stap">
+      <div class="pipeline-num" id="p4">4</div>
+      <div class="pipeline-lbl">Live in winkel</div>
+      <div class="pipeline-bar"><div class="pipeline-fill" style="width:9%;background:#2D7A3A;"></div></div>
+    </div>
+  </div>
+
+  <!-- SCENARIOS -->
+  <h2 class="sectie">Make.com Scenarios</h2>
+  <div class="scenarios-grid">
+
+    <!-- SCENARIO A -->
+    <div class="sc-kaart actief">
+      <div class="sc-header">
+        <div>
+          <div class="sc-naam">Scenario A — Product Scanner</div>
+          <div style="margin-top:6px;"><span class="status-badge actief"><span class="status-dot"></span>Actief</span></div>
+        </div>
+        <div class="sc-icon">🔍</div>
+      </div>
+      <div class="sc-meta">
+        Elke maandag 08:00 · Scant nieuwe Shopify Collective producten (ibizamode) · Claude beoordeelt op merkfit, ROAS & kwaliteit
+      </div>
+      <div class="sc-stats">
+        <div class="sc-stat"><div class="sc-stat-num groen">47</div><div class="sc-stat-lbl">Gescand</div></div>
+        <div class="sc-stat"><div class="sc-stat-num tc">12</div><div class="sc-stat-lbl">Doorgekomen</div></div>
+      </div>
+      <div class="voortgang-label"><span>Succesrate</span><span style="color:#2D7A3A;font-weight:600;">26%</span></div>
+      <div class="voortgang-balk"><div class="voortgang-fill" style="width:26%;background:#2D7A3A;"></div></div>
+      <div class="sc-footer">
+        <div class="sc-volgende">Volgende run: maandag 08:00</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-sc run" onclick="simuleerRun(this)">▶ Nu starten</button>
+          <button class="btn-sc stop">⏸ Pauzeer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENARIO B -->
+    <div class="sc-kaart actief">
+      <div class="sc-header">
+        <div>
+          <div class="sc-naam">Scenario B — Publicatie Flow</div>
+          <div style="margin-top:6px;"><span class="status-badge actief"><span class="status-dot"></span>Actief</span></div>
+        </div>
+        <div class="sc-icon">🚀</div>
+      </div>
+      <div class="sc-meta">
+        Elke dinsdag 10:00 · Leest jouw goedkeuringen uit · Claude herschrijft beschrijving · Publiceert in Shopify
+      </div>
+      <div class="sc-stats">
+        <div class="sc-stat"><div class="sc-stat-num groen">4</div><div class="sc-stat-lbl">Gepubliceerd</div></div>
+        <div class="sc-stat"><div class="sc-stat-num tc">8</div><div class="sc-stat-lbl">In wachtrij</div></div>
+      </div>
+      <div class="voortgang-label"><span>Gepubliceerd</span><span style="color:#BC7A5C;font-weight:600;">4 van 12</span></div>
+      <div class="voortgang-balk"><div class="voortgang-fill" style="width:33%;background:#BC7A5C;"></div></div>
+      <div class="sc-footer">
+        <div class="sc-volgende">Volgende run: dinsdag 10:00</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-sc run" onclick="simuleerRun(this)">▶ Nu starten</button>
+          <button class="btn-sc stop">⏸ Pauzeer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENARIO C -->
+    <div class="sc-kaart wacht">
+      <div class="sc-header">
+        <div>
+          <div class="sc-naam">Scenario C — Link Monitor</div>
+          <div style="margin-top:6px;"><span class="status-badge wacht"><span class="status-dot"></span>Configureren</span></div>
+        </div>
+        <div class="sc-icon">🔗</div>
+      </div>
+      <div class="sc-meta">
+        Dagelijks 06:00 · Controleert alle collectie-links · Detecteert 404's en redirects · Rapport per e-mail
+      </div>
+      <div class="sc-stats">
+        <div class="sc-stat"><div class="sc-stat-num oranje">—</div><div class="sc-stat-lbl">Laatste check</div></div>
+        <div class="sc-stat"><div class="sc-stat-num oranje">—</div><div class="sc-stat-lbl">Fouten</div></div>
+      </div>
+      <div class="voortgang-label"><span>Setup voortgang</span><span style="color:#E67E22;font-weight:600;">60%</span></div>
+      <div class="voortgang-balk"><div class="voortgang-fill" style="width:60%;background:#E67E22;"></div></div>
+      <div class="sc-footer">
+        <div class="sc-volgende">Nog te activeren</div>
+        <button class="btn-sc start">▶ Activeer</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <h2 class="sectie">Activiteitenlog</h2>
+  <div class="log-wrap">
+    <div class="log-header">
+      <div class="log-titel">Recente activiteit</div>
+      <div class="log-filter">
+        <button class="log-filter-btn actief" onclick="filterLog('alle',this)">Alle</button>
+        <button class="log-filter-btn" onclick="filterLog('ok',this)">✓ OK</button>
+        <button class="log-filter-btn" onclick="filterLog('fout',this)">⚠ Fouten</button>
+      </div>
+    </div>
+    <div id="log-container"></div>
+  </div>
+
+  <!-- INSTELLINGEN -->
+  <h2 class="sectie">Instellingen & Webhooks</h2>
+  <div class="instellingen-grid">
+
+    <div class="inst-kaart">
+      <div class="inst-titel">⚙️ Scenario instellingen</div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Shopify verbinding</span>
+        <span class="inst-val groen">✓ Nomada Live</span>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Claude API model</span>
+        <span class="inst-val tc">claude-sonnet-4-6</span>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Min. score voor goedkeuring</span>
+        <span class="inst-val">7.0 / 10</span>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Max producten per scan</span>
+        <span class="inst-val">50 / week</span>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Shopify API versie</span>
+        <span class="inst-val">2023-10</span>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">E-mail rapport</span>
+        <div>
+          <label class="toggle">
+            <input type="checkbox" checked onchange="toggleInstelling(this,'email')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="inst-rij">
+        <span class="inst-lbl">Auto-publicatie bij 9+ score</span>
+        <div>
+          <label class="toggle">
+            <input type="checkbox" onchange="toggleInstelling(this,'auto')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="inst-kaart">
+      <div class="inst-titel">🔗 GitHub status webhook</div>
+      <p style="font-size:12px;color:rgba(61,52,46,0.6);line-height:1.6;margin-bottom:12px;">
+        Voeg deze Make.com HTTP module toe als laatste stap in elk scenario. Daarna synchroniseert de monitor automatisch bij elke uitvoering.
+      </p>
+      <div style="font-size:11px;font-weight:600;color:rgba(61,52,46,0.6);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Make.com → HTTP → PUT naar GitHub</div>
+      <div class="webhook-box">
+        <button class="webhook-copy" onclick="kopieer(this)">Kopieer</button>
+        URL: https://api.github.com/repos/<br>
+        &nbsp;&nbsp;nomadandsoul/nomad-curator/<br>
+        &nbsp;&nbsp;contents/status.json<br><br>
+        Method: PUT<br>
+        Header: Authorization: Bearer [TOKEN]<br><br>
+        Body:<br>
+        {<br>
+        &nbsp;"scenario": "{{scenario_naam}}",<br>
+        &nbsp;"gescand": {{aantal_gescand}},<br>
+        &nbsp;"goedgekeurd": {{aantal_goed}},<br>
+        &nbsp;"timestamp": "{{now}}"<br>
+        }
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:rgba(61,52,46,0.5);">
+        ℹ️ Maak een GitHub Personal Access Token aan via github.com → Settings → Developer settings → Tokens → repo scope
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const LOG_DATA = [
+  { type: 'ok', icon: '✓', tekst: '<strong>Scenario A voltooid</strong> — 47 producten gescand, 12 goedgekeurd door Claude', tijd: '2 uur geleden', sc: 'Scanner' },
+  { type: 'ok', icon: '✓', tekst: '<strong>Product gepubliceerd</strong> — "Boho Kaftan Terra" live in collectie Dames', tijd: '2 uur geleden', sc: 'Publicatie' },
+  { type: 'ok', icon: '✓', tekst: '<strong>Product gepubliceerd</strong> — "Sieradenset Ibiza Gold" live in collectie Sieraden', tijd: '2 uur geleden', sc: 'Publicatie' },
+  { type: 'info', icon: '●', tekst: '<strong>Claude beschrijving herschreven</strong> — "Linnen Heren Shirt" in Nomad & Soul merkstijl', tijd: '2 uur geleden', sc: 'Publicatie' },
+  { type: 'warn', icon: '⚠', tekst: '<strong>8 producten wachten</strong> op jouw goedkeuring in de curator app', tijd: '3 uur geleden', sc: 'Scanner' },
+  { type: 'ok', icon: '✓', tekst: '<strong>35 producten afgewezen</strong> door Claude — te lage merkfit of ROAS score', tijd: '3 uur geleden', sc: 'Scanner' },
+  { type: 'info', icon: '●', tekst: '<strong>Scenario A gestart</strong> — weekelijkse productscan gestart', tijd: 'Maandag 08:00', sc: 'Scanner' },
+  { type: 'fout', icon: '✗', tekst: '<strong>API fout</strong> — Shopify timeout op product ID 8847233. Automatisch herprob...', tijd: 'Vorige week', sc: 'Publicatie' },
+  { type: 'ok', icon: '✓', tekst: '<strong>Scenario B voltooid</strong> — 2 producten gepubliceerd, 2 in draft', tijd: 'Vorige week', sc: 'Publicatie' },
+];
+
+let actieveFilter = 'alle';
+
+function renderLog() {
+  const container = document.getElementById('log-container');
+  const gefilterd = actieveFilter === 'alle' ? LOG_DATA : LOG_DATA.filter(l => {
+    if (actieveFilter === 'ok') return l.type === 'ok';
+    if (actieveFilter === 'fout') return l.type === 'fout' || l.type === 'warn';
+    return true;
+  });
+  container.innerHTML = gefilterd.map(l => `
+    <div class="log-rij">
+      <div class="log-icon ${l.type}">${l.icon}</div>
+      <div class="log-content">
+        <div class="log-tekst">${l.tekst}<span class="log-sc">${l.sc}</span></div>
+        <div class="log-tijd">${l.tijd}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterLog(filter, el) {
+  actieveFilter = filter;
+  document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('actief'));
+  el.classList.add('actief');
+  renderLog();
+}
+
+function refresh() {
+  const nu = new Date();
+  document.getElementById('laatste-update').textContent = 'Laatste update: ' + nu.toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'});
+  // Kleine animatie
+  const kpis = document.querySelectorAll('.kpi-num');
+  kpis.forEach(k => { k.style.opacity = '0.5'; setTimeout(() => k.style.opacity = '1', 300); });
+}
+
+function simuleerRun(btn) {
+  const origineel = btn.textContent;
+  btn.textContent = '⏳ Bezig...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ Klaar';
+    setTimeout(() => { btn.textContent = origineel; btn.disabled = false; }, 2000);
+    LOG_DATA.unshift({ type: 'ok', icon: '✓', tekst: '<strong>Handmatige run gestart</strong> — scenario wordt uitgevoerd', tijd: 'Zojuist', sc: 'Handmatig' });
+    renderLog();
+  }, 2500);
+}
+
+function toggleInstelling(el, type) {
+  const status = el.checked;
+  LOG_DATA.unshift({ type: 'info', icon: '●', tekst: `<strong>Instelling gewijzigd</strong> — ${type} ${status ? 'ingeschakeld' : 'uitgeschakeld'}`, tijd: 'Zojuist', sc: 'Instellingen' });
+  renderLog();
+}
+
+function kopieer(btn) {
+  btn.textContent = 'Gekopieerd!';
+  setTimeout(() => btn.textContent = 'Kopieer', 2000);
+}
+
+// Init
+refresh();
+renderLog();
+setInterval(refresh, 60000);
+</script>
+</body>
+</html>

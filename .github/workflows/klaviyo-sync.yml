@@ -1,0 +1,122 @@
+name: Nomad & Soul — Klaviyo Template Sync
+
+# Trigger: elke keer dat een .html bestand in klaviyo-mails/ wordt gepusht
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'klaviyo-mails/**.html'
+
+jobs:
+  sync-to-klaviyo:
+    name: Publiceer nieuwe mail templates in Klaviyo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detecteer nieuwe of gewijzigde bestanden
+        id: changed
+        run: |
+          FILES=$(git diff --name-only HEAD~1 HEAD -- 'klaviyo-mails/*.html' | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          if [ -z "$FILES" ]; then
+            echo "Geen nieuwe HTML bestanden gevonden."
+          else
+            echo "Te publiceren: $FILES"
+          fi
+
+      - name: Publiceer templates naar Klaviyo
+        if: steps.changed.outputs.files != ''
+        env:
+          KLAVIYO_PRIVATE_KEY: ${{ secrets.KLAVIYO_PRIVATE_KEY }}
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import urllib.request
+          import urllib.error
+          import os
+          import sys
+
+          api_key = os.environ["KLAVIYO_PRIVATE_KEY"]
+
+          # Bestandsnaam → leesbare Klaviyo-naam
+          NAME_MAP = {
+              "mail1-wind":   "Nomad & Soul — Welkomstmail 1: Wind",
+              "mail2-aarde":  "Nomad & Soul — Welkomstmail 2: Aarde",
+              "mail3-zon":    "Nomad & Soul — Welkomstmail 3: Zon",
+              "mail4-zee":    "Nomad & Soul — Welkomstmail 4: Zee",
+              "mail5-vuur":   "Nomad & Soul — Welkomstmail 5: Vuur",
+              "mail6-maan":   "Nomad & Soul — Welkomstmail 6: Maan",
+          }
+
+          changed = "${{ steps.changed.outputs.files }}".split()
+          errors = []
+
+          for filepath in changed:
+              filepath = filepath.strip()
+              if not filepath.endswith(".html") or not os.path.exists(filepath):
+                  print(f"Sla over (bestaat niet of geen HTML): {filepath}")
+                  continue
+
+              key = os.path.basename(filepath).replace(".html", "")
+              template_name = NAME_MAP.get(key, f"Nomad & Soul — {key}")
+
+              print(f"\nPubliceer: {template_name}")
+              print(f"Bestand:   {filepath}")
+
+              with open(filepath, "r", encoding="utf-8") as f:
+                  html = f.read()
+
+              payload = {
+                  "data": {
+                      "type": "template",
+                      "attributes": {
+                          "name": template_name,
+                          "editor_type": "CODE",
+                          "html": html
+                      }
+                  }
+              }
+
+              data = json.dumps(payload).encode("utf-8")
+
+              req = urllib.request.Request(
+                  "https://a.klaviyo.com/api/templates/",
+                  data=data,
+                  headers={
+                      "Authorization": f"Klaviyo-API-Key {api_key}",
+                      "revision": "2024-10-15",
+                      "Content-Type": "application/json",
+                      "Accept": "application/json"
+                  }
+              )
+
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      result = json.loads(response.read())
+                      tid = result["data"]["id"]
+                      name = result["data"]["attributes"]["name"]
+                      print(f"Aangemaakt in Klaviyo:")
+                      print(f"  Naam: {name}")
+                      print(f"  ID:   {tid}")
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", errors="replace")
+                  msg = f"HTTP {e.code} bij {template_name}: {body}"
+                  print(f"FOUT: {msg}")
+                  errors.append(msg)
+              except Exception as e:
+                  msg = f"Onverwachte fout bij {template_name}: {str(e)}"
+                  print(f"FOUT: {msg}")
+                  errors.append(msg)
+
+          if errors:
+              print(f"\n{len(errors)} fout(en) opgetreden.")
+              sys.exit(1)
+          else:
+              print("\nKlaar — alle templates zijn aangemaakt in Klaviyo.")
+          PYEOF

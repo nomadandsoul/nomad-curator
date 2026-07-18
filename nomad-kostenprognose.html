@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Nomad &amp; Soul — Verwachte Uitgaven &amp; Prognose</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3D342E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nomad &amp; Soul">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root { --tc:#BC7A5C; --esp:#3D342E; --iv:#F5EFEB; --zand:#E4DACF; --dusty:#7A6552; }
+*{box-sizing:border-box;}
+body{
+  margin:0;font-family:'Montserrat',sans-serif;color:var(--esp);
+  background-image:url('sfeer-achtergrond.jpg');background-size:cover;
+  background-position:center top;background-attachment:fixed;background-color:#F0EAE5;
+  position:relative;min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;background:rgba(245,239,235,0.87);z-index:0;pointer-events:none;
+}
+.page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.terug{
+  display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--dusty);text-decoration:none;padding:9px 16px;
+  border:1px solid rgba(188,122,92,.3);border-radius:6px;background:rgba(255,255,255,.55);
+  transition:all .2s;
+}
+.terug:hover{background:#fff;border-color:var(--tc);color:var(--tc);}
+.datum-badge{
+  font-size:11px;font-weight:600;letter-spacing:1px;color:var(--dusty);
+  background:rgba(255,255,255,.6);border:1px solid rgba(188,122,92,.25);
+  padding:8px 14px;border-radius:20px;
+}
+h1{font-family:'Playfair Display',serif;font-weight:400;font-style:italic;font-size:32px;margin:18px 0 6px;}
+.sub{font-size:13px;color:var(--dusty);margin:0 0 30px;line-height:1.7;max-width:640px;}
+
+.card{
+  background:rgba(255,255,255,.78);border:1px solid rgba(228,218,207,.9);border-radius:14px;
+  padding:24px 26px;margin-bottom:22px;
+}
+.card h2{font-family:'Playfair Display',serif;font-weight:400;font-size:19px;margin:0 0 4px;}
+.card .hint{font-size:11.5px;color:var(--dusty);margin:0 0 18px;line-height:1.65;}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px;}
+.kpi{background:rgba(255,255,255,.8);border:1px solid rgba(228,218,207,.9);border-radius:12px;padding:18px 20px;}
+.kpi.accent{background:var(--esp);border-color:var(--esp);}
+.kpi.accent .kpi-label{color:rgba(245,239,235,.6);}
+.kpi.accent .kpi-val{color:#fff;}
+.kpi.accent .kpi-note{color:rgba(245,239,235,.55);}
+.kpi-label{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tc);margin-bottom:8px;}
+.kpi-val{font-family:'Playfair Display',serif;font-size:26px;color:var(--esp);line-height:1.1;}
+.kpi-note{font-size:10.5px;color:var(--dusty);margin-top:6px;line-height:1.5;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  text-align:left;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--tc);padding:0 10px 10px;border-bottom:1px solid rgba(188,122,92,.25);
+}
+th.num,td.num{text-align:right;}
+td{padding:11px 10px;border-bottom:1px solid rgba(228,218,207,.55);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.naam{font-weight:600;}
+.meta{font-size:10.5px;color:var(--dusty);margin-top:2px;}
+tr.actief td{background:rgba(188,122,92,.05);}
+tr.totaal td{border-top:2px solid var(--esp);border-bottom:none;padding-top:14px;font-weight:700;font-size:14px;}
+.tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.tag.nu{background:#D6EBDA;color:#1F6B35;}
+.tag.straks{background:rgba(188,122,92,.16);color:#9A5F45;}
+.tag.open{background:#FBE6C8;color:#8A5A12;}
+
+input[type=number],input[type=text]{
+  font-family:'Montserrat',sans-serif;font-size:13px;color:var(--esp);
+  border:1px solid rgba(188,122,92,.35);border-radius:6px;padding:8px 10px;
+  background:#fff;width:100%;transition:border-color .15s;
+}
+input:focus{outline:none;border-color:var(--tc);box-shadow:0 0 0 3px rgba(188,122,92,.1);}
+input::placeholder{color:#B9AEA4;font-style:italic;font-size:12px;}
+.veld-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px 20px;}
+.veld label{display:block;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tc);margin-bottom:6px;}
+.veld .uitleg{font-size:10.5px;color:var(--dusty);margin-top:5px;line-height:1.5;}
+
+.staffel-rij{display:grid;grid-template-columns:1fr 1fr 90px;gap:10px;align-items:center;margin-bottom:8px;}
+.staffel-rij .tot{font-size:11px;color:var(--tc);text-align:center;font-weight:600;}
+.staffel-hdr{
+  display:grid;grid-template-columns:1fr 1fr 90px;gap:10px;
+  font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tc);
+  margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(188,122,92,.2);
+}
+.staffel-actief input{border-color:var(--tc);background:rgba(188,122,92,.06);}
+
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.tl-item{border:1px solid rgba(228,218,207,.9);border-radius:10px;padding:14px 16px;background:rgba(255,255,255,.6);}
+.tl-item.nu{border-color:var(--tc);border-width:2px;background:rgba(188,122,92,.07);}
+.tl-datum{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tc);margin-bottom:5px;}
+.tl-bedrag{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:4px;}
+.tl-note{font-size:10.5px;color:var(--dusty);line-height:1.5;}
+
+.warn{
+  border-left:3px solid var(--tc);background:rgba(188,122,92,.08);
+  padding:13px 16px;border-radius:0 8px 8px 0;font-size:12.5px;line-height:1.7;margin-top:16px;
+}
+.warn strong{color:#9A5F45;}
+
+.var-out{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:20px;
+  padding-top:18px;border-top:1px solid rgba(228,218,207,.7);
+}
+.var-cel{text-align:center;}
+.var-cel .lab{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tc);margin-bottom:6px;}
+.var-cel .val{font-family:'Playfair Display',serif;font-size:21px;}
+.var-cel .rng{font-size:10px;color:var(--dusty);margin-top:3px;}
+
+.reset{
+  font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dusty);
+  background:none;border:1px solid rgba(188,122,92,.3);border-radius:6px;padding:7px 14px;
+  cursor:pointer;transition:all .2s;
+}
+.reset:hover{border-color:var(--tc);color:var(--tc);}
+
+@media(max-width:640px){
+  h1{font-size:25px;}
+  .card{padding:20px 18px;}
+  table{font-size:12px;}
+  td,th{padding-left:5px;padding-right:5px;}
+  .kpi-val{font-size:22px;}
+  .staffel-rij,.staffel-hdr{grid-template-columns:1fr 1fr 60px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <a class="terug" href="index.html">&#8592; Dashboard</a>
+    <span class="datum-badge" id="badgeDatum"></span>
+  </div>
+
+  <h1>Verwachte Uitgaven &amp; Prognose</h1>
+  <p class="sub">Vaste lasten, jaarlijkse reserveringen en omzetgekoppelde kosten op één plek. De datum synchroniseert dagelijks &mdash; kostenposten springen automatisch aan zodra hun trigger bereikt is.</p>
+
+  <div class="kpis">
+    <div class="kpi accent">
+      <div class="kpi-label">Vaste lasten vandaag</div>
+      <div class="kpi-val" id="kpiVast">&euro;0</div>
+      <div class="kpi-note" id="kpiVastNote">per maand</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Variabele kosten</div>
+      <div class="kpi-val" id="kpiVar">&euro;0</div>
+      <div class="kpi-note">o.b.v. ingevulde omzet</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Totaal per maand</div>
+      <div class="kpi-val" id="kpiTotaal">&euro;0</div>
+      <div class="kpi-note">vast + variabel</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Volgende kostensprong</div>
+      <div class="kpi-val" id="kpiSprong">&mdash;</div>
+      <div class="kpi-note" id="kpiSprongNote">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Kostentijdlijn</h2>
+    <p class="hint">Je vaste lasten springen op twee momenten omhoog. Deze berekening loopt mee met de datum van vandaag.</p>
+    <div class="tl" id="tijdlijn"></div>
+  </div>
+
+  <div class="card">
+    <h2>Vaste lasten</h2>
+    <p class="hint">Bedragen in euro per maand. Posten met <span class="tag straks">Later</span> of <span class="tag straks">Bij groei</span> zijn nog niet actief.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Post</th>
+          <th>Status</th>
+          <th class="num">Nu</th>
+          <th class="num">Straks</th>
+        </tr>
+      </thead>
+      <tbody id="vasteTabel"></tbody>
+    </table>
+    <div class="warn" id="warnBoekhouder" style="display:none;">
+      <strong>Nog in te vullen:</strong> het bedrag voor de externe boekhouder ontbreekt. Vul het hieronder in bij Instellingen zodat de prognose compleet is.
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+      <div>
+        <h2>Instellingen</h2>
+        <p class="hint">Alles wat je hier invult herberekent de prognose direct.</p>
+      </div>
+      <button class="reset" id="btnReset">Herstel standaard</button>
+    </div>
+
+    <div class="veld-grid">
+      <div class="veld">
+        <label>Externe boekhouder &mdash; per jaar</label>
+        <input type="number" id="inBoekhouder" placeholder="Nog in te vullen" min="0" step="1">
+        <div class="uitleg">Jaarrekening, los van Moneybird. Wordt maandelijks gereserveerd.</div>
+      </div>
+      <div class="veld">
+        <label>Verwachte omzet &mdash; per maand</label>
+        <input type="number" id="inOmzet" min="0" step="100">
+        <div class="uitleg">Basis voor alle omzetgekoppelde kosten.</div>
+      </div>
+      <div class="veld">
+        <label>Aantal orders per maand</label>
+        <input type="number" id="inOrders" min="0" step="1">
+        <div class="uitleg">Voor de vaste fee per transactie.</div>
+      </div>
+      <div class="veld">
+        <label>Klaviyo-profielen</label>
+        <input type="number" id="inProfielen" min="0" step="10">
+        <div class="uitleg">Bepaalt welke staffel actief is.</div>
+      </div>
+      <div class="veld">
+        <label>Retourpercentage (%)</label>
+        <input type="number" id="inRetour" min="0" max="100" step="0.5">
+        <div class="uitleg">Deel van de orders dat retour komt.</div>
+      </div>
+      <div class="veld">
+        <label>Aandeel defect/fout (%)</label>
+        <input type="number" id="inDefect" min="0" max="100" step="1">
+        <div class="uitleg">Alleen dit deel betaal jij zelf. Maat/spijt is voor de klant.</div>
+      </div>
+      <div class="veld">
+        <label>Retourkosten per zending (&euro;)</label>
+        <input type="number" id="inRetourFee" min="0" step="0.5">
+        <div class="uitleg">Wat een terugzending jou kost.</div>
+      </div>
+      <div class="veld">
+        <label>USD &rarr; EUR koers</label>
+        <input type="number" id="inKoers" min="0.5" max="1.5" step="0.01">
+        <div class="uitleg">Voor Higgsfield en de helpdesk-tool.</div>
+      </div>
+      <div class="veld">
+        <label>ING &mdash; startdatum</label>
+        <input type="text" id="inIngStart" placeholder="JJJJ-MM-DD">
+        <div class="uitleg">Zes maanden gratis vanaf deze datum.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Omzetgekoppelde kosten</h2>
+    <p class="hint">Transactiekosten worden doorgaans je grootste post zodra je draait &mdash; groter dan al je tools samen.</p>
+    <div class="veld-grid">
+      <div class="veld">
+        <label>Tarief laag (%)</label>
+        <input type="number" id="inTarLaag" min="0" max="10" step="0.1">
+      </div>
+      <div class="veld">
+        <label>Tarief hoog (%)</label>
+        <input type="number" id="inTarHoog" min="0" max="10" step="0.1">
+      </div>
+      <div class="veld">
+        <label>Vaste fee per order (&euro;)</label>
+        <input type="number" id="inFee" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="var-out">
+      <div class="var-cel">
+        <div class="lab">Transactiekosten</div>
+        <div class="val" id="outTx">&euro;0</div>
+        <div class="rng" id="outTxRange">&nbsp;</div>
+      </div>
+      <div class="var-cel">
+        <div class="lab">Retourkosten</div>
+        <div class="val" id="outRetour">&euro;0</div>
+        <div class="rng" id="outRetourNote">&nbsp;</div>
+      </div>
+      <div class="var-cel">
+        <div class="lab">Klaviyo</div>
+        <div class="val" id="outKlaviyo">&euro;0</div>
+        <div class="rng" id="outKlaviyoNote">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Klaviyo-staffels</h2>
+    <p class="hint">Klaviyo rekent per profiel, niet per omzet. Elke inschrijver kost geld &mdash; ook wie nooit koopt. Pas de staffels aan zodra Klaviyo z'n tarieven wijzigt.</p>
+    <div class="staffel-hdr">
+      <div>Tot en met (profielen)</div>
+      <div>Prijs per maand (USD)</div>
+      <div>&nbsp;</div>
+    </div>
+    <div id="staffels"></div>
+    <div class="warn">
+      <strong>Optimalisatie:</strong> ruim inactieve profielen periodiek op. Wie twaalf maanden niets opende kost je geld zonder waarde te leveren. Een sunset-flow (laatste heractivatiemail, daarna uitschrijven) verlaagt deze rekening direct.
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SHOPIFY_SPRONG = "2026-09-01";
+  var ING_GRATIS_MND = 6;
+
+  var POSTEN = [
+    { naam:"Claude Pro",        nu:18.00, straks:18.00, val:"EUR", trigger:"geen",    note:"AI-assistent" },
+    { naam:"Shopify",           nu:1.00,  straks:28.00, val:"EUR", trigger:"shopify", note:"Startkorting t/m aug 2026" },
+    { naam:"Droppery",          nu:29.00, straks:59.00, val:"EUR", trigger:"volume",  note:"Basic naar Optimal bij groei" },
+    { naam:"Moneybird",         nu:15.00, straks:28.00, val:"EUR", trigger:"volume",  note:"Starter naar Groei bij groei" },
+    { naam:"ING zakelijk",      nu:0.00,  straks:9.90,  val:"EUR", trigger:"ing",     note:"Eerste zes maanden gratis" },
+    { naam:"Google Workspace",  nu:6.90,  straks:6.90,  val:"EUR", trigger:"geen",    note:"Zakelijke e-mail" },
+    { naam:"Canva",             nu:0.00,  straks:11.99, val:"EUR", trigger:"volume",  note:"Free naar Pro, later" },
+    { naam:"Helpdesk-software", nu:20.00, straks:20.00, val:"USD", trigger:"geen",    note:"$20 per maand" },
+    { naam:"Higgsfield Plus",   nu:29.00, straks:29.00, val:"USD", trigger:"geen",    note:"$29 per maand, video-engine" },
+    { naam:"Make.com Starter",  nu:9.00,  straks:9.00,  val:"EUR", trigger:"geen",    note:"Automatisering" },
+    { naam:"GitHub Pages",      nu:0.00,  straks:0.00,  val:"EUR", trigger:"geen",    note:"Gratis, publieke repo" }
+  ];
+
+  var JAARLIJKS = [
+    { naam:"Domein .nl", jaar:15.08, note:"nomadandsoul.nl" },
+    { naam:"Domein .be", jaar:12.33, note:"nomadandsoul.be" }
+  ];
+
+  var STANDAARD = {
+    boekhouder: null,
+    omzet: 5000, orders: 60, profielen: 200,
+    retourPct: 8, defectPct: 15, retourFee: 6.95,
+    koers: 0.92, ingStart: "2026-07-14",
+    tarLaag: 1.5, tarHoog: 2.2, fee: 0.25,
+    staffels: [
+      { tot:250, usd:0 }, { tot:500, usd:20 }, { tot:1000, usd:30 },
+      { tot:1500, usd:45 }, { tot:2500, usd:60 }, { tot:5000, usd:100 }
+    ]
+  };
+
+  var S = JSON.parse(JSON.stringify(STANDAARD));
+  if (window.__nomadKosten) {
+    try { S = JSON.parse(JSON.stringify(window.__nomadKosten)); } catch(e){}
+  }
+  function bewaar(){
+    try { window.__nomadKosten = JSON.parse(JSON.stringify(S)); } catch(e){}
+  }
+
+  function vandaag(){ return new Date(); }
+  function d(s){ var p = String(s).split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function plusMaanden(dt, n){ var x = new Date(dt.getTime()); x.setMonth(x.getMonth()+n); return x; }
+  var MAAND = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  var MKORT = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+  function fmtDatum(dt){ return dt.getDate()+" "+MAAND[dt.getMonth()]+" "+dt.getFullYear(); }
+  function fmtKort(dt){ return MKORT[dt.getMonth()]+" "+dt.getFullYear(); }
+  function eur(n){ return "\u20AC"+n.toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function eur0(n){ return "\u20AC"+Math.round(n).toLocaleString("nl-NL"); }
+
+  function triggerActief(trigger, dt){
+    if (trigger === "shopify") return dt >= d(SHOPIFY_SPRONG);
+    if (trigger === "ing")     return dt >= plusMaanden(d(S.ingStart), ING_GRATIS_MND);
+    return false;
+  }
+  function prijsOp(p, dt){
+    var b = triggerActief(p.trigger, dt) ? p.straks : p.nu;
+    return p.val === "USD" ? b * S.koers : b;
+  }
+  function vasteLastenOp(dt){
+    var som = 0;
+    POSTEN.forEach(function(p){ som += prijsOp(p, dt); });
+    JAARLIJKS.forEach(function(j){ som += j.jaar/12; });
+    if (S.boekhouder != null && S.boekhouder > 0) som += S.boekhouder/12;
+    return som;
+  }
+  function klaviyoStaffel(){
+    var st = S.staffels.slice().sort(function(a,b){ return a.tot - b.tot; });
+    for (var i=0; i<st.length; i++){
+      if (S.profielen <= st[i].tot) return { idx:i, usd:st[i].usd, tot:st[i].tot, boven:false };
+    }
+    var l = st[st.length-1];
+    return { idx:st.length-1, usd:l.usd, tot:l.tot, boven:true };
+  }
+  function variabel(){
+    var txLaag = S.omzet*(S.tarLaag/100) + S.orders*S.fee;
+    var txHoog = S.omzet*(S.tarHoog/100) + S.orders*S.fee;
+    var retourOrders = S.orders * (S.retourPct/100) * (S.defectPct/100);
+    var kl = klaviyoStaffel();
+    return {
+      txLaag: txLaag, txHoog: txHoog, txMid: (txLaag+txHoog)/2,
+      retour: retourOrders * S.retourFee, retourOrders: retourOrders,
+      klaviyo: kl.usd * S.koers, kl: kl
+    };
+  }
+
+  function render(){
+    var nu = vandaag();
+    var shopDt = d(SHOPIFY_SPRONG);
+    var ingDt  = plusMaanden(d(S.ingStart), ING_GRATIS_MND);
+
+    document.getElementById("badgeDatum").textContent = fmtDatum(nu);
+
+    var vast = vasteLastenOp(nu);
+    var v = variabel();
+    var varTot = v.txMid + v.retour + v.klaviyo;
+
+    document.getElementById("kpiVast").textContent   = eur0(vast);
+    document.getElementById("kpiVar").textContent    = eur0(varTot);
+    document.getElementById("kpiTotaal").textContent = eur0(vast + varTot);
+
+    var spr = [
+      { dt: shopDt, label:"Shopify", delta:27.00 },
+      { dt: ingDt,  label:"ING",     delta:9.90  }
+    ].filter(function(x){ return x.dt > nu; }).sort(function(a,b){ return a.dt - b.dt; });
+
+    if (spr.length){
+      var s0 = spr[0];
+      var dagen = Math.ceil((s0.dt - nu)/86400000);
+      document.getElementById("kpiSprong").textContent = "+"+eur0(s0.delta);
+      document.getElementById("kpiSprongNote").textContent = s0.label+" \u00B7 over "+dagen+" dagen";
+    } else {
+      document.getElementById("kpiSprong").textContent = "\u2014";
+      document.getElementById("kpiSprongNote").textContent = "Alle datumsprongen gepasseerd";
+    }
+
+    var open = (S.boekhouder == null || S.boekhouder <= 0);
+    document.getElementById("kpiVastNote").textContent = open ? "per maand \u00B7 excl. boekhouder" : "per maand";
+    document.getElementById("warnBoekhouder").style.display = open ? "block" : "none";
+
+    renderTijdlijn(nu, shopDt, ingDt);
+    renderVaste(nu);
+    renderVariabel(v);
+    renderStaffels();
+  }
+
+  function renderTijdlijn(nu, shopDt, ingDt){
+    var pts = [
+      { dt:nu,     lbl:"Vandaag" },
+      { dt:shopDt, lbl:"Shopify vol tarief" },
+      { dt:ingDt,  lbl:"ING wordt betaald" }
+    ].sort(function(a,b){ return a.dt - b.dt; });
+
+    var seen = {}, uniek = [];
+    pts.forEach(function(p){
+      var k = p.dt.getFullYear()+"-"+p.dt.getMonth();
+      if (!seen[k]){ seen[k] = 1; uniek.push(p); }
+    });
+
+    document.getElementById("tijdlijn").innerHTML = uniek.map(function(p){
+      var isNu = Math.abs(p.dt - nu) < 86400000;
+      return '<div class="tl-item'+(isNu ? ' nu' : '')+'">'+
+        '<div class="tl-datum">'+(isNu ? "Nu \u00B7 " : "")+fmtKort(p.dt)+'</div>'+
+        '<div class="tl-bedrag">'+eur0(vasteLastenOp(p.dt))+'</div>'+
+        '<div class="tl-note">'+p.lbl+'</div>'+
+      '</div>';
+    }).join("");
+  }
+
+  function renderVaste(nu){
+    var rijen = "", somNu = 0, somStraks = 0;
+
+    POSTEN.forEach(function(p){
+      var actief  = triggerActief(p.trigger, nu);
+      var pNu     = p.val === "USD" ? p.nu * S.koers : p.nu;
+      var pStraks = p.val === "USD" ? p.straks * S.koers : p.straks;
+      var huidig  = actief ? pStraks : pNu;
+      somNu     += huidig;
+      somStraks += pStraks;
+
+      var tag;
+      if (p.nu === p.straks)            tag = '<span class="tag nu">Vast</span>';
+      else if (actief)                  tag = '<span class="tag nu">Actief</span>';
+      else if (p.trigger === "volume")  tag = '<span class="tag straks">Bij groei</span>';
+      else                              tag = '<span class="tag straks">Later</span>';
+
+      rijen += '<tr'+(actief && p.nu !== p.straks ? ' class="actief"' : '')+'>'+
+        '<td><div class="naam">'+p.naam+'</div><div class="meta">'+p.note+'</div></td>'+
+        '<td>'+tag+'</td>'+
+        '<td class="num">'+eur(huidig)+'</td>'+
+        '<td class="num" style="color:'+(p.nu !== p.straks ? 'var(--dusty)' : '#C4B9AE')+'">'+
+          (p.nu !== p.straks ? eur(pStraks) : "\u2014")+'</td></tr>';
+    });
+
+    JAARLIJKS.forEach(function(j){
+      var mnd = j.jaar/12;
+      somNu += mnd; somStraks += mnd;
+      rijen += '<tr>'+
+        '<td><div class="naam">'+j.naam+'</div><div class="meta">'+j.note+' \u00B7 '+eur(j.jaar)+' per jaar</div></td>'+
+        '<td><span class="tag nu">Reservering</span></td>'+
+        '<td class="num">'+eur(mnd)+'</td>'+
+        '<td class="num" style="color:#C4B9AE">\u2014</td></tr>';
+    });
+
+    var bh = (S.boekhouder != null && S.boekhouder > 0) ? S.boekhouder/12 : null;
+    if (bh != null){ somNu += bh; somStraks += bh; }
+    rijen += '<tr>'+
+      '<td><div class="naam">Externe boekhouder</div><div class="meta">Jaarrekening \u00B7 los van Moneybird</div></td>'+
+      '<td>'+(bh != null ? '<span class="tag nu">Reservering</span>' : '<span class="tag open">Nog in te vullen</span>')+'</td>'+
+      '<td class="num">'+(bh != null ? eur(bh) : "\u2014")+'</td>'+
+      '<td class="num" style="color:#C4B9AE">\u2014</td></tr>';
+
+    rijen += '<tr class="totaal"><td>Totaal vaste lasten</td><td></td>'+
+      '<td class="num">'+eur(somNu)+'</td>'+
+      '<td class="num" style="color:var(--dusty)">'+eur(somStraks)+'</td></tr>';
+
+    document.getElementById("vasteTabel").innerHTML = rijen;
+  }
+
+  function renderVariabel(v){
+    document.getElementById("outTx").textContent      = eur0(v.txMid);
+    document.getElementById("outTxRange").textContent = eur0(v.txLaag)+" \u2013 "+eur0(v.txHoog);
+    document.getElementById("outRetour").textContent  = eur0(v.retour);
+    document.getElementById("outRetourNote").textContent = v.retourOrders.toFixed(1)+" zendingen per maand voor eigen rekening";
+    document.getElementById("outKlaviyo").textContent = eur0(v.klaviyo);
+    document.getElementById("outKlaviyoNote").textContent =
+      v.kl.boven ? "boven hoogste staffel" : "t/m "+v.kl.tot.toLocaleString("nl-NL")+" profielen";
+  }
+
+  function renderStaffels(){
+    var act = klaviyoStaffel();
+    document.getElementById("staffels").innerHTML = S.staffels.map(function(st, i){
+      var isA = (i === act.idx);
+      return '<div class="staffel-rij'+(isA ? ' staffel-actief' : '')+'">'+
+        '<input type="number" data-st="'+i+'" data-f="tot" value="'+st.tot+'" min="0" step="50">'+
+        '<input type="number" data-st="'+i+'" data-f="usd" value="'+st.usd+'" min="0" step="1">'+
+        '<div class="tot">'+(isA ? "\u25CF actief" : "\u00A0")+'</div></div>';
+    }).join("");
+
+    var els = document.querySelectorAll("[data-st]");
+    for (var i=0; i<els.length; i++){
+      els[i].addEventListener("input", function(){
+        var idx = +this.getAttribute("data-st");
+        var f   = this.getAttribute("data-f");
+        var val = parseFloat(this.value);
+        if (!isNaN(val) && val >= 0){ S.staffels[idx][f] = val; bewaar(); render(); }
+      });
+    }
+  }
+
+  var VELDEN = [
+    ["inBoekhouder","boekhouder",true],
+    ["inOmzet","omzet",false],
+    ["inOrders","orders",false],
+    ["inProfielen","profielen",false],
+    ["inRetour","retourPct",false],
+    ["inDefect","defectPct",false],
+    ["inRetourFee","retourFee",false],
+    ["inKoers","koers",false],
+    ["inTarLaag","tarLaag",false],
+    ["inTarHoog","tarHoog",false],
+    ["inFee","fee",false]
+  ];
+
+  function vulVelden(){
+    VELDEN.forEach(function(v){
+      var el = document.getElementById(v[0]);
+      var w  = S[v[1]];
+      el.value = (w == null ? "" : w);
+    });
+    document.getElementById("inIngStart").value = S.ingStart;
+  }
+
+  VELDEN.forEach(function(v){
+    document.getElementById(v[0]).addEventListener("input", function(){
+      var raw = this.value.trim();
+      if (raw === ""){
+        S[v[1]] = v[2] ? null : 0;
+      } else {
+        var n = parseFloat(raw);
+        if (isNaN(n) || n < 0) return;
+        S[v[1]] = n;
+      }
+      bewaar(); render();
+    });
+  });
+
+  document.getElementById("inIngStart").addEventListener("change", function(){
+    var val = this.value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)){
+      var t = d(val);
+      if (!isNaN(t.getTime())){ S.ingStart = val; bewaar(); render(); }
+    }
+  });
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    S = JSON.parse(JSON.stringify(STANDAARD));
+    bewaar(); vulVelden(); render();
+  });
+
+  vulVelden();
+  render();
+
+  setInterval(function(){
+    if (document.getElementById("badgeDatum").textContent !== fmtDatum(vandaag())) render();
+  }, 60000);
+
+})();
+</script>
+</body>
+</html>

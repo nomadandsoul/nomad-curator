@@ -1,0 +1,235 @@
+{
+  "name": "Nomad & Soul — Video Engine v3 Final (Fashion Shoot Stijl)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://i1r1nd-f0.myshopify.com/admin/api/2023-10/products.json?status=active&limit=50",
+        "method": "GET",
+        "headers": [
+          { "name": "X-Shopify-Access-Token", "value": "{{JOUW_SHOPIFY_TOKEN}}" },
+          { "name": "Content-Type", "value": "application/json" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "label": "1. Haal actieve producten op uit Shopify"
+      }
+    },
+    {
+      "id": 2,
+      "module": "util:ArrayIteratorModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": { "array": "{{1.data.products}}" },
+      "metadata": {
+        "designer": { "x": 300, "y": 0 },
+        "label": "2. Iterator — elk product"
+      }
+    },
+    {
+      "id": 3,
+      "module": "util:SetVariableModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "name": "willekeurig_scenario",
+        "value": "{{ceil(random() * 12)}}"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "label": "3. Kies willekeurig Ibiza scenario (1-12)"
+      }
+    },
+    {
+      "id": 4,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "headers": [
+          { "name": "x-api-key", "value": "{{JOUW_CLAUDE_API_KEY}}" },
+          { "name": "anthropic-version", "value": "2023-06-01" },
+          { "name": "content-type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":2500,\"system\":\"Je bent video art director van Nomad & Soul, een bohemian Mediterranean lifestyle webshop.\\n\\nVIDEO CONCEPT: Professionele fashion shoot stijl. Geen spraak, geen tekst in beeld, geen gezichtsexpressies of emoties. Puur visueel product showcasing. Het personage draagt het product en beweegt er natuurlijk mee — lopen, draaien, stof laten bewegen. Zoals een professionele editorial fashion shoot voor een magazine.\\n\\nMERKSTEM VOOR CAPTIONS: Poëtisch, warm, avontuurlijk. Nooit salesy. Tagline: Dress the life you want to live.\\nGEBRUIK: Ibiza-gevoel, mediterrane vrijheid, golden hour, tijdloos, warm zand, terracotta\\nNOOIT: handgemaakt, duurzaam, eco, aanbieding, uitroeptekens\\n\\nPERSONAGE REGELS:\\n- DAMES: vrouw 25-45, slanke mediterrane uitstraling, lang haar\\n- HEREN: man 25-45, atletisch relaxed, mediterraan type\\n- KIDS: kind 4-12 jaar, speels, zomerse energie\\n- FESTIVAL: jonge vrouw 20-35, vrij en energiek\\n- SCHOENEN: alleen voeten en benen in beeld, langzame wandelbeweging\\n- ACCESSOIRES: product in beeld, handen of lichaam als drager\\n- SIERADEN: pols, nek of oren afhankelijk van sieraad — lees productnaam\\n- SALE: zelfde als bovenstaande regels\\n\\nHIGGSFIELD PROMPT REGELS — cruciaal:\\n1. Één zin per instructieblok — nooit combineren\\n2. Focus op PRODUCTBEWEGING en LICHAAMSBEWEGING — niet op gezicht of emotie\\n3. Beweging = stof wappert, persoon loopt/draait/beweegt — professioneel en beheerst\\n4. Altijd toevoegen: Shot on Sony A7IV. No talking. No text overlay.\\n5. Woorden die AI-look vermijden: natural movement, realistic fabric physics, editorial fashion\\n\\nGeef ALLEEN geldige JSON terug.\",\"messages\":[{\"role\":\"user\",\"content\":\"Product: {{2.title}}\\nCollectie: {{2.product_type}}\\nPrijs: {{2.variants[0].price}}\\nTags: {{2.tags}}\\nScenario: {{3.willekeurig_scenario}}\\n\\nScenario lijst:\\n1=Dakteras zonsondergang Ibiza-stad, warme lucht\\n2=Wit zandstrand vroege ochtend, zacht licht\\n3=Olijfboomgaard golden hour, gefilterd licht\\n4=Villa zwembad terras, middagschaduwen\\n5=Vissershaven ochtend, authentieke sfeer\\n6=Witte kerk muur met bougainvillea\\n7=Lokale markt met kruiden en citroenen\\n8=Achterdek zeilboot turquoise water\\n9=Rotsklif uitzicht op zee\\n10=Café terras in dappled shade\\n11=Lavendelveld op zandpad\\n12=Balkon suite met zeezicht\\n\\nGeef dit JSON terug:\\n{\\n  \\\"roas_score\\\": 8,\\n  \\\"merkfit_score\\\": 9,\\n  \\\"video_waardig\\\": true,\\n  \\\"collectie_type\\\": \\\"dames\\\",\\n  \\\"personage\\\": \\\"vrouw 25-35, lang donker haar, mediterrane uitstraling\\\",\\n  \\\"scenario_naam\\\": \\\"naam scenario\\\",\\n  \\\"higgsfield_subject\\\": \\\"1 zin: personage + product exact benoemd + editorial fashion movement\\\",\\n  \\\"higgsfield_camera\\\": \\\"1 zin: één camera beweging. Kies: slow dolly forward / gentle orbit / handheld follow from behind / low angle tilt up / wide static shot / slow push in\\\",\\n  \\\"higgsfield_environment\\\": \\\"1 zin: exacte Ibiza locatie, realistisch en specifiek\\\",\\n  \\\"higgsfield_technisch\\\": \\\"1 zin: lens + licht. Kies: 35mm f1.8 warm golden backlight / 50mm f2.0 soft Mediterranean sun / 85mm f1.4 shallow DOF magic hour / 24mm wide natural daylight\\\",\\n  \\\"higgsfield_beweging\\\": \\\"1 zin: specifieke productbeweging. Kies: fabric flowing naturally in warm breeze / dress hem moving with each step / linen shirt catching the wind / fabric draping elegantly as model turns\\\",\\n  \\\"higgsfield_stijl\\\": \\\"1 zin: altijd dit exact: No talking. No facial expressions. No text overlay. Editorial fashion shoot style. Photorealistic. Shot on Sony A7IV.\\\",\\n  \\\"tiktok_caption\\\": \\\"2 korte Nederlandse poëtische zinnen over het gevoel. Eindig met: Dress the life you want to live. ✦\\\",\\n  \\\"tiktok_hashtags\\\": \\\"#bohofashion #ibizastyle #nomadandsoul #vrijgeest #mediterraan #bohochic\\\",\\n  \\\"instagram_caption\\\": \\\"3 Nederlandse zinnen. Sfeervoller en warmer. Eindig met tagline en link: nomadandsoul.nl\\\",\\n  \\\"cta_tekst\\\": \\\"Korte Nederlandse call-to-action zonder uitroepteken. Max 6 woorden. Bv: Ontdek de collectie op nomadandsoul.nl\\\",\\n  \\\"motion_strength\\\": 0.75,\\n  \\\"seizoen\\\": \\\"zomer of winter\\\"\\n}\"}]}"
+      },
+      "metadata": {
+        "designer": { "x": 900, "y": 0 },
+        "label": "4. Claude bepaalt personage + fashion shoot prompt + captions"
+      }
+    },
+    {
+      "id": 5,
+      "module": "util:JSONParseModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": { "json": "{{4.data.content[].text}}" },
+      "metadata": {
+        "designer": { "x": 1200, "y": 0 },
+        "label": "5. Parseer Claude output"
+      }
+    },
+    {
+      "id": 6,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Alleen score 7+ krijgt video",
+        "conditions": [[
+          { "a": "{{5.roas_score}}", "b": "7", "o": "number:greater" }
+        ]]
+      },
+      "metadata": {
+        "designer": { "x": 1500, "y": 0 },
+        "label": "6. Filter — score 7+ doorsturen"
+      }
+    },
+    {
+      "id": 7,
+      "module": "util:SetVariableModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "name": "higgsfield_prompt_final",
+        "value": "{{5.higgsfield_subject}}. {{5.higgsfield_camera}}. {{5.higgsfield_environment}}. {{5.higgsfield_technisch}}. {{5.higgsfield_beweging}}. {{5.higgsfield_stijl}}. 9:16 vertical format."
+      },
+      "metadata": {
+        "designer": { "x": 1800, "y": 0 },
+        "label": "7. Bouw gelaagde fashion shoot prompt samen"
+      }
+    },
+    {
+      "id": 8,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://cloud.higgsfield.ai/v1/image2video/dop",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Key {{JOUW_HIGGSFIELD_KEY_ID}}:{{JOUW_HIGGSFIELD_KEY_SECRET}}" },
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"model\": \"dop-preview\", \"prompt\": \"{{7.higgsfield_prompt_final}}\", \"motion_strength\": {{5.motion_strength}}, \"enhance_prompt\": true, \"check_nsfw\": true, \"input_images\": [{\"type\": \"image_url\", \"image_url\": \"{{2.images[0].src}}\"}]}"
+      },
+      "metadata": {
+        "designer": { "x": 2100, "y": 0 },
+        "label": "8. Higgsfield genereert fashion shoot video"
+      }
+    },
+    {
+      "id": 9,
+      "module": "builtin:BasicSleep",
+      "version": 1,
+      "parameters": { "delay": 120 },
+      "metadata": {
+        "designer": { "x": 2400, "y": 0 },
+        "label": "9. Wacht 2 minuten op rendering"
+      }
+    },
+    {
+      "id": 10,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://cloud.higgsfield.ai/requests/{{8.data.request_id}}/status",
+        "method": "GET",
+        "headers": [
+          { "name": "Authorization", "value": "Key {{JOUW_HIGGSFIELD_KEY_ID}}:{{JOUW_HIGGSFIELD_KEY_SECRET}}" }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 2700, "y": 0 },
+        "label": "10. Haal video URL op van Higgsfield"
+      }
+    },
+    {
+      "id": 11,
+      "module": "builtin:BasicFilter",
+      "version": 1,
+      "parameters": {},
+      "filter": {
+        "name": "Video COMPLETED?",
+        "conditions": [[
+          { "a": "{{10.data.status}}", "b": "COMPLETED", "o": "equal" }
+        ]]
+      },
+      "metadata": {
+        "designer": { "x": 3000, "y": 0 },
+        "label": "11. Filter — video klaar?"
+      }
+    },
+    {
+      "id": 12,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": { "handleErrors": false },
+      "mapper": {
+        "url": "https://api.bufferapp.com/1/updates/create.json",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer {{JOUW_BUFFER_TOKEN}}" },
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "contentType": "application/json",
+        "body": "{\"profile_ids\": [\"{{JOUW_TIKTOK_BUFFER_ID}}\", \"{{JOUW_INSTAGRAM_BUFFER_ID}}\"], \"text\": \"{{5.tiktok_caption}}\n\n{{5.cta_tekst}}\n\n{{5.tiktok_hashtags}}\", \"media\": {\"video\": \"{{10.data.output.media_url[0]}}\", \"thumbnail\": \"{{2.images[0].src}}\"}}"
+      },
+      "metadata": {
+        "designer": { "x": 3300, "y": 0 },
+        "label": "12. Buffer post video + caption + CTA link naar TikTok + Instagram"
+      }
+    },
+    {
+      "id": 13,
+      "module": "google-sheets:addRow",
+      "version": 1,
+      "parameters": { "__IMTCONN__": "google" },
+      "mapper": {
+        "spreadsheetId": "{{JOUW_GOOGLE_SHEET_ID}}",
+        "sheetName": "Content Log",
+        "values": {
+          "A": "{{2.id}}",
+          "B": "{{2.title}}",
+          "C": "{{5.collectie_type}}",
+          "D": "{{5.personage}}",
+          "E": "{{5.roas_score}}",
+          "F": "{{5.scenario_naam}}",
+          "G": "{{5.tiktok_caption}}",
+          "H": "{{5.instagram_caption}}",
+          "I": "{{5.cta_tekst}}",
+          "J": "{{7.higgsfield_prompt_final}}",
+          "K": "{{10.data.output.media_url[0]}}",
+          "L": "{{formatDate(now; 'DD-MM-YYYY HH:mm')}}"
+        }
+      },
+      "metadata": {
+        "designer": { "x": 3600, "y": 0 },
+        "label": "13. Log alles in Google Sheet"
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "sequential": true
+    },
+    "zone": "eu1.make.com"
+  }
+}

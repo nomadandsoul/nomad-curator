@@ -1,0 +1,99 @@
+{
+  "name": "Nomad & Soul — 9 Collecties Aanmaken",
+  "flow": [
+    {
+      "id": 1,
+      "module": "builtin:BasicTrigger",
+      "version": 1,
+      "parameters": {
+        "numberOfBundles": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": {},
+        "label": "Handmatig starten"
+      }
+    },
+    {
+      "id": 2,
+      "module": "util:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          {
+            "name": "collecties",
+            "value": "[{\"title\":\"Dames\",\"handle\":\"dames\"},{\"title\":\"Heren\",\"handle\":\"heren\"},{\"title\":\"Little Nomads\",\"handle\":\"kids\"},{\"title\":\"Schoenen\",\"handle\":\"schoenen\"},{\"title\":\"Sieraden en Armbanden\",\"handle\":\"sieraden\"},{\"title\":\"Accessoires\",\"handle\":\"accessoires\"},{\"title\":\"Festival\",\"handle\":\"festival\"},{\"title\":\"Sale\",\"handle\":\"sale\"},{\"title\":\"Bestsellers\",\"handle\":\"bestsellers\"}]"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": { "x": 200, "y": 0 },
+        "label": "Collecties lijst"
+      }
+    },
+    {
+      "id": 3,
+      "module": "util:JSONParseModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "json": "{{2.collecties}}"
+      },
+      "metadata": {
+        "designer": { "x": 400, "y": 0 },
+        "label": "JSON parsen"
+      }
+    },
+    {
+      "id": 4,
+      "module": "util:ArrayIteratorModule",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "array": "{{3.json}}"
+      },
+      "metadata": {
+        "designer": { "x": 600, "y": 0 },
+        "label": "Iterator — 9 collecties"
+      }
+    },
+    {
+      "id": 5,
+      "module": "shopify:createCustomCollection",
+      "version": 1,
+      "parameters": {
+        "__IMTCONN__": "shopify"
+      },
+      "mapper": {
+        "title": "{{4.value.title}}",
+        "handle": "{{4.value.handle}}",
+        "published": true
+      },
+      "metadata": {
+        "designer": { "x": 800, "y": 0 },
+        "label": "Shopify — Collectie aanmaken"
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "eu1.make.com"
+  }
+}
