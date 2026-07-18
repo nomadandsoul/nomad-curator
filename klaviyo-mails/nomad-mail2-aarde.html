@@ -13,12 +13,16 @@
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
     img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    .header-logo-wrapper { display:inline-block !important; width:100% !important; max-width:250px !important; padding:20px 0 !important; }
+    .header-logo { display:block !important; width:100% !important; max-width:250px !important; height:auto !important; object-fit:contain !important; image-rendering:-webkit-optimize-contrast !important; }
     a { text-decoration: none; }
 
     /* Mobile */
     @media only screen and (max-width: 620px) {
       .email-wrap  { width: 100% !important; }
       .hero-img    { width: 100% !important; height: auto !important; }
+      .header-logo-wrapper { max-width:180px !important; }
+      .header-logo { width: 100% !important; max-width: 180px !important; }
       .headline    { font-size: 26px !important; line-height: 1.35 !important; }
       .body-p      { font-size: 14px !important; }
       .cat-td      { display: block !important; width: 100% !important; padding: 0 20px 24px !important; }
@@ -43,11 +47,13 @@
     ══════════════════════════════════════════ -->
     <tr>
       <td class="pad-sides" align="center" style="padding: 36px 40px 20px; background-color:#F5EFEB;">
-        <a href="https://nomadandsoul.nl" style="display:inline-block;">
-          <img src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/IMG_9394-removebg-preview_1.png?v=1781726187"
-               alt="Nomad & Soul" width="210"
-               style="display:block; width:210px; max-width:210px; height:auto;">
-        </a>
+        <div class="header-logo-wrapper" style="display:inline-block;width:100%;max-width:250px;padding:20px 0;">
+          <a href="https://nomadandsoul.nl" style="display:inline-block;">
+            <img class="header-logo" src="https://cdn.shopify.com/s/files/1/1055/4818/5941/files/IMG_9394-removebg-preview_1.png?v=1781726187"
+                 alt="Nomad & Soul" width="250"
+                 style="display:block; width:100%; max-width:250px; height:auto; object-fit:contain; image-rendering:-webkit-optimize-contrast;">
+          </a>
+        </div>
       </td>
     </tr>
 
