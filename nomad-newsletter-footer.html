@@ -1,0 +1,85 @@
+<style>
+  .ns-newsletter-footer {
+    position: relative;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .ns-newsletter-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 450px; /* Maakt de kolom compact */
+    margin: 0 auto;
+    text-align: left; /* Lijnt netjes uit met de rest van je menu */
+  }
+
+  .ns-newsletter-title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #3d342e; /* Donkere kleur voor leesbaarheid op zandachtergrond */
+  }
+
+  .ns-newsletter-sub {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    color: #5c5047;
+    line-height: 1.4;
+  }
+
+  .ns-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ns-input-email {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #c2b5a8;
+    border-radius: 100px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+
+  .ns-btn-submit {
+    width: 100%;
+    padding: 12px 25px;
+    background-color: #c77a58; /* Je mooie terracotta kleur */
+    color: #fff;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background 0.3s;
+  }
+
+  .ns-btn-submit:hover {
+    background-color: #b06846;
+  }
+
+  .ns-checkbox-label {
+    font-size: 0.75rem;
+    color: #5c5047;
+    margin-top: 8px;
+    display: block;
+    line-height: 1.3;
+  }
+</style>
+
+<div class="ns-newsletter-footer">
+  <div class="ns-newsletter-inner">
+    <h3 class="ns-newsletter-title">Word deel van de Nomad & Soul familie</h3>
+    <p class="ns-newsletter-sub">Vroege toegang tot nieuwe collecties, stylingtips en het bohemian-verhaal achter Nomad & Soul. Als welkom ontvang je 10% korting op je eerste bestelling.</p>
+    
+    <form id="ns-newsletter-form" class="ns-form-group">
+      <input type="email" class="ns-input-email" placeholder="jouw@email.nl" required>
+      <button type="submit" class="ns-btn-submit">Schrijf je in</button>
+      <label class="ns-checkbox-label">
+        <input type="checkbox" required> Ik ga akkoord met het ontvangen van e-mails van Nomad & Soul en heb het privacybeleid gelezen. Uitschrijven kan altijd.
+      </label>
+    </form>
+  </div>
+</div>
