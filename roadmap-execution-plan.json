@@ -1,0 +1,1042 @@
+{
+  "executionRoadmap": {
+    "projectName": "Nomad & Soul - Shopify-Klaviyo Integration",
+    "version": "1.0-Final",
+    "generatedAt": "2026-07-18",
+    "executionStartDate": "2026-07-19",
+    "status": "Ready for Execution",
+    "deduplicationNotes": {
+      "note": "All existing blueprints reviewed and integrated",
+      "blueprintsReviewed": [
+        "klaviyo-trigger-blueprint.json (Started Checkout event payload)",
+        "klaviyo-flow-architecture.json (5 complete flows with webhook architecture)"
+      ],
+      "deduplicationStatus": "No redundancy - all components linked to this roadmap"
+    },
+    "executionPhases": [
+      {
+        "phaseId": "phase_morning_setup",
+        "phaseName": "Morning Setup & Validation (07:00-08:30)",
+        "priority": "CRITICAL",
+        "duration": "90 minutes",
+        "tasks": [
+          {
+            "taskId": "task_1_1",
+            "taskName": "API Credentials Verification",
+            "description": "Verify all API keys and tokens are active and have correct permissions",
+            "executionOrder": 1,
+            "owner": "DevOps Lead",
+            "actions": [
+              {
+                "action": "verify_klaviyo_api_key",
+                "details": "Test v3 API key connectivity",
+                "endpoint": "https://a.klaviyo.com/api/v3/metrics?fields[metric]=id,name,created",
+                "expectedStatusCode": 200,
+                "timeout": "30 seconds",
+                "errorHandling": "If failed, regenerate key immediately"
+              },
+              {
+                "action": "verify_shopify_access_token",
+                "details": "Confirm Shopify API access with webhook scope",
+                "requiredScopes": [
+                  "write_checkouts",
+                  "read_checkouts",
+                  "write_orders",
+                  "read_orders",
+                  "write_customers",
+                  "read_customers"
+                ],
+                "expectedResult": "All scopes confirmed active"
+              },
+              {
+                "action": "verify_webhook_receiver",
+                "details": "Test webhook receiver endpoint",
+                "endpoint": "https://nomad-soul-webhooks.com/health",
+                "expectedStatusCode": 200,
+                "expectedResponse": "webhook_receiver_ready"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "Klaviyo v3 API responds with 200",
+                "Shopify token has all 6 required scopes",
+                "Webhook receiver endpoint healthy"
+              ],
+              "passRate": "100% - all three must pass"
+            },
+            "blockers": "None - proceed if all pass",
+            "failureEscalation": "Halt and contact API provider immediately"
+          },
+          {
+            "taskId": "task_1_2",
+            "taskName": "Shopify Webhook Registration",
+            "description": "Register all required Shopify webhooks",
+            "executionOrder": 2,
+            "owner": "Integration Engineer",
+            "actions": [
+              {
+                "action": "register_checkout_created_webhook",
+                "shopifyEvent": "checkouts/create",
+                "webhookURL": "https://nomad-soul-webhooks.com/shopify/checkout-created",
+                "format": "json",
+                "apiVersion": "2024-07"
+              },
+              {
+                "action": "register_order_created_webhook",
+                "shopifyEvent": "orders/create",
+                "webhookURL": "https://nomad-soul-webhooks.com/shopify/order-created",
+                "format": "json",
+                "apiVersion": "2024-07"
+              },
+              {
+                "action": "register_checkout_updated_webhook",
+                "shopifyEvent": "checkouts/update",
+                "webhookURL": "https://nomad-soul-webhooks.com/shopify/checkout-updated",
+                "format": "json",
+                "apiVersion": "2024-07"
+              },
+              {
+                "action": "register_product_view_webhook",
+                "shopifyEvent": "products/view",
+                "webhookURL": "https://nomad-soul-webhooks.com/shopify/product-viewed",
+                "format": "json",
+                "apiVersion": "2024-07"
+              },
+              {
+                "action": "register_customer_created_webhook",
+                "shopifyEvent": "customers/create",
+                "webhookURL": "https://nomad-soul-webhooks.com/shopify/customer-created",
+                "format": "json",
+                "apiVersion": "2024-07"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "All 5 webhooks registered in Shopify",
+                "Each webhook has correct URL and format",
+                "Each webhook tested with sample event"
+              ],
+              "expectedResult": "201 Created for each webhook registration"
+            },
+            "documentation": "Reference: klaviyo-flow-architecture.json > integrationEndpoints > shopify"
+          },
+          {
+            "taskId": "task_1_3",
+            "taskName": "Klaviyo Metric IDs Retrieval",
+            "description": "Get all required metric IDs from Klaviyo for flow triggers",
+            "executionOrder": 3,
+            "owner": "Integration Engineer",
+            "actions": [
+              {
+                "action": "retrieve_metric_id",
+                "metricName": "Started Checkout",
+                "apiEndpoint": "/metrics?filter=name='Started Checkout'",
+                "storagePath": "METRIC_ID_STARTED_CHECKOUT"
+              },
+              {
+                "action": "retrieve_metric_id",
+                "metricName": "Browse Abandonment",
+                "apiEndpoint": "/metrics?filter=name='Browse Abandonment'",
+                "storagePath": "METRIC_ID_BROWSE_ABANDONMENT"
+              },
+              {
+                "action": "retrieve_metric_id",
+                "metricName": "Order Completed",
+                "apiEndpoint": "/metrics?filter=name='Purchased'",
+                "storagePath": "METRIC_ID_ORDER_COMPLETED"
+              },
+              {
+                "action": "retrieve_metric_id",
+                "metricName": "Loyalty Points Earned",
+                "apiEndpoint": "/metrics?filter=name='Loyalty Points Earned'",
+                "storagePath": "METRIC_ID_LOYALTY_POINTS"
+              }
+            ],
+            "outputFormat": {
+              "metricRegistry": {
+                "METRIC_ID_STARTED_CHECKOUT": "{{ RETRIEVE }}",
+                "METRIC_ID_BROWSE_ABANDONMENT": "{{ RETRIEVE }}",
+                "METRIC_ID_ORDER_COMPLETED": "{{ RETRIEVE }}",
+                "METRIC_ID_LOYALTY_POINTS": "{{ RETRIEVE }}"
+              }
+            },
+            "validation": {
+              "checklist": [
+                "All 4 metric IDs successfully retrieved",
+                "Each metric ID is valid UUID format",
+                "All IDs stored in secure config"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "phaseId": "phase_flow_activation",
+        "phaseName": "Flow Activation & Testing (08:30-10:00)",
+        "priority": "CRITICAL",
+        "duration": "90 minutes",
+        "tasks": [
+          {
+            "taskId": "task_2_1",
+            "taskName": "Deploy Started Checkout Flow",
+            "description": "Activate the Started Checkout recovery flow in Klaviyo",
+            "executionOrder": 1,
+            "owner": "Flow Manager",
+            "actions": [
+              {
+                "action": "create_flow",
+                "flowId": "flow_started_checkout",
+                "flowName": "Started Checkout Recovery",
+                "triggerType": "metric_trigger",
+                "triggerMetricId": "{{ METRIC_ID_STARTED_CHECKOUT }}",
+                "reference": "klaviyo-flow-architecture.json > flows[0]"
+              },
+              {
+                "action": "configure_flow_steps",
+                "steps": 13,
+                "criticalSteps": [
+                  "step_5_checkout_completion_check",
+                  "step_7_abandoned_checkout_email",
+                  "step_11_engagement_check",
+                  "step_13_discount_offer"
+                ]
+              },
+              {
+                "action": "configure_delays",
+                "delaySequence": [
+                  "5 minutes after trigger",
+                  "2 hours after first check",
+                  "No final delay - dynamic based on engagement"
+                ]
+              },
+              {
+                "action": "set_flow_limits",
+                "maxFrequency": "once per checkout",
+                "suppressSegments": ["Recent Purchasers"],
+                "suppressTimeframe": "24 hours"
+              }
+            ],
+            "emailTemplatesRequired": [
+              {
+                "templateId": "EMAIL_TEMPLATE_CHECKOUT_REMINDER_1",
+                "name": "Abandoned Checkout - Reminder 1",
+                "personalization": ["productImages", "productNames", "cartValue", "checkoutLink"]
+              },
+              {
+                "templateId": "EMAIL_TEMPLATE_CHECKOUT_DISCOUNT",
+                "name": "Abandoned Checkout - Incentive Offer",
+                "personalization": ["discountCode", "discountPercentage"]
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "Flow created in Klaviyo UI",
+                "All 13 steps configured correctly",
+                "Email templates linked",
+                "Delays set as specified",
+                "Flow set to DRAFT mode (not live yet)"
+              ]
+            },
+            "status": "DRAFT"
+          },
+          {
+            "taskId": "task_2_2",
+            "taskName": "Deploy Browse Abandonment Flow",
+            "description": "Activate the Browse Abandonment recovery flow - KEY DELIVERABLE",
+            "executionOrder": 2,
+            "owner": "Flow Manager",
+            "priority": "CRITICAL",
+            "actions": [
+              {
+                "action": "create_flow",
+                "flowId": "flow_browse_abandonment",
+                "flowName": "Browse Abandonment Recovery",
+                "triggerType": "metric_trigger",
+                "triggerMetricId": "{{ METRIC_ID_BROWSE_ABANDONMENT }}",
+                "reference": "klaviyo-flow-architecture.json > flows[1]"
+              },
+              {
+                "action": "configure_flow_steps",
+                "steps": 14,
+                "criticalSteps": [
+                  "step_5_cart_status_check",
+                  "step_8_sms_reminder",
+                  "step_10_email_recommendations",
+                  "step_14_final_incentive"
+                ]
+              },
+              {
+                "action": "configure_touchpoints",
+                "channels": [
+                  "SMS (4 hours post-browse)",
+                  "Email (12 hours post-browse with AI recommendations)",
+                  "Email (2 days post-browse with incentive)"
+                ]
+              },
+              {
+                "action": "link_category_suggestion_data",
+                "dataSource": "klaviyo-trigger-blueprint.json > CategorySuggestion",
+                "mapping": {
+                  "PrimaryCategory": "properties.PrimaryCategory",
+                  "SuggestedProducts": "properties.RecommendedProducts"
+                }
+              },
+              {
+                "action": "enable_dynamic_segmentation",
+                "segments": [
+                  "Browse Abandonment - No Cart",
+                  "High-Value Browsers"
+                ]
+              }
+            ],
+            "smsTemplatesRequired": [
+              {
+                "templateId": "SMS_TEMPLATE_BROWSE_REMINDER",
+                "name": "Browse Abandonment - SMS Reminder",
+                "maxLength": 160,
+                "personalization": ["productName", "productImage", "productURL"]
+              }
+            ],
+            "emailTemplatesRequired": [
+              {
+                "templateId": "EMAIL_TEMPLATE_BROWSE_REMINDER",
+                "name": "Browse Abandonment - AI Recommendations",
+                "personalization": ["browsedProducts", "recommendedProducts", "categoryInsight"]
+              },
+              {
+                "templateId": "EMAIL_TEMPLATE_BROWSE_INCENTIVE",
+                "name": "Browse Abandonment - Last Chance Offer",
+                "personalization": ["incentiveType", "applicableProducts", "expirationDate"]
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "Flow created in Klaviyo with correct trigger metric",
+                "All 14 steps configured",
+                "SMS and email templates linked",
+                "Category suggestion data integrated",
+                "Dynamic segments configured",
+                "Flow set to DRAFT mode"
+              ]
+            },
+            "status": "DRAFT",
+            "notes": "This is the key new flow - verify all CategorySuggestion data is present"
+          },
+          {
+            "taskId": "task_2_3",
+            "taskName": "Deploy Post-Purchase Flow",
+            "description": "Activate post-purchase engagement and upsell flow",
+            "executionOrder": 3,
+            "owner": "Flow Manager",
+            "actions": [
+              {
+                "action": "create_flow",
+                "flowId": "flow_post_purchase",
+                "flowName": "Post-Purchase Engagement",
+                "triggerType": "metric_trigger",
+                "triggerMetricId": "{{ METRIC_ID_ORDER_COMPLETED }}",
+                "reference": "klaviyo-flow-architecture.json > flows[2]"
+              },
+              {
+                "action": "configure_flow_steps",
+                "steps": 11,
+                "emailSequence": [
+                  "1 hour: Order confirmation",
+                  "3 days: Post-delivery check-in",
+                  "14 days: Review request",
+                  "14 days: Upsell recommendations"
+                ]
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "Flow created",
+                "4 email templates linked",
+                "All delays configured correctly"
+              ]
+            },
+            "status": "DRAFT"
+          },
+          {
+            "taskId": "task_2_4",
+            "taskName": "Deploy Loyalty Flow",
+            "description": "Activate loyalty tier progression flow",
+            "executionOrder": 4,
+            "owner": "Flow Manager",
+            "actions": [
+              {
+                "action": "create_flow",
+                "flowId": "flow_loyalty_engagement",
+                "flowName": "Loyalty & Tier Progression",
+                "triggerType": "event_based",
+                "triggerEvent": "Loyalty Points Earned",
+                "reference": "klaviyo-flow-architecture.json > flows[3]"
+              },
+              {
+                "action": "configure_tier_thresholds",
+                "tiers": [
+                  {
+                    "tier": "Silver",
+                    "pointsRequired": 500,
+                    "benefits": ["5% discount", "free shipping"]
+                  },
+                  {
+                    "tier": "Gold",
+                    "pointsRequired": 1500,
+                    "benefits": ["10% discount", "priority support"]
+                  },
+                  {
+                    "tier": "Platinum",
+                    "pointsRequired": 3000,
+                    "benefits": ["15% discount", "VIP access", "exclusive events"]
+                  }
+                ]
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "Flow created",
+                "3 tier thresholds configured",
+                "Upgrade notifications configured"
+              ]
+            },
+            "status": "DRAFT"
+          },
+          {
+            "taskId": "task_2_5",
+            "taskName": "Test All Flows with Sample Data",
+            "description": "Execute test runs on all flows with synthetic data",
+            "executionOrder": 5,
+            "owner": "QA Engineer",
+            "actions": [
+              {
+                "action": "create_test_profile",
+                "email": "qa-test-1@nomad-soul.test",
+                "firstName": "Test",
+                "lastName": "User",
+                "purpose": "Flow testing"
+              },
+              {
+                "action": "trigger_started_checkout_flow",
+                "testData": {
+                  "CartID": "test-cart-001",
+                  "CheckoutID": "test-checkout-001",
+                  "CartValue": "125.00",
+                  "Currency": "USD",
+                  "Items": 3
+                },
+                "expectedOutcome": "Email sent within 5 minutes"
+              },
+              {
+                "action": "trigger_browse_abandonment_flow",
+                "testData": {
+                  "SessionID": "test-session-001",
+                  "BrowsedProducts": 5,
+                  "BrowseTimeSeconds": 180,
+                  "CategorySuggestion": "active"
+                },
+                "expectedOutcome": "SMS within 4 hours, email within 12 hours"
+              },
+              {
+                "action": "trigger_post_purchase_flow",
+                "testData": {
+                  "OrderID": "test-order-001",
+                  "OrderValue": "200.00",
+                  "Items": 2
+                },
+                "expectedOutcome": "Confirmation email within 1 hour"
+              },
+              {
+                "action": "verify_email_deliverability",
+                "mailboxMonitor": "qa@nomad-soul.com",
+                "expectedEmails": 3,
+                "timeout": "30 minutes"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "All 3 flows triggered successfully",
+                "All emails delivered within SLA",
+                "SMS delivered (Browse Abandonment)",
+                "No errors in flow logs",
+                "Personalization data correct"
+              ],
+              "passRate": "100%"
+            }
+          }
+        ]
+      },
+      {
+        "phaseId": "phase_shopify_markets",
+        "phaseName": "Shopify Markets Configuration (10:00-11:00)",
+        "priority": "HIGH",
+        "duration": "60 minutes",
+        "tasks": [
+          {
+            "taskId": "task_3_1",
+            "taskName": "Map Markets to Klaviyo Lists",
+            "description": "Set up audience segmentation by Shopify market region - KEY DELIVERABLE",
+            "executionOrder": 1,
+            "owner": "Localization Lead",
+            "actions": [
+              {
+                "action": "map_market_regions",
+                "markets": [
+                  {
+                    "marketId": "gid://shopify/Market/1",
+                    "region": "North America",
+                    "countries": ["US", "CA"],
+                    "klaviyoListId": "{{ LIST_ID_NA }}",
+                    "currencyCode": "USD/CAD",
+                    "language": "en"
+                  },
+                  {
+                    "marketId": "gid://shopify/Market/2",
+                    "region": "Europe",
+                    "countries": ["DE", "FR", "UK", "NL"],
+                    "klaviyoListId": "{{ LIST_ID_EU }}",
+                    "currencyCode": "EUR",
+                    "language": "multi"
+                  },
+                  {
+                    "marketId": "gid://shopify/Market/3",
+                    "region": "APAC",
+                    "countries": ["AU", "NZ", "JP"],
+                    "klaviyoListId": "{{ LIST_ID_APAC }}",
+                    "currencyCode": "AUD/JPY",
+                    "language": "multi"
+                  }
+                ]
+              },
+              {
+                "action": "create_market_lists_in_klaviyo",
+                "listNamingConvention": "Market-[REGION]-[COUNTRY_CODE]",
+                "listProperties": {
+                  "market_region": "{{ REGION }}",
+                  "market_country": "{{ COUNTRY_CODE }}",
+                  "currency_code": "{{ CURRENCY }}",
+                  "language_preference": "{{ LANGUAGE }}"
+                }
+              },
+              {
+                "action": "configure_market_webhooks",
+                "webhookLogic": "When checkout/order webhook received, extract market metadata and assign to corresponding list"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "3 market regions mapped",
+                "3 Klaviyo lists created",
+                "Market metadata configured",
+                "Webhook logic tested for each market"
+              ]
+            }
+          },
+          {
+            "taskId": "task_3_2",
+            "taskName": "Configure Market-Specific Email Templates",
+            "description": "Localize email templates by market region",
+            "executionOrder": 2,
+            "owner": "Marketing Ops",
+            "actions": [
+              {
+                "action": "duplicate_email_templates",
+                "baseTemplates": [
+                  "Abandoned Checkout - Reminder 1",
+                  "Browse Abandonment - AI Recommendations",
+                  "Post-Purchase Confirmation"
+                ],
+                "markets": ["NA", "EU", "APAC"]
+              },
+              {
+                "action": "localize_template_content",
+                "localizations": [
+                  {
+                    "market": "EU",
+                    "adjustments": [
+                      "Add GDPR compliance footer",
+                      "Localize currency symbols (€)",
+                      "Translate to local languages"
+                    ]
+                  },
+                  {
+                    "market": "APAC",
+                    "adjustments": [
+                      "Adjust timezone references",
+                      "Localize currency symbols (¥, A$)",
+                      "Translate to local languages"
+                    ]
+                  }
+                ]
+              },
+              {
+                "action": "update_flow_template_routing",
+                "logic": "Route email template selection based on profile.market_region"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "3 template sets created (NA, EU, APAC)",
+                "All templates localized correctly",
+                "Flow routing logic configured",
+                "Preview templates in each language"
+              ]
+            }
+          },
+          {
+            "taskId": "task_3_3",
+            "taskName": "Set Up Market-Based Suppression Rules",
+            "description": "Configure regional compliance and preference centers",
+            "executionOrder": 3,
+            "owner": "Compliance Officer",
+            "actions": [
+              {
+                "action": "configure_gdpr_compliance_eu",
+                "rules": [
+                  "Explicit consent tracking for all EU customers",
+                  "Right to be forgotten automation",
+                  "Data retention policies (3 years)",
+                  "Automated suppression on opt-out"
+                ]
+              },
+              {
+                "action": "configure_market_quiet_hours",
+                "markets": {
+                  "NA": "11:00 PM - 7:00 AM EST",
+                  "EU": "9:00 PM - 8:00 AM CET",
+                  "APAC": "10:00 PM - 8:00 AM JST"
+                }
+              },
+              {
+                "action": "configure_sms_compliance",
+                "regions": {
+                  "US": "TCPA compliance, opt-in required",
+                  "EU": "SMS must have SMS-specific opt-in",
+                  "AU": "DMA compliance"
+                }
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "GDPR rules configured for EU",
+                "Quiet hours set for all markets",
+                "SMS compliance rules active",
+                "Suppression lists linked"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "phaseId": "phase_go_live",
+        "phaseName": "Go-Live Execution (11:00-12:00)",
+        "priority": "CRITICAL",
+        "duration": "60 minutes",
+        "tasks": [
+          {
+            "taskId": "task_4_1",
+            "taskName": "Final Pre-Live Validation",
+            "description": "Comprehensive checks before activation",
+            "executionOrder": 1,
+            "owner": "Release Manager",
+            "actions": [
+              {
+                "action": "verify_all_webhooks_active",
+                "webhook_count": 5,
+                "expectedStatus": "Active",
+                "testMethod": "Send test webhook to each endpoint"
+              },
+              {
+                "action": "verify_flow_draft_status",
+                "flows": 5,
+                "expectedStatus": "All in DRAFT mode before go-live"
+              },
+              {
+                "action": "verify_email_templates",
+                "count": 10,
+                "expectedDeliverability": "100%"
+              },
+              {
+                "action": "verify_database_connectivity",
+                "checks": [
+                  "Shopify API responding",
+                  "Klaviyo API responding",
+                  "Webhook receiver responding",
+                  "All credentials valid"
+                ]
+              },
+              {
+                "action": "verify_data_integrity",
+                "validations": [
+                  "All metric IDs properly stored",
+                  "All list IDs properly stored",
+                  "All template IDs properly stored",
+                  "Market mappings complete"
+                ]
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "All 5 webhooks: ACTIVE",
+                "All 5 flows: DRAFT",
+                "All 10 templates: READY",
+                "Database connectivity: 100%",
+                "Data integrity: 100%"
+              ],
+              "passRate": "Must be 100% to proceed"
+            },
+            "blockers": "If any check fails, DO NOT PROCEED to go-live"
+          },
+          {
+            "taskId": "task_4_2",
+            "taskName": "Activate All Flows to LIVE",
+            "description": "Switch all flows from DRAFT to LIVE status",
+            "executionOrder": 2,
+            "owner": "Flow Manager",
+            "actions": [
+              {
+                "action": "activate_flow",
+                "flowId": "flow_started_checkout",
+                "status": "LIVE",
+                "expectedImpact": "All new checkouts will trigger recovery sequence"
+              },
+              {
+                "action": "activate_flow",
+                "flowId": "flow_browse_abandonment",
+                "status": "LIVE",
+                "expectedImpact": "All browse events will trigger abandonment recovery"
+              },
+              {
+                "action": "activate_flow",
+                "flowId": "flow_post_purchase",
+                "status": "LIVE",
+                "expectedImpact": "All orders will trigger engagement sequence"
+              },
+              {
+                "action": "activate_flow",
+                "flowId": "flow_loyalty_engagement",
+                "status": "LIVE",
+                "expectedImpact": "Loyalty tier progression active"
+              },
+              {
+                "action": "activate_flow",
+                "flowId": "flow_reactivation",
+                "status": "LIVE",
+                "expectedImpact": "Monthly reactivation campaign active"
+              },
+              {
+                "action": "confirm_activation",
+                "verification": "Each flow shows 'LIVE' status in Klaviyo UI",
+                "timestamp": "Record exact go-live time"
+              }
+            ],
+            "validation": {
+              "checklist": [
+                "All 5 flows activated to LIVE",
+                "Activation timestamps recorded",
+                "No errors in activation logs"
+              ]
+            },
+            "goLiveTimestamp": "{{ RECORD_HERE }}"
+          },
+          {
+            "taskId": "task_4_3",
+            "taskName": "Monitor Initial Production Events",
+            "description": "Monitor first production events flowing through the system",
+            "executionOrder": 3,
+            "owner": "Operations Team",
+            "actions": [
+              {
+                "action": "monitor_webhook_ingestion",
+                "duration": "30 minutes",
+                "metrics": [
+                  "Webhooks received per minute",
+                  "Webhook processing latency",
+                  "Error rate"
+                ],
+                "alertThreshold": {
+                  "errorRate": "< 0.5%",
+                  "latency": "< 5 seconds"
+                }
+              },
+              {
+                "action": "monitor_flow_execution",
+                "metrics": [
+                  "Flows triggered per minute",
+                  "Flow completion rate",
+                  "Step execution errors"
+                ],
+                "alertThreshold": {
+                  "completionRate": "> 99%",
+                  "stepErrors": "< 0.1%"
+                }
+              },
+              {
+                "action": "monitor_email_delivery",
+                "metrics": [
+                  "Emails sent per minute",
+                  "Delivery rate",
+                  "Bounce rate"
+                ],
+                "alertThreshold": {
+                  "deliveryRate": "> 98%",
+                  "bounceRate": "< 2%"
+                }
+              },
+              {
+                "action": "check_for_critical_errors",
+                "errorSources": [
+                  "Webhook logs",
+                  "Flow execution logs",
+                  "Email delivery logs",
+                  "API error responses"
+                ],
+                "action_if_error": "Immediately alert to Slack #integrations channel"
+              }
+            ],
+            "dashboards": {
+              "realTimeMonitoring": "https://nomad-soul-monitoring.com/live",
+              "slackAlertChannel": "#integrations",
+              "monitoringDuration": "30 minutes minimum"
+            },
+            "validation": {
+              "checklist": [
+                "Webhook ingestion: < 0.5% error rate",
+                "Flow execution: > 99% completion",
+                "Email delivery: > 98% success rate",
+                "No critical errors in logs"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "phaseId": "phase_post_launch",
+        "phaseName": "Post-Launch Monitoring (12:00 onwards)",
+        "priority": "HIGH",
+        "duration": "Ongoing",
+        "tasks": [
+          {
+            "taskId": "task_5_1",
+            "taskName": "24-Hour Health Check",
+            "description": "Comprehensive system health after 24 hours",
+            "executionOrder": 1,
+            "owner": "DevOps Lead",
+            "frequency": "Once at 24-hour mark",
+            "actions": [
+              {
+                "action": "aggregate_24hr_metrics",
+                "metrics": [
+                  "Total webhooks processed",
+                  "Total flows triggered",
+                  "Total emails sent",
+                  "Success rates per flow",
+                  "Error rate trends"
+                ]
+              },
+              {
+                "action": "verify_data_quality",
+                "checks": [
+                  "CategorySuggestion data present in all Browse Abandonment events",
+                  "Market region data correctly tagged",
+                  "Customer segmentation accurate"
+                ]
+              },
+              {
+                "action": "generate_24hr_report",
+                "recipients": ["stakeholders@nomad-soul.com"],
+                "format": "JSON + Dashboard"
+              }
+            ]
+          },
+          {
+            "taskId": "task_5_2",
+            "taskName": "Establish Ongoing Monitoring",
+            "description": "Set up continuous monitoring dashboard and alerts",
+            "executionOrder": 2,
+            "owner": "Monitoring Engineer",
+            "actions": [
+              {
+                "action": "create_monitoring_dashboard",
+                "metrics": [
+                  "Daily webhook volume",
+                  "Daily flow triggers by type",
+                  "Daily email metrics (sent, delivered, bounced, opened, clicked)",
+                  "Error rates by flow",
+                  "Browse Abandonment conversion rate",
+                  "Checkout recovery rate",
+                  "Revenue impact"
+                ],
+                "refreshInterval": "Real-time"
+              },
+              {
+                "action": "configure_alerts",
+                "alerts": [
+                  {
+                    "condition": "Error rate > 2%",
+                    "action": "Slack alert to #integrations"
+                  },
+                  {
+                    "condition": "Webhook latency > 10 seconds",
+                    "action": "Escalate to DevOps"
+                  },
+                  {
+                    "condition": "Email delivery rate < 95%",
+                    "action": "Email to operations@nomad-soul.com"
+                  },
+                  {
+                    "condition": "Browse Abandonment conversion < 5%",
+                    "action": "Alert to marketing team"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "taskId": "task_5_3",
+            "taskName": "Weekly Performance Review",
+            "description": "Review system performance and optimization opportunities",
+            "executionOrder": 3,
+            "owner": "Integration Lead",
+            "frequency": "Every Monday",
+            "actions": [
+              {
+                "action": "review_flow_performance",
+                "metrics": [
+                  "Conversion rates by flow",
+                  "Email open rates",
+                  "Click rates",
+                  "Unsubscribe rates"
+                ]
+              },
+              {
+                "action": "review_market_performance",
+                "segmentation": [
+                  "NA vs EU vs APAC conversion rates",
+                  "Regional email engagement",
+                  "Regional SMS engagement"
+                ]
+              },
+              {
+                "action": "identify_optimization_opportunities",
+                "analysis": [
+                  "Test different email send times by market",
+                  "A/B test email copy variations",
+                  "Optimize CategorySuggestion relevance scoring",
+                  "Review Browse Abandonment SMS effectiveness"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "criticalResources": {
+      "blueprintFiles": [
+        {
+          "filename": "klaviyo-trigger-blueprint.json",
+          "purpose": "Started Checkout event payload structure",
+          "includesDataPoint": "CategorySuggestion variable",
+          "status": "READY"
+        },
+        {
+          "filename": "klaviyo-flow-architecture.json",
+          "purpose": "Complete flow definitions and webhook architecture",
+          "flows": 5,
+          "status": "READY"
+        },
+        {
+          "filename": "roadmap-execution-plan.json",
+          "purpose": "This file - execution playbook for go-live",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    "successCriteria": {
+      "phase1": {
+        "name": "Morning Setup",
+        "targetCompletion": "08:30",
+        "successMetrics": [
+          "All API credentials verified",
+          "All Shopify webhooks registered",
+          "All Klaviyo metric IDs retrieved"
+        ]
+      },
+      "phase2": {
+        "name": "Flow Activation",
+        "targetCompletion": "10:00",
+        "successMetrics": [
+          "All 5 flows deployed in DRAFT",
+          "All test cases passed",
+          "Browse Abandonment flow fully configured"
+        ]
+      },
+      "phase3": {
+        "name": "Shopify Markets",
+        "targetCompletion": "11:00",
+        "successMetrics": [
+          "3 market regions mapped",
+          "3 regional template sets created",
+          "Compliance rules configured"
+        ]
+      },
+      "phase4": {
+        "name": "Go-Live",
+        "targetCompletion": "12:00",
+        "successMetrics": [
+          "All pre-live validations pass",
+          "All flows activated to LIVE",
+          "Initial events flowing successfully",
+          "No critical errors in first 30 minutes"
+        ]
+      },
+      "overallSuccess": "All flows LIVE, system monitoring active, < 0.5% error rate"
+    },
+    "rollbackPlan": {
+      "trigger": "If error rate exceeds 5% or critical data loss detected",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Pause all flows to DRAFT mode",
+          "timeToExecute": "< 2 minutes"
+        },
+        {
+          "step": 2,
+          "action": "Disable webhook receivers",
+          "timeToExecute": "< 1 minute"
+        },
+        {
+          "step": 3,
+          "action": "Review error logs to identify root cause",
+          "timeToExecute": "15-30 minutes"
+        },
+        {
+          "step": 4,
+          "action": "Apply fix and redeploy",
+          "timeToExecute": "Varies"
+        },
+        {
+          "step": 5,
+          "action": "Re-activate flows sequentially with monitoring",
+          "timeToExecute": "30-60 minutes"
+        }
+      ]
+    },
+    "documentationReferences": {
+      "blueprintLocation": "/Users/ludodebruyn/Desktop/Skills/",
+      "files": [
+        "klaviyo-trigger-blueprint.json",
+        "klaviyo-flow-architecture.json",
+        "roadmap-execution-plan.json"
+      ],
+      "completionStatus": "All files present and cross-referenced"
+    },
+    "executionNotes": {
+      "note1": "Browse Abandonment is the key new flow - ensure CategorySuggestion data flows correctly",
+      "note2": "Shopify Markets completion ensures global regional compliance",
+      "note3": "All flows use webhook triggers for real-time activation",
+      "note4": "Monitor first 30 minutes intensively for any issues",
+      "note5": "This is a production-ready plan - execute without modifications unless issues found"
+    }
+  }
+}

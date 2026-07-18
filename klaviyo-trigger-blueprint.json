@@ -1,0 +1,70 @@
+{
+  "data": {
+    "type": "event",
+    "attributes": {
+      "metric": {
+        "data": {
+          "type": "metric",
+          "id": "{{ METRIC_ID_STARTED_CHECKOUT }}"
+        }
+      },
+      "profile": {
+        "data": {
+          "type": "profile",
+          "id": "{{ PROFILE_ID }}"
+        }
+      },
+      "properties": {
+        "CartID": "{{ CART_ID }}",
+        "CheckoutURL": "{{ CHECKOUT_URL }}",
+        "CheckoutID": "{{ CHECKOUT_ID }}",
+        "CustomerEmail": "{{ CUSTOMER_EMAIL }}",
+        "CustomerFirstName": "{{ CUSTOMER_FIRST_NAME }}",
+        "CustomerLastName": "{{ CUSTOMER_LAST_NAME }}",
+        "CartValue": "{{ CART_VALUE }}",
+        "Currency": "{{ CURRENCY_CODE }}",
+        "Items": [
+          {
+            "ProductID": "{{ PRODUCT_ID }}",
+            "ProductName": "{{ PRODUCT_NAME }}",
+            "Quantity": "{{ QUANTITY }}",
+            "Price": "{{ ITEM_PRICE }}",
+            "SKU": "{{ SKU }}",
+            "Categories": [
+              "{{ PRIMARY_CATEGORY }}"
+            ]
+          }
+        ],
+        "CategorySuggestion": {
+          "PrimaryCategory": "{{ PRIMARY_CATEGORY }}",
+          "SecondaryCategories": [
+            "{{ SECONDARY_CATEGORY_1 }}",
+            "{{ SECONDARY_CATEGORY_2 }}"
+          ],
+          "SuggestedProducts": [
+            {
+              "ProductID": "{{ SUGGESTION_PRODUCT_ID }}",
+              "ProductName": "{{ SUGGESTION_PRODUCT_NAME }}",
+              "RelevanceScore": 0.95,
+              "Reason": "complementary"
+            }
+          ],
+          "RecommendationEngine": "Nomad & Soul AI",
+          "Timestamp": "{{ SUGGESTION_GENERATED_AT }}"
+        },
+        "ReferralSource": "{{ REFERRAL_SOURCE }}",
+        "UTMCampaign": "{{ UTM_CAMPAIGN }}",
+        "UTMSource": "{{ UTM_SOURCE }}",
+        "UTMMedium": "{{ UTM_MEDIUM }}",
+        "CustomAttributes": {
+          "CustomerSegment": "{{ CUSTOMER_SEGMENT }}",
+          "LoyaltyTier": "{{ LOYALTY_TIER }}",
+          "DeviceType": "{{ DEVICE_TYPE }}",
+          "BrowserLanguage": "{{ BROWSER_LANGUAGE }}"
+        }
+      },
+      "occurred_at": "{{ ISO_8601_TIMESTAMP }}",
+      "value": "{{ CHECKOUT_SUBTOTAL }}"
+    }
+  }
+}

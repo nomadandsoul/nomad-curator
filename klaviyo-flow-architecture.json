@@ -1,0 +1,814 @@
+{
+  "flowArchitecture": {
+    "version": "1.0",
+    "integration": "Shopify-Klaviyo V3",
+    "partner": "Nomad & Soul",
+    "generatedAt": "2026-07-18",
+    "flows": [
+      {
+        "flowId": "flow_started_checkout",
+        "flowName": "Started Checkout Recovery",
+        "triggerType": "webhook",
+        "webhookEndpoint": "/webhooks/checkout/started",
+        "description": "Captures checkout initiation and triggers recovery sequence",
+        "status": "active",
+        "priority": 1,
+        "steps": [
+          {
+            "stepId": "step_1",
+            "type": "trigger",
+            "action": "receive_webhook",
+            "endpoint": "https://nomad-soul-webhooks.com/klaviyo/checkout-started",
+            "eventName": "Started Checkout",
+            "conditions": {
+              "required": ["CartID", "CustomerEmail", "CartValue"],
+              "minCartValue": 0
+            }
+          },
+          {
+            "stepId": "step_2",
+            "type": "condition",
+            "action": "check_profile_exists",
+            "description": "Verify if customer profile exists in Klaviyo",
+            "branches": {
+              "profileExists": "step_3",
+              "profileNotExists": "step_8"
+            }
+          },
+          {
+            "stepId": "step_3",
+            "type": "action",
+            "action": "update_profile",
+            "description": "Update customer profile with checkout metadata",
+            "updateFields": {
+              "LastCheckoutCartValue": "{{ CART_VALUE }}",
+              "LastCheckoutDate": "{{ CHECKOUT_DATE }}",
+              "LastCheckoutCurrency": "{{ CURRENCY_CODE }}",
+              "PendingCheckoutID": "{{ CHECKOUT_ID }}"
+            }
+          },
+          {
+            "stepId": "step_4",
+            "type": "delay",
+            "duration": "5 minutes",
+            "description": "Wait before checking if checkout was completed"
+          },
+          {
+            "stepId": "step_5",
+            "type": "condition",
+            "action": "check_order_completion",
+            "description": "Check if checkout was completed",
+            "conditions": {
+              "checkField": "PendingCheckoutID",
+              "operator": "exists"
+            },
+            "branches": {
+              "orderCompleted": "step_12",
+              "orderAbandoned": "step_6"
+            }
+          },
+          {
+            "stepId": "step_6",
+            "type": "action",
+            "action": "segment_assignment",
+            "description": "Assign to abandoned checkout segment",
+            "segments": ["Abandoned Checkouts - 5min"]
+          },
+          {
+            "stepId": "step_7",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_CHECKOUT_REMINDER_1 }}",
+            "description": "Send first abandoned checkout reminder",
+            "personalization": {
+              "productImages": "{{ CART_PRODUCT_IMAGES }}",
+              "productNames": "{{ CART_PRODUCT_NAMES }}",
+              "cartValue": "{{ CART_VALUE }}",
+              "checkoutLink": "{{ CHECKOUT_URL }}"
+            }
+          },
+          {
+            "stepId": "step_8",
+            "type": "action",
+            "action": "create_profile",
+            "description": "Create new profile for anonymous checkout",
+            "profileData": {
+              "email": "{{ CUSTOMER_EMAIL }}",
+              "firstName": "{{ CUSTOMER_FIRST_NAME }}",
+              "lastName": "{{ CUSTOMER_LAST_NAME }}",
+              "phone": "{{ CUSTOMER_PHONE }}",
+              "source": "shopify_checkout_webhook"
+            }
+          },
+          {
+            "stepId": "step_9",
+            "type": "action",
+            "action": "add_to_list",
+            "description": "Add to checkout recovery audience list",
+            "listId": "{{ CHECKOUT_RECOVERY_LIST_ID }}"
+          },
+          {
+            "stepId": "step_10",
+            "type": "delay",
+            "duration": "2 hours",
+            "description": "Wait before sending follow-up"
+          },
+          {
+            "stepId": "step_11",
+            "type": "condition",
+            "action": "check_engagement",
+            "description": "Check if customer engaged with email",
+            "branches": {
+              "engaged": "step_12",
+              "notEngaged": "step_13"
+            }
+          },
+          {
+            "stepId": "step_12",
+            "type": "action",
+            "action": "flow_end_success",
+            "description": "Order completed or customer engaged"
+          },
+          {
+            "stepId": "step_13",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_CHECKOUT_DISCOUNT }}",
+            "description": "Send incentivized checkout recovery email",
+            "personalization": {
+              "discountCode": "{{ DYNAMIC_CHECKOUT_DISCOUNT }}",
+              "discountPercentage": 10
+            }
+          }
+        ],
+        "webhookPayload": {
+          "data": {
+            "type": "event",
+            "attributes": {
+              "metric": {
+                "data": {
+                  "type": "metric",
+                  "id": "{{ METRIC_ID_STARTED_CHECKOUT }}"
+                }
+              },
+              "profile": {
+                "data": {
+                  "type": "profile",
+                  "id": "{{ PROFILE_ID }}"
+                }
+              },
+              "properties": {
+                "CartID": "{{ CART_ID }}",
+                "CheckoutURL": "{{ CHECKOUT_URL }}",
+                "CheckoutID": "{{ CHECKOUT_ID }}",
+                "CustomerEmail": "{{ CUSTOMER_EMAIL }}",
+                "CustomerFirstName": "{{ CUSTOMER_FIRST_NAME }}",
+                "CustomerLastName": "{{ CUSTOMER_LAST_NAME }}",
+                "CartValue": "{{ CART_VALUE }}",
+                "Currency": "{{ CURRENCY_CODE }}",
+                "Items": "{{ CART_ITEMS }}",
+                "CategorySuggestion": "{{ CATEGORY_SUGGESTION_OBJECT }}",
+                "ReferralSource": "{{ REFERRAL_SOURCE }}",
+                "UTMParameters": "{{ UTM_PARAMS }}"
+              },
+              "occurred_at": "{{ ISO_8601_TIMESTAMP }}",
+              "value": "{{ CHECKOUT_SUBTOTAL }}"
+            }
+          }
+        }
+      },
+      {
+        "flowId": "flow_browse_abandonment",
+        "flowName": "Browse Abandonment Recovery",
+        "triggerType": "webhook",
+        "webhookEndpoint": "/webhooks/browse/abandonment",
+        "description": "Targets customers who browsed but did not initiate checkout",
+        "status": "active",
+        "priority": 2,
+        "steps": [
+          {
+            "stepId": "step_1",
+            "type": "trigger",
+            "action": "receive_webhook",
+            "endpoint": "https://nomad-soul-webhooks.com/klaviyo/browse-abandonment",
+            "eventName": "Browse Abandonment",
+            "conditions": {
+              "required": ["SessionID", "BrowsedProducts"],
+              "minBrowseTimeSeconds": 30
+            }
+          },
+          {
+            "stepId": "step_2",
+            "type": "condition",
+            "action": "check_profile_exists",
+            "branches": {
+              "profileExists": "step_3",
+              "profileNotExists": "step_7"
+            }
+          },
+          {
+            "stepId": "step_3",
+            "type": "action",
+            "action": "update_profile",
+            "description": "Update browsing behavior metadata",
+            "updateFields": {
+              "LastBrowseSessionID": "{{ SESSION_ID }}",
+              "LastBrowsedProducts": "{{ BROWSED_PRODUCT_IDS }}",
+              "LastBrowseDate": "{{ BROWSE_DATE }}",
+              "BrowseCategory": "{{ PRIMARY_CATEGORY }}"
+            }
+          },
+          {
+            "stepId": "step_4",
+            "type": "condition",
+            "action": "check_cart_status",
+            "description": "Check if items still in cart",
+            "branches": {
+              "cartEmpty": "step_5",
+              "cartActive": "step_6"
+            }
+          },
+          {
+            "stepId": "step_5",
+            "type": "action",
+            "action": "segment_assignment",
+            "description": "Assign to browse abandonment segment",
+            "segments": ["Browse Abandonment - No Cart"]
+          },
+          {
+            "stepId": "step_6",
+            "type": "delay",
+            "duration": "4 hours",
+            "description": "Allow time for natural conversion"
+          },
+          {
+            "stepId": "step_7",
+            "type": "action",
+            "action": "create_profile",
+            "description": "Create anonymous profile from session",
+            "profileData": {
+              "email": "{{ DERIVED_EMAIL_IF_AVAILABLE }}",
+              "source": "shopify_browse_webhook",
+              "browsedProducts": "{{ BROWSED_PRODUCT_IDS }}"
+            }
+          },
+          {
+            "stepId": "step_8",
+            "type": "action",
+            "action": "send_sms",
+            "smsTemplateId": "{{ SMS_TEMPLATE_BROWSE_REMINDER }}",
+            "description": "Send browse abandonment SMS reminder",
+            "conditions": {
+              "requiresPhoneNumber": true
+            },
+            "personalization": {
+              "productName": "{{ PRIMARY_BROWSED_PRODUCT_NAME }}",
+              "productImage": "{{ PRIMARY_BROWSED_PRODUCT_IMAGE }}",
+              "productURL": "{{ PRIMARY_BROWSED_PRODUCT_URL }}"
+            }
+          },
+          {
+            "stepId": "step_9",
+            "type": "delay",
+            "duration": "12 hours",
+            "description": "Wait before email follow-up"
+          },
+          {
+            "stepId": "step_10",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_BROWSE_REMINDER }}",
+            "description": "Send personalized product recommendations",
+            "personalization": {
+              "browsedProducts": "{{ BROWSED_PRODUCT_OBJECTS }}",
+              "recommendedProducts": "{{ AI_RECOMMENDED_PRODUCTS }}",
+              "categoryInsight": "{{ CATEGORY_SUGGESTION_DATA }}"
+            }
+          },
+          {
+            "stepId": "step_11",
+            "type": "condition",
+            "action": "check_conversion",
+            "description": "Check if customer made purchase",
+            "branches": {
+              "purchased": "step_12",
+              "notPurchased": "step_13"
+            }
+          },
+          {
+            "stepId": "step_12",
+            "type": "action",
+            "action": "flow_end_success",
+            "description": "Customer converted"
+          },
+          {
+            "stepId": "step_13",
+            "type": "delay",
+            "duration": "2 days",
+            "description": "Wait before final incentive"
+          },
+          {
+            "stepId": "step_14",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_BROWSE_INCENTIVE }}",
+            "description": "Send last-chance incentive",
+            "personalization": {
+              "incentiveType": "free_shipping",
+              "applicableProducts": "{{ BROWSED_PRODUCT_IDS }}",
+              "expirationDate": "{{ INCENTIVE_EXPIRY }}"
+            }
+          }
+        ],
+        "webhookPayload": {
+          "data": {
+            "type": "event",
+            "attributes": {
+              "metric": {
+                "data": {
+                  "type": "metric",
+                  "id": "{{ METRIC_ID_BROWSE_ABANDONMENT }}"
+                }
+              },
+              "profile": {
+                "data": {
+                  "type": "profile",
+                  "id": "{{ PROFILE_ID }}"
+                }
+              },
+              "properties": {
+                "SessionID": "{{ SESSION_ID }}",
+                "BrowsedProducts": [
+                  {
+                    "ProductID": "{{ PRODUCT_ID }}",
+                    "ProductName": "{{ PRODUCT_NAME }}",
+                    "ProductURL": "{{ PRODUCT_URL }}",
+                    "BrowseTimeSeconds": "{{ BROWSE_TIME }}",
+                    "Price": "{{ PRODUCT_PRICE }}",
+                    "Category": "{{ PRODUCT_CATEGORY }}"
+                  }
+                ],
+                "PrimaryCategory": "{{ PRIMARY_CATEGORY }}",
+                "BrowseContext": {
+                  "DeviceType": "{{ DEVICE_TYPE }}",
+                  "BrowserType": "{{ BROWSER_TYPE }}",
+                  "TrafficSource": "{{ TRAFFIC_SOURCE }}"
+                },
+                "CategorySuggestion": "{{ CATEGORY_SUGGESTION_OBJECT }}",
+                "SessionDuration": "{{ SESSION_DURATION_SECONDS }}"
+              },
+              "occurred_at": "{{ ISO_8601_TIMESTAMP }}"
+            }
+          }
+        }
+      },
+      {
+        "flowId": "flow_post_purchase",
+        "flowName": "Post-Purchase Engagement",
+        "triggerType": "webhook",
+        "webhookEndpoint": "/webhooks/order/completed",
+        "description": "Nurtures customer relationship after purchase",
+        "status": "active",
+        "priority": 3,
+        "steps": [
+          {
+            "stepId": "step_1",
+            "type": "trigger",
+            "action": "receive_webhook",
+            "endpoint": "https://nomad-soul-webhooks.com/klaviyo/order-completed",
+            "eventName": "Order Completed",
+            "conditions": {
+              "required": ["OrderID", "CustomerEmail", "OrderValue"]
+            }
+          },
+          {
+            "stepId": "step_2",
+            "type": "action",
+            "action": "update_profile",
+            "description": "Update customer lifetime value metrics",
+            "updateFields": {
+              "LastOrderDate": "{{ ORDER_DATE }}",
+              "TotalOrderValue": "{{ TOTAL_CUSTOMER_LIFETIME_VALUE }}",
+              "OrderCount": "{{ ORDER_COUNT }}",
+              "CustomerStatus": "active"
+            }
+          },
+          {
+            "stepId": "step_3",
+            "type": "action",
+            "action": "segment_assignment",
+            "description": "Assign to post-purchase segment",
+            "segments": ["Recent Purchasers"]
+          },
+          {
+            "stepId": "step_4",
+            "type": "delay",
+            "duration": "1 hour",
+            "description": "Allow time for order confirmation"
+          },
+          {
+            "stepId": "step_5",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_ORDER_CONFIRMATION }}",
+            "description": "Send order confirmation email",
+            "personalization": {
+              "orderID": "{{ ORDER_ID }}",
+              "products": "{{ ORDER_ITEMS }}",
+              "orderValue": "{{ ORDER_VALUE }}",
+              "trackingInfo": "{{ TRACKING_INFO }}"
+            }
+          },
+          {
+            "stepId": "step_6",
+            "type": "delay",
+            "duration": "3 days",
+            "description": "Wait for delivery"
+          },
+          {
+            "stepId": "step_7",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_POST_DELIVERY }}",
+            "description": "Send post-delivery check-in",
+            "personalization": {
+              "productName": "{{ PRIMARY_PRODUCT_NAME }}",
+              "reviewLink": "{{ REVIEW_LINK }}"
+            }
+          },
+          {
+            "stepId": "step_8",
+            "type": "delay",
+            "duration": "14 days",
+            "description": "Allow time for use and feedback"
+          },
+          {
+            "stepId": "step_9",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_REVIEW_REQUEST }}",
+            "description": "Request product review",
+            "personalization": {
+              "reviewIncentive": "{{ REVIEW_INCENTIVE }}"
+            }
+          },
+          {
+            "stepId": "step_10",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_UPSELL_CROSS_SELL }}",
+            "description": "Send personalized recommendations",
+            "personalization": {
+              "complementaryProducts": "{{ COMPLEMENTARY_PRODUCTS }}",
+              "categoryRecommendation": "{{ CATEGORY_SUGGESTION_DATA }}"
+            }
+          },
+          {
+            "stepId": "step_11",
+            "type": "action",
+            "action": "flow_end_success",
+            "description": "Post-purchase sequence completed"
+          }
+        ],
+        "webhookPayload": {
+          "data": {
+            "type": "event",
+            "attributes": {
+              "metric": {
+                "data": {
+                  "type": "metric",
+                  "id": "{{ METRIC_ID_ORDER_COMPLETED }}"
+                }
+              },
+              "profile": {
+                "data": {
+                  "type": "profile",
+                  "id": "{{ PROFILE_ID }}"
+                }
+              },
+              "properties": {
+                "OrderID": "{{ ORDER_ID }}",
+                "OrderValue": "{{ ORDER_VALUE }}",
+                "Currency": "{{ CURRENCY_CODE }}",
+                "Items": "{{ ORDER_ITEMS }}",
+                "CustomerEmail": "{{ CUSTOMER_EMAIL }}",
+                "ShippingAddress": "{{ SHIPPING_ADDRESS }}",
+                "DeliveryEstimate": "{{ DELIVERY_DATE }}",
+                "TrackingNumber": "{{ TRACKING_NUMBER }}",
+                "PaymentMethod": "{{ PAYMENT_METHOD }}",
+                "CategoryPurchased": "{{ PURCHASED_CATEGORIES }}"
+              },
+              "occurred_at": "{{ ISO_8601_TIMESTAMP }}",
+              "value": "{{ ORDER_SUBTOTAL }}"
+            }
+          }
+        }
+      },
+      {
+        "flowId": "flow_loyalty_engagement",
+        "flowName": "Loyalty & Tier Progression",
+        "triggerType": "event_based",
+        "description": "Manages loyalty program tier progression and exclusive benefits",
+        "status": "active",
+        "priority": 4,
+        "steps": [
+          {
+            "stepId": "step_1",
+            "type": "trigger",
+            "action": "receive_metric",
+            "eventName": "Loyalty Points Earned",
+            "conditions": {
+              "thresholds": [
+                {
+                  "tier": "Silver",
+                  "pointsRequired": 500
+                },
+                {
+                  "tier": "Gold",
+                  "pointsRequired": 1500
+                },
+                {
+                  "tier": "Platinum",
+                  "pointsRequired": 3000
+                }
+              ]
+            }
+          },
+          {
+            "stepId": "step_2",
+            "type": "condition",
+            "action": "check_tier_qualification",
+            "branches": {
+              "qualifiedForUpgrade": "step_3",
+              "noUpgrade": "step_7"
+            }
+          },
+          {
+            "stepId": "step_3",
+            "type": "action",
+            "action": "update_profile",
+            "description": "Upgrade customer tier",
+            "updateFields": {
+              "LoyaltyTier": "{{ NEW_TIER }}",
+              "TierUpgradeDate": "{{ UPGRADE_DATE }}",
+              "TierBenefitsUnlocked": "{{ TIER_BENEFITS }}"
+            }
+          },
+          {
+            "stepId": "step_4",
+            "type": "action",
+            "action": "segment_assignment",
+            "description": "Add to new tier segment",
+            "segments": ["Loyalty - {{ NEW_TIER }} Tier"]
+          },
+          {
+            "stepId": "step_5",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_TIER_UPGRADE }}",
+            "description": "Celebrate tier upgrade",
+            "personalization": {
+              "newTier": "{{ NEW_TIER }}",
+              "tierBenefits": "{{ TIER_BENEFITS_LIST }}",
+              "exclusiveOffer": "{{ TIER_EXCLUSIVE_OFFER }}"
+            }
+          },
+          {
+            "stepId": "step_6",
+            "type": "action",
+            "action": "send_sms",
+            "smsTemplateId": "{{ SMS_TEMPLATE_TIER_UPGRADE }}",
+            "description": "SMS notification of tier upgrade"
+          },
+          {
+            "stepId": "step_7",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_LOYALTY_PROGRESS }}",
+            "description": "Send loyalty progress update",
+            "personalization": {
+              "currentTier": "{{ CURRENT_TIER }}",
+              "pointsProgress": "{{ POINTS_TO_NEXT_TIER }}",
+              "nextMilestone": "{{ NEXT_TIER_THRESHOLD }}"
+            }
+          },
+          {
+            "stepId": "step_8",
+            "type": "action",
+            "action": "flow_end_success",
+            "description": "Loyalty engagement sequence completed"
+          }
+        ]
+      },
+      {
+        "flowId": "flow_reactivation",
+        "flowName": "Customer Reactivation",
+        "triggerType": "scheduled",
+        "description": "Re-engages inactive customers",
+        "status": "active",
+        "priority": 5,
+        "triggerSchedule": "monthly",
+        "steps": [
+          {
+            "stepId": "step_1",
+            "type": "trigger",
+            "action": "check_inactivity",
+            "criteria": {
+              "daysSinceLastOrder": 90,
+              "daysSinceLastEmail": 60
+            }
+          },
+          {
+            "stepId": "step_2",
+            "type": "action",
+            "action": "segment_assignment",
+            "segments": ["Inactive Customers - 90+ Days"]
+          },
+          {
+            "stepId": "step_3",
+            "type": "delay",
+            "duration": "1 day"
+          },
+          {
+            "stepId": "step_4",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_REACTIVATION_1 }}",
+            "description": "First reactivation email",
+            "personalization": {
+              "lastPurchasedProduct": "{{ LAST_PRODUCT_NAME }}",
+              "timeElapsed": "{{ TIME_SINCE_PURCHASE }}"
+            }
+          },
+          {
+            "stepId": "step_5",
+            "type": "delay",
+            "duration": "7 days"
+          },
+          {
+            "stepId": "step_6",
+            "type": "action",
+            "action": "send_email",
+            "emailTemplateId": "{{ EMAIL_TEMPLATE_REACTIVATION_INCENTIVE }}",
+            "description": "Send incentive offer",
+            "personalization": {
+              "discountCode": "{{ REACTIVATION_DISCOUNT_CODE }}",
+              "discountAmount": 15
+            }
+          },
+          {
+            "stepId": "step_7",
+            "type": "condition",
+            "action": "check_conversion",
+            "branches": {
+              "reactivated": "step_8",
+              "stillInactive": "step_9"
+            }
+          },
+          {
+            "stepId": "step_8",
+            "type": "action",
+            "action": "flow_end_success",
+            "description": "Customer reactivated"
+          },
+          {
+            "stepId": "step_9",
+            "type": "action",
+            "action": "send_sms",
+            "smsTemplateId": "{{ SMS_TEMPLATE_REACTIVATION }}",
+            "description": "Final SMS reactivation attempt"
+          }
+        ]
+      }
+    ],
+    "webhookConfiguration": {
+      "baseURL": "https://nomad-soul-webhooks.com/klaviyo",
+      "version": "v3",
+      "authentication": {
+        "method": "bearer_token",
+        "tokenLocation": "Authorization header",
+        "refreshStrategy": "automatic"
+      },
+      "retryPolicy": {
+        "maxRetries": 3,
+        "backoffStrategy": "exponential",
+        "retryDelaySeconds": [5, 15, 45]
+      },
+      "rateLimit": {
+        "requestsPerSecond": 100,
+        "burst": 500
+      },
+      "endpoints": [
+        {
+          "eventType": "started_checkout",
+          "path": "/checkout/started",
+          "method": "POST",
+          "expectedStatusCode": 202
+        },
+        {
+          "eventType": "browse_abandonment",
+          "path": "/browse/abandonment",
+          "method": "POST",
+          "expectedStatusCode": 202
+        },
+        {
+          "eventType": "order_completed",
+          "path": "/order/completed",
+          "method": "POST",
+          "expectedStatusCode": 202
+        },
+        {
+          "eventType": "loyalty_update",
+          "path": "/loyalty/update",
+          "method": "POST",
+          "expectedStatusCode": 202
+        }
+      ],
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{ KLAVIYO_API_KEY }}",
+        "X-Webhook-Signature": "{{ HMAC_SHA256_SIGNATURE }}",
+        "User-Agent": "Nomad-Soul-Integration/1.0"
+      }
+    },
+    "integrationEndpoints": {
+      "shopify": {
+        "webhookEndpoint": "https://nomad-soul-webhooks.com/shopify/events",
+        "events": [
+          "checkouts/create",
+          "orders/create",
+          "orders/updated",
+          "customers/create"
+        ]
+      },
+      "klaviyo": {
+        "baseURL": "https://a.klaviyo.com/api/v3",
+        "endpoints": {
+          "trackEvent": "/events",
+          "updateProfile": "/profiles",
+          "getSegments": "/segments",
+          "getFlows": "/flows"
+        }
+      }
+    },
+    "dataMapping": {
+      "shopifyToKlaviyo": {
+        "cartCheckout": {
+          "source": "shopify.checkout",
+          "destination": "klaviyo.event.started_checkout",
+          "mapping": {
+            "checkoutId": "properties.CheckoutID",
+            "cartId": "properties.CartID",
+            "cartValue": "value",
+            "lineItems": "properties.Items",
+            "customerEmail": "profile.data.attributes.email"
+          }
+        },
+        "productView": {
+          "source": "shopify.product.view",
+          "destination": "klaviyo.event.browse",
+          "mapping": {
+            "productId": "properties.ProductID",
+            "productName": "properties.ProductName",
+            "category": "properties.Categories"
+          }
+        },
+        "orderCreation": {
+          "source": "shopify.order.create",
+          "destination": "klaviyo.event.order_completed",
+          "mapping": {
+            "orderId": "properties.OrderID",
+            "orderValue": "value",
+            "lineItems": "properties.Items",
+            "customerEmail": "profile.data.attributes.email"
+          }
+        }
+      }
+    },
+    "errorHandling": {
+      "strategies": [
+        {
+          "errorCode": 400,
+          "type": "validation_error",
+          "action": "log_and_notify",
+          "notification": "admin@nomad-soul.com"
+        },
+        {
+          "errorCode": 401,
+          "type": "authentication_error",
+          "action": "refresh_token"
+        },
+        {
+          "errorCode": 429,
+          "type": "rate_limit",
+          "action": "exponential_backoff"
+        },
+        {
+          "errorCode": 500,
+          "type": "server_error",
+          "action": "retry_with_backoff"
+        }
+      ]
+    }
+  }
+}
