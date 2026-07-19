@@ -1134,7 +1134,7 @@ a.app-kaart:hover { border-color: rgba(188,122,92,0.4); box-shadow: 0 8px 24px r
     const sub = document.getElementById('webshop-status-sub');
     const defaultNote = 'Status wordt automatisch bepaald.';
     try {
-      const dataRes = await fetch('../config/dashboard_data.json', { cache: 'no-store' });
+      const dataRes = await fetch('/config/dashboard_data.json', { cache: 'no-store' });
       if (dataRes.ok) {
         const payload = await dataRes.json();
         const shop = payload.webshop || {};
