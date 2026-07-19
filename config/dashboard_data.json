@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "lastSynced": "2026-07-19T09:05:47Z",
+    "source": "dashboard_data.json",
+    "updatedBy": "dashboard_sync.py"
+  },
+  "webshop": {
+    "name": "Webshop",
+    "url": "https://nomadandsoul.nl",
+    "status": "Online",
+    "note": "Live URL-check succesvol."
+  },
+  "channels": {
+    "webshop": {
+      "name": "Webshop",
+      "status": "Online",
+      "url": "https://nomadandsoul.nl"
+    },
+    "email": {
+      "name": "E-mail",
+      "status": "Actief",
+      "contact": "info@nomadandsoul.nl"
+    },
+    "social": {
+      "name": "Social",
+      "status": "Actief",
+      "networks": [
+        "Instagram",
+        "TikTok",
+        "Facebook"
+      ]
+    }
+  },
+  "marketing": {
+    "status": "Actief",
+    "focus": [
+      "Nieuwsbrief",
+      "Collectiecampagnes",
+      "Performance Ads"
+    ],
+    "nextCampaign": "Collectieherfst 2026"
+  }
+}
