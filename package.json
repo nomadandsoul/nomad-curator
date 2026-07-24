@@ -1,0 +1,9 @@
+{
+  "name": "nomad-curator",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Nomad & Soul Operations Dashboard — static site + serverless API for the EU Boho dropship scraper skill.",
+  "engines": {
+    "node": ">=18"
+  }
+}

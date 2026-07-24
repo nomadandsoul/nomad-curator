@@ -833,13 +833,16 @@ function kwaliteitKlasse(kwaliteit) {
 function renderScrapeResultaten(data, minLevering) {
   const sub = document.getElementById('scrape-modal-sub');
   const bronLabel = {
-    'live-composio': '✅ Live resultaten via Composio → Apify',
-    'live-apify': '✅ Live resultaten via Apify',
-    'demo': 'ℹ️ Voorbeeldresultaten (demo-modus) — koppel Composio/Apify API-sleutels in NomadBohoScraper.saveConfig() voor live data',
-    'demo-fallback': `⚠️ Live scrape mislukt (${data.error || 'onbekende fout'}) — voorbeeldresultaten getoond`
+    'live-composio': '✅ Live resultaten via de backend (Composio → Apify)',
+    'live-apify': '✅ Live resultaten via de backend (Apify)',
+    'demo': 'ℹ️ Voorbeeldresultaten — backend draait, maar server-omgevingsvariabelen (COMPOSIO_API_KEY / APIFY_TOKEN) zijn nog niet ingesteld',
+    'demo-fallback': `⚠️ Live scrape op de backend mislukt (${data.error || 'onbekende fout'}) — voorbeeldresultaten getoond`,
+    'offline-fallback': `⚠️ Backend-endpoint niet bereikbaar (${data.error || 'netwerkfout'}) — lokale voorbeelddata getoond`,
+    'error': '⚠️ Backend gaf een fout — voorbeeldresultaten getoond'
   };
+  const demoBronnen = ['demo', 'demo-fallback', 'offline-fallback', 'error'];
   sub.textContent = bronLabel[data.source] || '';
-  sub.className = 'scrape-modal-sub' + (data.source === 'demo' || data.source === 'demo-fallback' ? ' demo' : '');
+  sub.className = 'scrape-modal-sub' + (demoBronnen.includes(data.source) ? ' demo' : '');
 
   const gefilterd = data.results.filter((r) => levertijdCijfer(r.levertijd) <= minLevering || levertijdCijfer(r.levertijd) === 99);
   const teTonen = gefilterd.length ? gefilterd : data.results;
